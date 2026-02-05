@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
@@ -20,28 +19,25 @@
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
         select option { background: #111827; color: white; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-6 rounded-3xl border border-white/10">
-            <div class="text-center mb-6">
-                <h1 class="text-2xl font-extrabold tracking-tighter text-white uppercase">ProTrade</h1>
-            </div>
+            <h1 class="text-2xl font-extrabold text-center mb-6 uppercase tracking-tighter">ProTrade</h1>
             <div class="flex bg-black/40 p-1 rounded-xl mb-6">
                 <button id="loginTab" onclick="switchTab('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
                 <button id="regTab" onclick="switchTab('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
             </div>
-            <div id="authForm" class="space-y-4">
-                <div id="regFields" class="space-y-4">
-                    <select class="auth-input"><option>Pakistan</option><option>India</option><option>UAE</option></select>
-                    <select class="auth-input"><option>USDT</option></select>
+            <div class="space-y-4">
+                <div id="regFields">
+                    <select class="auth-input mb-4"><option>Pakistan</option><option>India</option></select>
+                    <select class="auth-input mb-4"><option>USDT</option></select>
                 </div>
                 <input type="email" id="userEmail" placeholder="Email" class="auth-input">
                 <input type="password" id="userPass" placeholder="Password" class="auth-input">
-                <button onclick="handleAuth()" id="authBtn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-sm uppercase">Registration</button>
+                <button onclick="handleAuth()" id="authBtn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-sm uppercase font-bold tracking-wider">Registration</button>
             </div>
         </div>
     </div>
@@ -49,7 +45,7 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase" id="userInitial">U</div>
+                <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase" id="userInitial">?</div>
                 <div>
                     <p class="text-[8px] text-gray-400 font-bold uppercase">REAL BALANCE</p>
                     <h1 id="balanceDisp" class="text-xl font-extrabold text-white tracking-tight">$0.00</h1>
@@ -57,7 +53,7 @@
             </div>
             <div class="flex gap-2">
                 <button onclick="showM('depM')" class="bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">DEPOSIT</button>
-                <button onclick="handleLogout()" class="bg-white/10 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">LOGOUT</button>
+                <button onclick="auth.signOut()" class="bg-white/10 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">LOGOUT</button>
             </div>
         </header>
 
@@ -65,36 +61,31 @@
             <div class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex items-center justify-between">
                 <span class="text-[9px] text-gray-500 font-bold uppercase">Select Asset</span>
                 <select id="assetSelect" onchange="updateAsset(this.value)" class="bg-transparent text-yellow-500 font-black text-xs outline-none">
-                    <optgroup label="Crypto">
-                        <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-                        <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                        <option value="BINANCE:SOLUSDT">SOL/USDT</option>
-                        <option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                    </optgroup>
-                    <optgroup label="Forex">
-                        <option value="FX:EURUSD">EUR/USD</option>
-                        <option value="FX:GBPUSD">GBP/USD</option>
-                        <option value="FX:USDJPY">USD/JPY</option>
-                    </optgroup>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                    <option value="FX:EURUSD">EUR/USD</option>
+                    <option value="OANDA:XAUUSD">GOLD</option>
                 </select>
             </div>
         </div>
 
         <main class="relative flex-grow rounded-2xl overflow-hidden border border-gray-800 bg-black mb-2">
             <div id="tv_chart" class="h-full w-full"></div>
-            <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[9px] font-black z-50">Wait...</div>
+            <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[9px] font-black z-50 uppercase">Trade Active...</div>
         </main>
 
-        <footer id="tradeControls" class="glass-card p-3 rounded-2xl">
+        <footer class="glass-card p-3 rounded-2xl">
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
                     <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">AMOUNT</span>
-                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-bold text-base w-full text-white">
+                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-bold text-white w-full">
                 </div>
                 <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">DURATION</span>
-                    <select id="duration" class="bg-transparent font-bold text-sm outline-none text-white w-full">
-                        <option value="10">10 Sec</option>
+                    <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">TIME</span>
+                    <select id="duration" class="bg-transparent font-bold text-white w-full outline-none">
+                        <option value="5">5 Sec</option>
+                        <option value="15">15 Sec</option>
                         <option value="30">30 Sec</option>
                         <option value="60">1 Min</option>
                         <option value="300">5 Min</option>
@@ -106,33 +97,35 @@
                 <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white text-sm uppercase">PUT</button>
             </div>
         </footer>
-        <div id="history" class="mt-2 px-1 overflow-y-auto max-h-16 no-scrollbar"></div>
     </div>
 
-    <div id="depM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center">
-        <div id="depStep1">
-            <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit USDT (TRC20)</h2>
-            <div class="bg-white p-2 rounded-xl mb-4 w-40 mx-auto">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR">
+    <div id="depM" class="modal">
+        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center border border-white/10">
+            <div id="depStep1">
+                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit USDT (TRC20)</h2>
+                <div class="bg-white p-2 rounded-xl mb-4 w-40 mx-auto">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR Code">
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl mb-4 flex items-center justify-between">
+                    <code class="text-[10px] text-white truncate pr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</code>
+                    <button onclick="copyAddr()" class="text-yellow-500 font-bold text-[10px] uppercase shrink-0">Copy</button>
+                </div>
+                <button onclick="showDepForm()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">I Have Paid</button>
+                <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
             </div>
-            <div class="bg-black/50 p-3 rounded-xl mb-4 flex items-center justify-between">
-                <code class="text-[10px] text-white truncate pr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</code>
-                <button onclick="copyAddr()" class="text-yellow-500 font-bold text-[10px] uppercase">Copy</button>
+
+            <div id="depStep2" class="hidden text-left">
+                <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Payment Details</h2>
+                <div class="space-y-3">
+                    <input type="number" id="depAmount" placeholder="Sent Amount ($)" class="auth-input">
+                    <input type="text" id="userTg" placeholder="Telegram ID (@username)" class="auth-input">
+                    <input type="text" id="txid" placeholder="TXID / Transaction ID" class="auth-input">
+                    <button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit Proof</button>
+                    <button onclick="showDepStep1()" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-2">Back</button>
+                </div>
             </div>
-            <button onclick="showDepForm()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">I Have Paid</button>
-            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
-        <div id="depStep2" class="hidden text-left">
-            <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Payment Details</h2>
-            <div class="space-y-3">
-                <input type="number" id="depAmount" placeholder="Amount Sent ($)" class="auth-input">
-                <input type="text" id="userTg" placeholder="Telegram ID (@username)" class="auth-input">
-                <input type="text" id="txid" placeholder="Transaction ID (TXID)" class="auth-input">
-                <button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit Proof</button>
-                <button onclick="showDepStep1()" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-2">Back</button>
-            </div>
-        </div>
-    </div></div>
+    </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
@@ -147,52 +140,48 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
         let userData = null;
         let mode = 'reg';
         let isActive = false;
         let currentSymbol = 'BINANCE:BTCUSDT';
 
-        // Persist Login: Refresh hone par check karega
+        function switchTab(t) {
+            mode = t;
+            document.getElementById('loginTab').classList.toggle('active', t === 'login');
+            document.getElementById('regTab').classList.toggle('active', t === 'reg');
+            document.getElementById('regFields').style.display = (t === 'login' ? 'none' : 'block');
+            document.getElementById('authBtn').innerText = (t === 'login' ? 'Login' : 'Registration');
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('userEmail').value.trim();
+            const pass = document.getElementById('userPass').value.trim();
+            if(!email || !pass) return alert("Fill all details!");
+            try {
+                if(mode === 'reg') {
+                    const res = await auth.createUserWithEmailAndPassword(email, pass);
+                    await db.collection('users').doc(res.user.uid).set({ email, balance: 0.00, status: 'active' });
+                    alert("Account Created! Use Login Tab.");
+                    switchTab('login');
+                } else { await auth.signInWithEmailAndPassword(email, pass); }
+            } catch(e) { alert(e.message); }
+        }
+
         auth.onAuthStateChanged(user => {
-            if (user) {
+            if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
-                    if(userData) {
-                        document.getElementById('balanceDisp').innerText = "$" + userData.balance.toLocaleString(undefined, {minimumFractionDigits: 2});
-                        document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
-                        if(!document.querySelector('iframe')) loadChart();
-                    }
+                    document.getElementById('balanceDisp').innerText = "$" + (userData?.balance || 0).toFixed(2);
+                    document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('appTerminal').style.display = 'flex';
+                    loadChart();
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
             }
         });
-
-        function switchTab(t) {
-            mode = t;
-            document.getElementById('loginTab').classList.toggle('active', t === 'login');
-            document.getElementById('regTab').classList.toggle('active', t === 'reg');
-            document.getElementById('regFields').classList.toggle('hidden', t === 'login');
-            document.getElementById('authBtn').innerText = t === 'login' ? 'Login' : 'Registration';
-        }
-
-        async function handleAuth() {
-            const email = document.getElementById('userEmail').value.trim();
-            const pass = document.getElementById('userPass').value.trim();
-            if(!email || !pass) return alert("Details bharien");
-            try {
-                if(mode === 'reg') {
-                    const res = await auth.createUserWithEmailAndPassword(email, pass);
-                    await db.collection('users').doc(res.user.uid).set({ email, balance: 0.00, status: 'active' });
-                    alert("Account Created! Login now.");
-                    switchTab('login');
-                } else { await auth.signInWithEmailAndPassword(email, pass); }
-            } catch(e) { alert(e.message); }
-        }
 
         function loadChart() {
             new TradingView.widget({
@@ -201,32 +190,31 @@
             });
         }
 
-        function updateAsset(val) { if(!isActive) { currentSymbol = val; loadChart(); } }
+        function updateAsset(val) { currentSymbol = val; loadChart(); }
 
         async function initTrade(type) {
-            if(userData.status === 'blocked') return alert("Account Blocked!");
+            if(userData.status === 'blocked') return alert("Account Blocked by Admin!");
             const amt = parseFloat(document.getElementById('tradeAmt').value);
             const dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || isActive || amt <= 0) return alert("Check balance/amount");
-            
+            if(!userData || amt > userData.balance || isActive || amt <= 0) return alert("Invalid Amount/Balance");
+
             isActive = true;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
-            
+
             const status = document.getElementById('statusBox');
             status.classList.remove('hidden');
             let sec = dur;
             const timer = setInterval(async () => {
-                sec--; status.innerText = `EXPIRING: ${sec}s`;
+                sec--;
+                status.innerText = `EXPIRING: ${sec}s`;
                 if(sec <= 0) {
                     clearInterval(timer);
-                    const win = Math.random() > 0.48;
-                    if(win) await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(amt * 1.82) });
-                    
-                    const item = document.createElement('div');
-                    item.className = "glass-card p-2 rounded-lg flex justify-between items-center mb-1 border-l-2 " + (win ? "border-green-500" : "border-red-500");
-                    item.innerHTML = `<span class="text-[9px] font-bold text-gray-300 uppercase">${currentSymbol.split(':')[1]} | ${type}</span><span class="text-[10px] font-black ${win?'text-green-500':'text-red-500'}">${win?'+':'-'}$${(win?amt*0.82:amt).toFixed(2)}</span>`;
-                    document.getElementById('history').prepend(item);
+                    const win = Math.random() > 0.50;
+                    if(win) await db.collection('users').doc(auth.currentUser.uid).update({ 
+                        balance: firebase.firestore.FieldValue.increment(amt * 1.85) 
+                    });
                     isActive = false; status.classList.add('hidden');
+                    alert(win ? "PROFIT!" : "LOSS!");
                 }
             }, 1000);
         }
@@ -234,20 +222,22 @@
         function showDepForm() { document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.remove('hidden'); }
         function showDepStep1() { document.getElementById('depStep1').classList.remove('hidden'); document.getElementById('depStep2').classList.add('hidden'); }
         function copyAddr() { navigator.clipboard.writeText("TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM"); alert("Address Copied!"); }
-        
+
         async function finalSubmitDeposit() {
             const amt = document.getElementById('depAmount').value;
             const tg = document.getElementById('userTg').value;
             const tx = document.getElementById('txid').value;
-            if(!amt || !tg || !tx) return alert("Sari details bharien!");
+            if(!amt || !tg || !tx) return alert("Bhai saari details bharien!");
+
             await db.collection('requests').add({
                 uid: auth.currentUser.uid, email: auth.currentUser.email,
-                telegram: tg, txid: tx, amount: parseFloat(amt), status: 'pending', time: Date.now()
+                telegram: tg, txid: tx, amount: parseFloat(amt),
+                status: 'pending', time: Date.now()
             });
-            alert("Proof Submitted!"); hideM('depM'); showDepStep1();
+            alert("Sent! Wait for Admin Approval.");
+            hideM('depM'); showDepStep1();
         }
 
-        function handleLogout() { auth.signOut(); }
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
     </script>
