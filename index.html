@@ -20,24 +20,21 @@
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
         select option { background: #111827; color: white; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-6 rounded-3xl border border-white/10">
-            <div class="text-center mb-6">
-                <h1 class="text-2xl font-extrabold tracking-tighter text-white uppercase">ProTrade</h1>
-            </div>
+            <h1 class="text-2xl font-extrabold text-center mb-6 uppercase tracking-tighter">ProTrade</h1>
             <div class="flex bg-black/40 p-1 rounded-xl mb-6">
                 <button id="loginTab" onclick="switchTab('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
                 <button id="regTab" onclick="switchTab('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
             </div>
-            <div id="authForm" class="space-y-4">
-                <div id="regFields" class="space-y-4">
-                    <select class="auth-input"><option>Pakistan</option><option>India</option><option>UAE</option></select>
-                    <select class="auth-input"><option>USDT</option></select>
+            <div class="space-y-4">
+                <div id="regFields">
+                    <select class="auth-input mb-4"><option>Pakistan</option><option>India</option></select>
+                    <select class="auth-input mb-4"><option>USDT</option></select>
                 </div>
                 <input type="email" id="userEmail" placeholder="Email" class="auth-input">
                 <input type="password" id="userPass" placeholder="Password" class="auth-input">
@@ -49,7 +46,7 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase" id="userInitial">U</div>
+                <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase" id="userInitial">?</div>
                 <div>
                     <p class="text-[8px] text-gray-400 font-bold uppercase">REAL BALANCE</p>
                     <h1 id="balanceDisp" class="text-xl font-extrabold text-white tracking-tight">$0.00</h1>
@@ -67,6 +64,12 @@
                 <select id="assetSelect" onchange="updateAsset(this.value)" class="bg-transparent text-yellow-500 font-black text-xs outline-none">
                     <option value="BINANCE:BTCUSDT">BTC/USDT</option>
                     <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                    <option value="FX:EURUSD">EUR/USD</option>
+                    <option value="FX:GBPUSD">GBP/USD</option>
+                    <option value="FX:USDJPY">USD/JPY</option>
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
                 </select>
             </div>
         </div>
@@ -76,17 +79,21 @@
             <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[9px] font-black z-50">Wait...</div>
         </main>
 
-        <footer id="tradeControls" class="glass-card p-3 rounded-2xl">
+        <footer class="glass-card p-3 rounded-2xl">
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
                     <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">AMOUNT</span>
-                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-bold text-base w-full text-white">
+                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-bold text-white w-full">
                 </div>
                 <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
                     <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">DURATION</span>
-                    <select id="duration" class="bg-transparent font-bold text-sm outline-none text-white w-full">
+                    <select id="duration" class="bg-transparent font-bold text-white w-full outline-none">
+                        <option value="5">5 Sec</option>
+                        <option value="10">10 Sec</option>
                         <option value="30">30 Sec</option>
                         <option value="60">1 Min</option>
+                        <option value="120">2 Min</option>
+                        <option value="300">5 Min</option>
                     </select>
                 </div>
             </div>
@@ -98,16 +105,15 @@
     </div>
 
     <div id="depM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center">
-        <h2 class="text-lg font-bold mb-4">Deposit</h2>
+        <h2 class="text-lg font-bold mb-4 uppercase">Deposit USDT</h2>
         <input type="number" id="depAmountInput" placeholder="Enter Amount" class="auth-input mb-4 text-center">
-        <p class="text-[10px] text-gray-400 mb-4">Address (TRC20): <br><b class="text-white">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</b></p>
+        <p class="text-[10px] text-gray-400 mb-4">Network: TRC20 <br><b class="text-white">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</b></p>
         <button onclick="submitDeposit()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-[10px] uppercase">I Have Paid</button>
-        <button onclick="hideM('depM')" class="mt-2 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold">CANCEL</button>
     </div></div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50",
             authDomain: "waqas-47f30.firebaseapp.com",
@@ -129,29 +135,24 @@
             mode = t;
             document.getElementById('loginTab').classList.toggle('active', t === 'login');
             document.getElementById('regTab').classList.toggle('active', t === 'reg');
-            document.getElementById('regFields').classList.toggle('hidden', t === 'login');
-            document.getElementById('authBtn').innerText = t === 'login' ? 'Login' : 'Registration';
+            document.getElementById('regFields').style.display = (t === 'login' ? 'none' : 'block');
+            document.getElementById('authBtn').innerText = (t === 'login' ? 'Login' : 'Registration');
         }
 
         async function handleAuth() {
             const email = document.getElementById('userEmail').value.trim();
             const pass = document.getElementById('userPass').value.trim();
-            if(!email || !pass) return alert("Please fill details");
-
+            if(!email || !pass) return alert("Fill all details!");
             try {
                 if(mode === 'reg') {
                     const res = await auth.createUserWithEmailAndPassword(email, pass);
                     await db.collection('users').doc(res.user.uid).set({ email, balance: 0.00 });
-                    alert("Account Created! Now Login.");
+                    alert("Account Created! Use Login Tab.");
                     switchTab('login');
                 } else {
                     await auth.signInWithEmailAndPassword(email, pass);
                 }
-            } catch(e) {
-                if(e.code === 'auth/email-already-in-use') alert("Bhai ye email pehle se hai! Login karein.");
-                else if(e.code === 'auth/quota-exceeded') alert("Limit khatam! 30 mins wait karein.");
-                else alert(e.message);
-            }
+            } catch(e) { alert(e.message); }
         }
 
         auth.onAuthStateChanged(user => {
@@ -181,11 +182,28 @@
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value);
-            if(amt > userData.balance || isActive) return alert("Check balance!");
+            const dur = parseInt(document.getElementById('duration').value);
+            if(!userData || amt > userData.balance || isActive || amt <= 0) return alert("Check Balance/Amount!");
+
             isActive = true;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
-            // ... (Timer logic same as before)
-            isActive = false;
+
+            const status = document.getElementById('statusBox');
+            status.classList.remove('hidden');
+            let sec = dur;
+            const timer = setInterval(async () => {
+                sec--;
+                status.innerText = `EXPIRING: ${sec}s`;
+                if(sec <= 0) {
+                    clearInterval(timer);
+                    const win = Math.random() > 0.48; // Simple Random Logic
+                    if(win) await db.collection('users').doc(auth.currentUser.uid).update({ 
+                        balance: firebase.firestore.FieldValue.increment(amt * 1.82) 
+                    });
+                    isActive = false; status.classList.add('hidden');
+                    alert(win ? "YOU WON!" : "YOU LOST!");
+                }
+            }, 1000);
         }
 
         async function submitDeposit() {
@@ -195,7 +213,7 @@
                 uid: auth.currentUser.uid, email: auth.currentUser.email,
                 amount: parseFloat(amt), status: 'pending', time: Date.now()
             });
-            alert("Request sent to Admin!"); hideM('depM');
+            alert("Deposit Request Sent!"); hideM('depM');
         }
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
