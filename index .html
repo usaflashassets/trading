@@ -41,8 +41,8 @@
         <div class="glass-card w-full max-w-sm p-6 rounded-3xl border border-white/10">
             <h1 class="text-2xl font-extrabold text-center mb-6 uppercase tracking-tighter">ProTrade</h1>
             <div class="flex bg-black/40 p-1 rounded-xl mb-6">
-                <button id="loginTab" onclick="switchTab('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
-                <button id="regTab" onclick="switchTab('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
+                <button id="loginTab" onclick="toggleAuthMode('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
+                <button id="regTab" onclick="toggleAuthMode('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
             </div>
             <div class="space-y-4">
                 <div id="regFields">
@@ -51,7 +51,7 @@
                 </div>
                 <input type="email" id="userEmail" placeholder="Email" class="auth-input">
                 <input type="password" id="userPass" placeholder="Password" class="auth-input">
-                <button onclick="handleAuth()" id="authBtn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-sm uppercase font-bold tracking-wider">Registration</button>
+                <button onclick="handleAuthAction()" id="submitBtn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-sm uppercase tracking-wider">Registration</button>
             </div>
         </div>
     </div>
@@ -112,54 +112,11 @@
         </footer>
     </div>
 
-    <div id="depM" class="modal">
-        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center border border-white/10">
-            <div id="depStep0">
-                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit Funds</h2>
-                <input type="number" id="depAmountInput" placeholder="Minimum $10" class="auth-input mb-4 text-center text-lg">
-                <button onclick="goToDepStep1()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Next</button>
-                <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Cancel</button>
-            </div>
-            <div id="depStep1" class="hidden">
-                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">USDT (TRC20)</h2>
-                <div class="bg-white p-2 rounded-xl mb-4 w-40 mx-auto">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR">
-                </div>
-                <div class="bg-black/50 p-3 rounded-xl mb-4 flex items-center justify-between">
-                    <code class="text-[10px] text-white truncate">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</code>
-                    <button onclick="copyAddr()" class="text-yellow-500 font-bold text-[10px] uppercase ml-2">Copy</button>
-                </div>
-                <button onclick="showDepForm()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">I Have Paid</button>
-                <button onclick="resetDep()" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Back</button>
-            </div>
-            <div id="depStep2" class="hidden text-left">
-                <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Submit Proof</h2>
-                <input type="text" id="userTg" placeholder="Telegram ID" class="auth-input mb-3">
-                <input type="text" id="txid" placeholder="TXID" class="auth-input mb-3">
-                <button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit</button>
-            </div>
-        </div>
-    </div>
+    <div id="depM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center border border-white/10"><div id="depStep0"><h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit Funds</h2><input type="number" id="depAmountInput" placeholder="Minimum $10" class="auth-input mb-4 text-center text-lg"><button onclick="goToDepStep1()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Next</button><button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Cancel</button></div><div id="depStep1" class="hidden"><h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">USDT (TRC20)</h2><div class="bg-white p-2 rounded-xl mb-4 w-40 mx-auto"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR"></div><div class="bg-black/50 p-3 rounded-xl mb-4 flex items-center justify-between"><code class="text-[10px] text-white truncate">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</code><button onclick="copyAddr()" class="text-yellow-500 font-bold text-[10px] uppercase ml-2">Copy</button></div><button onclick="showDepForm()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">I Have Paid</button><button onclick="resetDep()" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Back</button></div><div id="depStep2" class="hidden text-left"><h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Submit Proof</h2><input type="text" id="userTg" placeholder="Telegram ID" class="auth-input mb-3"><input type="text" id="txid" placeholder="TXID" class="auth-input mb-3"><button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit</button></div></div></div>
 
-    <div id="witM" class="modal">
-        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10">
-            <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Withdraw</h2>
-            <input type="text" id="witAddress" placeholder="Wallet Address" class="auth-input mb-3">
-            <input type="number" id="witAmount" placeholder="Amount ($)" class="auth-input mb-3">
-            <button onclick="handleWithdraw()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Submit Request</button>
-            <button onclick="hideM('witM')" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-4">Cancel</button>
-        </div>
-    </div>
+    <div id="witM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10"><h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Withdraw</h2><input type="text" id="witAddress" placeholder="Wallet Address" class="auth-input mb-3"><input type="number" id="witAmount" placeholder="Amount ($)" class="auth-input mb-3"><button onclick="handleWithdraw()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Submit Request</button><button onclick="hideM('witM')" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-4">Cancel</button></div></div>
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10">
-            <h2 class="text-lg font-bold mb-6 uppercase text-center text-yellow-500">Account</h2>
-            <input type="text" id="settingEmail" class="auth-input mb-3 opacity-70" readonly>
-            <input type="password" id="settingPass" class="auth-input mb-4" readonly>
-            <button onclick="auth.signOut()" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-xl text-xs uppercase">Logout</button>
-            <button onclick="hideM('settingsM')" class="w-full text-center text-gray-500 text-[10px] font-bold mt-4 uppercase">Close</button>
-        </div>
-    </div>
+    <div id="settingsM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10"><h2 class="text-lg font-bold mb-6 uppercase text-center text-yellow-500">Account</h2><input type="text" id="settingEmail" class="auth-input mb-3 opacity-70" readonly><input type="password" id="settingPass" class="auth-input mb-4" readonly><button onclick="auth.signOut()" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-xl text-xs uppercase">Logout</button><button onclick="hideM('settingsM')" class="w-full text-center text-gray-500 text-[10px] font-bold mt-4 uppercase">Close</button></div></div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
@@ -178,51 +135,41 @@
         let userData = null;
         let isTrading = false;
         let currentSymbol = 'BINANCE:BTCUSDT';
-        let currentTab = 'reg'; // Default to registration
+        let currentMode = 'reg'; // Default mode is Registration
 
-        function switchTab(t) {
-            currentTab = t;
-            document.getElementById('loginTab').classList.toggle('active', t === 'login');
-            document.getElementById('regTab').classList.toggle('active', t === 'reg');
-            document.getElementById('regFields').style.display = (t === 'login' ? 'none' : 'block');
-            document.getElementById('authBtn').innerText = (t === 'login' ? 'Login' : 'Registration');
+        function toggleAuthMode(m) {
+            currentMode = m;
+            document.getElementById('loginTab').classList.toggle('active', m === 'login');
+            document.getElementById('regTab').classList.toggle('active', m === 'reg');
+            document.getElementById('regFields').style.display = (m === 'login' ? 'none' : 'block');
+            document.getElementById('submitBtn').innerText = (m === 'login' ? 'Login' : 'Registration');
         }
 
-        // --- THE FIXED AUTH FUNCTION ---
-        async function handleAuth() {
+        async function handleAuthAction() {
             const email = document.getElementById('userEmail').value.trim();
             const pass = document.getElementById('userPass').value.trim();
-            
             if(!email || !pass) return alert("Please fill all details!");
-            if(pass.length < 6) return alert("Password must be at least 6 characters!");
 
             try {
-                if(currentTab === 'reg') {
-                    // Force clean registration
-                    console.log("Starting Registration...");
+                if(currentMode === 'reg') {
+                    // Force Create Account Logic
                     const res = await auth.createUserWithEmailAndPassword(email, pass);
                     await db.collection('users').doc(res.user.uid).set({ 
-                        email: email, 
+                        email, 
                         password: pass, 
                         balance: 0.00, 
                         status: 'active',
-                        createdAt: Date.now()
+                        time: Date.now()
                     });
-                    alert("Registration Successful! Redirecting...");
-                    // Firebase automatically logs in the user after creation
+                    alert("Account Created! You are being logged in.");
                 } else {
-                    // Clean Login
-                    console.log("Starting Login...");
+                    // Force Login Logic
                     await auth.signInWithEmailAndPassword(email, pass);
                 }
             } catch(e) { 
-                console.error("Auth Error:", e.code);
-                // Handle the specific Firebase error from your screenshot
-                if(e.code === 'auth/invalid-login-credentials') {
-                    alert("Account not found. Please click 'Registration' tab to create a new account.");
-                } else {
-                    alert(e.message);
-                }
+                if(e.code === 'auth/email-already-in-use') alert("Email already exists. Please Login.");
+                else if(e.code === 'auth/invalid-login-credentials') alert("Account not found. Click 'Registration' to create one.");
+                else alert(e.message); 
             }
         }
 
@@ -246,9 +193,7 @@
             }
         });
 
-        function loadChart() {
-            new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true });
-        }
+        function loadChart() { new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true }); }
         function updateAsset(val) { currentSymbol = val; loadChart(); }
 
         async function initTrade(type) {
@@ -256,16 +201,11 @@
             const amt = parseFloat(document.getElementById('tradeAmt').value);
             const dur = parseInt(document.getElementById('duration').value);
             if(!userData || amt > userData.balance || amt <= 0) return alert("Insufficient Balance");
-
             isTrading = true;
-            await db.collection('users').doc(auth.currentUser.uid).update({ 
-                balance: firebase.firestore.FieldValue.increment(-amt) 
-            });
-
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('entryLine').style.borderColor = (type === 'UP' ? '#22c55e' : '#ef4444');
             document.getElementById('entryLine').classList.remove('hidden');
             document.getElementById('statusBox').classList.remove('hidden');
-
             setTimeout(async () => {
                 document.getElementById('entryLine').classList.add('hidden');
                 document.getElementById('statusBox').classList.add('hidden');
@@ -274,9 +214,7 @@
                 if(win) {
                     await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(profit) });
                     showTradeResult(true, profit);
-                } else {
-                    showTradeResult(false, amt);
-                }
+                } else { showTradeResult(false, amt); }
                 isTrading = false;
             }, dur * 1000);
         }
@@ -301,20 +239,23 @@
             if(!addr || amt <= 0 || amt > userData.balance) return alert("Invalid Data");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, address: addr, amount: amt, time: Date.now() });
-            alert("Withdrawal Request Submitted!"); hideM('witM');
+            alert("Submitted!"); hideM('witM');
         }
 
-        function goToDepStep1() {
-            if(document.getElementById('depAmountInput').value < 10) return alert("Minimum deposit is $10");
-            document.getElementById('depStep0').classList.add('hidden');
-            document.getElementById('depStep1').classList.remove('hidden');
-        }
+        function goToDepStep1() { if(document.getElementById('depAmountInput').value < 10) return alert("Min $10"); document.getElementById('depStep0').classList.add('hidden'); document.getElementById('depStep1').classList.remove('hidden'); }
         function resetDep() { document.getElementById('depStep0').classList.remove('hidden'); document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.add('hidden'); }
         function showDepForm() { document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.remove('hidden'); }
-        
         async function finalSubmitDeposit() {
             const tg = document.getElementById('userTg').value;
             const tx = document.getElementById('txid').value;
             const amt = document.getElementById('depAmountInput').value;
-            if(!tg || !tx) return alert("Please provide Telegram ID and TXID");
-            await db
+            if(!tg || !tx) return alert("Fill Proof");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: userData.email, telegram: tg, txid: tx, amount: parseFloat(amt), time: Date.now() });
+            alert("Proof Sent!"); hideM('depM');
+        }
+        function copyAddr() { navigator.clipboard.writeText("TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM"); alert("Copied!"); }
+        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id === 'depM') resetDep(); }
+    </script>
+</body>
+</html>
