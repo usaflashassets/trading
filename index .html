@@ -18,8 +18,6 @@
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
-
-        /* Trade Result Styles */
         .result-overlay { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); }
         .win-glow { text-shadow: 0 0 25px #22c55e; color: #22c55e; }
         .loss-glow { text-shadow: 0 0 25px #ef4444; color: #ef4444; }
@@ -180,28 +178,29 @@
         let userData = null;
         let isTrading = false;
         let currentSymbol = 'BINANCE:BTCUSDT';
+        let currentTab = 'reg'; // Default to registration
 
         function switchTab(t) {
+            currentTab = t;
             document.getElementById('loginTab').classList.toggle('active', t === 'login');
             document.getElementById('regTab').classList.toggle('active', t === 'reg');
             document.getElementById('regFields').style.display = (t === 'login' ? 'none' : 'block');
             document.getElementById('authBtn').innerText = (t === 'login' ? 'Login' : 'Registration');
         }
 
-        // Updated handleAuth with correct registration flow
+        // --- THE FIXED AUTH FUNCTION ---
         async function handleAuth() {
             const email = document.getElementById('userEmail').value.trim();
             const pass = document.getElementById('userPass').value.trim();
-            const isReg = document.getElementById('authBtn').innerText === 'Registration';
-
-            if(!email || !pass) return alert("Fill all details!");
+            
+            if(!email || !pass) return alert("Please fill all details!");
             if(pass.length < 6) return alert("Password must be at least 6 characters!");
 
             try {
-                if(isReg) {
-                    // Registration Flow
+                if(currentTab === 'reg') {
+                    // Force clean registration
+                    console.log("Starting Registration...");
                     const res = await auth.createUserWithEmailAndPassword(email, pass);
-                    // Crucial: Wait for Firestore to create user doc before anything else
                     await db.collection('users').doc(res.user.uid).set({ 
                         email: email, 
                         password: pass, 
@@ -209,14 +208,21 @@
                         status: 'active',
                         createdAt: Date.now()
                     });
-                    alert("Account Created Successfully!");
-                    // No need to switchTab, onAuthStateChanged will handle the rest
-                } else { 
-                    // Login Flow
-                    await auth.signInWithEmailAndPassword(email, pass); 
+                    alert("Registration Successful! Redirecting...");
+                    // Firebase automatically logs in the user after creation
+                } else {
+                    // Clean Login
+                    console.log("Starting Login...");
+                    await auth.signInWithEmailAndPassword(email, pass);
                 }
             } catch(e) { 
-                alert(e.message); 
+                console.error("Auth Error:", e.code);
+                // Handle the specific Firebase error from your screenshot
+                if(e.code === 'auth/invalid-login-credentials') {
+                    alert("Account not found. Please click 'Registration' tab to create a new account.");
+                } else {
+                    alert(e.message);
+                }
             }
         }
 
@@ -249,7 +255,7 @@
             if(isTrading) return;
             const amt = parseFloat(document.getElementById('tradeAmt').value);
             const dur = parseInt(document.getElementById('duration').value);
-            if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Balance");
+            if(!userData || amt > userData.balance || amt <= 0) return alert("Insufficient Balance");
 
             isTrading = true;
             await db.collection('users').doc(auth.currentUser.uid).update({ 
@@ -295,24 +301,20 @@
             if(!addr || amt <= 0 || amt > userData.balance) return alert("Invalid Data");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, address: addr, amount: amt, time: Date.now() });
-            alert("Submitted!"); hideM('witM');
+            alert("Withdrawal Request Submitted!"); hideM('witM');
         }
 
         function goToDepStep1() {
-            if(document.getElementById('depAmountInput').value < 1) return alert("Min $1");
+            if(document.getElementById('depAmountInput').value < 10) return alert("Minimum deposit is $10");
             document.getElementById('depStep0').classList.add('hidden');
             document.getElementById('depStep1').classList.remove('hidden');
         }
         function resetDep() { document.getElementById('depStep0').classList.remove('hidden'); document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.add('hidden'); }
         function showDepForm() { document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.remove('hidden'); }
+        
         async function finalSubmitDeposit() {
             const tg = document.getElementById('userTg').value;
             const tx = document.getElementById('txid').value;
             const amt = document.getElementById('depAmountInput').value;
-            if(!tg || !tx) return alert("Fill Proof");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: userData.email, telegram: tg, txid: tx, amount: parseFloat(amt), time: Date.now() });
-            alert("Proof Sent!"); hideM('depM');
-        }
-        function copyAddr() { navigator.clipboard.writeText("TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM"); alert("Copied!"); }
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hide
+            if(!tg || !tx) return alert("Please provide Telegram ID and TXID");
+            await db
