@@ -18,6 +18,7 @@
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
+
         .result-overlay { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); }
         .win-glow { text-shadow: 0 0 25px #22c55e; color: #22c55e; }
         .loss-glow { text-shadow: 0 0 25px #ef4444; color: #ef4444; }
@@ -41,17 +42,17 @@
         <div class="glass-card w-full max-w-sm p-6 rounded-3xl border border-white/10">
             <h1 class="text-2xl font-extrabold text-center mb-6 uppercase tracking-tighter">ProTrade</h1>
             <div class="flex bg-black/40 p-1 rounded-xl mb-6">
-                <button id="loginTabBtn" onclick="setAuthMode('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
-                <button id="regTabBtn" onclick="setAuthMode('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
+                <button id="loginTab" onclick="switchTab('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
+                <button id="regTab" onclick="switchTab('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
             </div>
             <div class="space-y-4">
-                <div id="regExtraFields">
+                <div id="regFields">
                     <select class="auth-input mb-4"><option>Pakistan</option><option>India</option></select>
                     <select class="auth-input mb-4"><option>USDT</option></select>
                 </div>
-                <input type="email" id="email" placeholder="Email" class="auth-input">
-                <input type="password" id="password" placeholder="Password (Min 6 Chars)" class="auth-input">
-                <button onclick="handleAuthSubmit()" id="mainAuthBtn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-sm uppercase tracking-wider">Registration</button>
+                <input type="email" id="userEmail" placeholder="Email" class="auth-input">
+                <input type="password" id="userPass" placeholder="Password" class="auth-input">
+                <button onclick="handleAuth()" id="authBtn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-sm uppercase font-bold tracking-wider">Registration</button>
             </div>
         </div>
     </div>
@@ -112,9 +113,54 @@
         </footer>
     </div>
 
-    <div id="depM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center border border-white/10"><div id="depStep0"><h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit Funds</h2><input type="number" id="depAmountInput" placeholder="Minimum $10" class="auth-input mb-4 text-center text-lg"><button onclick="goToDepStep1()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Next</button><button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Cancel</button></div><div id="depStep1" class="hidden"><h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">USDT (TRC20)</h2><div class="bg-white p-2 rounded-xl mb-4 w-40 mx-auto"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR"></div><div class="bg-black/50 p-3 rounded-xl mb-4 flex items-center justify-between"><code class="text-[10px] text-white truncate">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</code><button onclick="copyAddr()" class="text-yellow-500 font-bold text-[10px] uppercase ml-2">Copy</button></div><button onclick="showDepForm()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">I Have Paid</button><button onclick="resetDep()" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Back</button></div><div id="depStep2" class="hidden text-left"><h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Submit Proof</h2><input type="text" id="userTg" placeholder="Telegram ID" class="auth-input mb-3"><input type="text" id="txid" placeholder="TXID" class="auth-input mb-3"><button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit</button></div></div></div>
-    <div id="witM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10"><h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Withdraw</h2><input type="text" id="witAddress" placeholder="Wallet Address" class="auth-input mb-3"><input type="number" id="witAmount" placeholder="Amount ($)" class="auth-input mb-3"><button onclick="handleWithdraw()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Submit Request</button><button onclick="hideM('witM')" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-4">Cancel</button></div></div>
-    <div id="settingsM" class="modal"><div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10"><h2 class="text-lg font-bold mb-6 uppercase text-center text-yellow-500">Account</h2><input type="text" id="settingEmail" class="auth-input mb-3 opacity-70" readonly><input type="password" id="settingPass" class="auth-input mb-4" readonly><button onclick="auth.signOut()" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-xl text-xs uppercase">Logout</button><button onclick="hideM('settingsM')" class="w-full text-center text-gray-500 text-[10px] font-bold mt-4 uppercase">Close</button></div></div>
+    <div id="depM" class="modal">
+        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm text-center border border-white/10">
+            <div id="depStep0">
+                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">Deposit Funds</h2>
+                <input type="number" id="depAmountInput" placeholder="Minimum $10" class="auth-input mb-4 text-center text-lg">
+                <button onclick="goToDepStep1()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Next</button>
+                <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Cancel</button>
+            </div>
+            <div id="depStep1" class="hidden">
+                <h2 class="text-lg font-bold mb-4 uppercase text-yellow-500">USDT (TRC20)</h2>
+                <div class="bg-white p-2 rounded-xl mb-4 w-40 mx-auto">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR">
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl mb-4 flex items-center justify-between">
+                    <code class="text-[10px] text-white truncate">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</code>
+                    <button onclick="copyAddr()" class="text-yellow-500 font-bold text-[10px] uppercase ml-2">Copy</button>
+                </div>
+                <button onclick="showDepForm()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">I Have Paid</button>
+                <button onclick="resetDep()" class="mt-4 text-gray-500 text-[10px] font-bold uppercase block w-full">Back</button>
+            </div>
+            <div id="depStep2" class="hidden text-left">
+                <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Submit Proof</h2>
+                <input type="text" id="userTg" placeholder="Telegram ID" class="auth-input mb-3">
+                <input type="text" id="txid" placeholder="TXID" class="auth-input mb-3">
+                <button onclick="finalSubmitDeposit()" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-xs uppercase">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="witM" class="modal">
+        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10">
+            <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Withdraw</h2>
+            <input type="text" id="witAddress" placeholder="Wallet Address" class="auth-input mb-3">
+            <input type="number" id="witAmount" placeholder="Amount ($)" class="auth-input mb-3">
+            <button onclick="handleWithdraw()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Submit Request</button>
+            <button onclick="hideM('witM')" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase mt-4">Cancel</button>
+        </div>
+    </div>
+
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10">
+            <h2 class="text-lg font-bold mb-6 uppercase text-center text-yellow-500">Account</h2>
+            <input type="text" id="settingEmail" class="auth-input mb-3 opacity-70" readonly>
+            <input type="password" id="settingPass" class="auth-input mb-4" readonly>
+            <button onclick="auth.signOut()" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-xl text-xs uppercase">Logout</button>
+            <button onclick="hideM('settingsM')" class="w-full text-center text-gray-500 text-[10px] font-bold mt-4 uppercase">Close</button>
+        </div>
+    </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
@@ -130,60 +176,55 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
-        let authMode = 'reg'; // Default Registration
         let userData = null;
         let isTrading = false;
         let currentSymbol = 'BINANCE:BTCUSDT';
+        let authMode = 'reg'; // Default mode matching UI
 
-        // --- FIXED AUTH LOGIC ---
-        function setAuthMode(m) {
-            authMode = m;
-            document.getElementById('loginTabBtn').classList.toggle('active', m === 'login');
-            document.getElementById('regTabBtn').classList.toggle('active', m === 'reg');
-            document.getElementById('regExtraFields').style.display = (m === 'login' ? 'none' : 'block');
-            document.getElementById('mainAuthBtn').innerText = (m === 'login' ? 'Login' : 'Registration');
+        function switchTab(t) {
+            authMode = t;
+            const authBtn = document.getElementById('authBtn');
+            document.getElementById('loginTab').classList.toggle('active', t === 'login');
+            document.getElementById('regTab').classList.toggle('active', t === 'reg');
+            document.getElementById('regFields').style.display = (t === 'login' ? 'none' : 'block');
+            authBtn.innerText = (t === 'login' ? 'Login' : 'Registration');
         }
 
-        async function handleAuthSubmit() {
-            const emailVal = document.getElementById('email').value.trim();
-            const passVal = document.getElementById('password').value.trim();
-
-            if(!emailVal || !passVal) return alert("Fill all details!");
-            if(passVal.length < 6) return alert("Password should be at least 6 characters!");
+        async function handleAuth() {
+            const email = document.getElementById('userEmail').value.trim();
+            const pass = document.getElementById('userPass').value.trim();
+            if(!email || !pass) return alert("Fill all details!");
 
             try {
                 if(authMode === 'reg') {
-                    // Registration Path
-                    const res = await auth.createUserWithEmailAndPassword(emailVal, passVal);
-                    await db.collection('users').doc(res.user.uid).set({
-                        email: emailVal,
-                        password: passVal,
-                        balance: 0.00,
+                    // CREATE NEW ACCOUNT
+                    const res = await auth.createUserWithEmailAndPassword(email, pass);
+                    await db.collection('users').doc(res.user.uid).set({ 
+                        email: email, 
+                        password: pass, 
+                        balance: 0.00, 
                         status: 'active',
                         createdAt: Date.now()
                     });
-                    alert("Account Created Successfully!");
-                } else {
-                    // Login Path
-                    await auth.signInWithEmailAndPassword(emailVal, passVal);
+                    alert("Registration Successful!");
+                } else { 
+                    // LOGIN EXISTING ACCOUNT
+                    await auth.signInWithEmailAndPassword(email, pass); 
                 }
-            } catch(e) {
-                if(e.code === 'auth/invalid-login-credentials') alert("Account not found. Please click 'Registration' tab to create an account.");
-                else if(e.code === 'auth/email-already-in-use') alert("Email already exists. Please Login.");
-                else alert(e.message);
+            } catch(e) { 
+                alert(e.message); 
             }
         }
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    if(doc.exists) {
-                        userData = doc.data();
-                        document.getElementById('balanceDisp').innerText = "$" + (userData?.balance || 0).toFixed(2);
+                    userData = doc.data();
+                    if(userData) {
+                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
                         document.getElementById('settingEmail').value = user.email;
-                        document.getElementById('settingPass').value = userData?.password || "";
+                        document.getElementById('settingPass').value = userData.password || "";
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         loadChart();
@@ -195,18 +236,22 @@
             }
         });
 
-        // --- TERMINAL FUNCTIONS ---
-        function loadChart() { new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true }); }
+        function loadChart() {
+            new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true });
+        }
         function updateAsset(val) { currentSymbol = val; loadChart(); }
 
         async function initTrade(type) {
             if(isTrading) return;
             const amt = parseFloat(document.getElementById('tradeAmt').value);
             const dur = parseInt(document.getElementById('duration').value);
-            if(!userData || amt > userData.balance || amt <= 0) return alert("Insufficient Balance");
+            if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Balance");
 
             isTrading = true;
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            await db.collection('users').doc(auth.currentUser.uid).update({ 
+                balance: firebase.firestore.FieldValue.increment(-amt) 
+            });
+
             document.getElementById('entryLine').style.borderColor = (type === 'UP' ? '#22c55e' : '#ef4444');
             document.getElementById('entryLine').classList.remove('hidden');
             document.getElementById('statusBox').classList.remove('hidden');
@@ -219,7 +264,9 @@
                 if(win) {
                     await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(profit) });
                     showTradeResult(true, profit);
-                } else { showTradeResult(false, amt); }
+                } else {
+                    showTradeResult(false, amt);
+                }
                 isTrading = false;
             }, dur * 1000);
         }
@@ -227,11 +274,12 @@
         function showTradeResult(win, val) {
             const title = document.getElementById('resTitle');
             const amount = document.getElementById('resAmount');
+            const icon = document.getElementById('resIcon');
             if(win) {
-                document.getElementById('resIcon').innerText = "🏆"; title.innerText = "PROFIT"; title.className = "text-4xl font-black italic win-glow";
+                icon.innerText = "🏆"; title.innerText = "PROFIT"; title.className = "text-4xl font-black italic win-glow";
                 amount.innerText = "+$" + val.toFixed(2); amount.className = "text-5xl font-extrabold win-glow mb-8";
             } else {
-                document.getElementById('resIcon').innerText = "📉"; title.innerText = "LOSS"; title.className = "text-4xl font-black italic loss-glow";
+                icon.innerText = "📉"; title.innerText = "LOSS"; title.className = "text-4xl font-black italic loss-glow";
                 amount.innerText = "-$" + val.toFixed(2); amount.className = "text-5xl font-extrabold loss-glow mb-8";
             }
             showM('resultModal');
@@ -246,11 +294,17 @@
             alert("Submitted!"); hideM('witM');
         }
 
-        function goToDepStep1() { if(document.getElementById('depAmountInput').value < 1) return alert("Min $1"); document.getElementById('depStep0').classList.add('hidden'); document.getElementById('depStep1').classList.remove('hidden'); }
+        function goToDepStep1() {
+            if(document.getElementById('depAmountInput').value < 1) return alert("Min $1");
+            document.getElementById('depStep0').classList.add('hidden');
+            document.getElementById('depStep1').classList.remove('hidden');
+        }
         function resetDep() { document.getElementById('depStep0').classList.remove('hidden'); document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.add('hidden'); }
         function showDepForm() { document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.remove('hidden'); }
         async function finalSubmitDeposit() {
-            const tg = document.getElementById('userTg').value, tx = document.getElementById('txid').value, amt = document.getElementById('depAmountInput').value;
+            const tg = document.getElementById('userTg').value;
+            const tx = document.getElementById('txid').value;
+            const amt = document.getElementById('depAmountInput').value;
             if(!tg || !tx) return alert("Fill Proof");
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: userData.email, telegram: tg, txid: tx, amount: parseFloat(amt), time: Date.now() });
             alert("Proof Sent!"); hideM('depM');
