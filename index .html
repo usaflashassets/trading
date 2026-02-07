@@ -3,225 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ProTrade Global | Elite Terminal</title>
+    <title>ProTrade Global | Live Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
-        .glass-card { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
-        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; }
-        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
-        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
-
-        /* Floating Timer Styling jaisa Image me he */
-        #floatingTimer { display: none; position: absolute; bottom: 80px; right: 20px; background: #ffcc00; color: #000; padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 14px; z-index: 60; box-shadow: 0 4px 15px rgba(255,204,0,0.4); align-items: center; gap: 5px; }
-        
-        /* Result Popup Styling */
-        .result-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; text-align: center; }
-        .result-card { background: #1a1f29; border-radius: 30px; padding: 40px 20px; width: 85%; max-w: 320px; border: 1px solid rgba(255,255,255,0.1); }
+        body { background: #0b0e14; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
+        #authWrapper { position: fixed; inset: 0; z-index: 9999; background: #0b0e14; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #1c222d; border: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 360px; border-radius: 24px; padding: 24px; }
+        .input-box { position: relative; border: 1px solid #3d4452; border-radius: 12px; padding: 12px; background: transparent; margin-bottom: 16px; }
+        .input-box label { position: absolute; top: -10px; left: 12px; background: #1c222d; padding: 0 5px; font-size: 11px; color: #848e9c; font-weight: 600; }
+        .input-box input, .input-box select { background: transparent; border: none; width: 100%; color: white; outline: none; font-size: 14px; }
+        .tab-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: 700; border-radius: 10px; color: #848e9c; }
+        .tab-btn.active { background: #3d4452; color: white; }
+        #mainTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
+        .btn-up { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
+        .btn-down { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
     </style>
 </head>
 <body>
-
-    <div id="authSection" class="h-full flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm p-6 rounded-3xl border border-white/10">
-            <h1 class="text-2xl font-extrabold text-center mb-6 uppercase tracking-tighter">ProTrade</h1>
-            <div class="flex bg-black/40 p-1 rounded-xl mb-6">
-                <button id="loginTab" onclick="switchTab('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
-                <button id="regTab" onclick="switchTab('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
+    <div id="authWrapper">
+        <div class="auth-card">
+            <div class="flex bg-[#0b0e14] p-1 rounded-xl mb-6">
+                <button id="tabLogin" onclick="setAuthMode('login')" class="tab-btn active">LOG IN</button>
+                <button id="tabReg" onclick="setAuthMode('reg')" class="tab-btn">SIGN UP</button>
             </div>
-            <div class="space-y-4">
-                <div id="regFields">
-                    <select class="auth-input mb-4"><option>Pakistan</option><option>India</option></select>
-                    <select class="auth-input mb-4"><option>USDT</option></select>
-                </div>
-                <input type="email" id="userEmail" placeholder="Email" class="auth-input">
-                <input type="password" id="userPass" placeholder="Password" class="auth-input">
-                <button onclick="handleAuth()" id="authBtn" class="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-sm uppercase font-bold tracking-wider">Registration</button>
+            <div id="regFields" style="display:none">
+                <div class="input-box"><label>Country</label><select id="authCountry"><option>India</option><option>Pakistan</option></select></div>
             </div>
+            <div class="input-box"><label>Email</label><input type="email" id="authEmail" placeholder="Enter email"></div>
+            <div class="input-box"><label>Password</label><input type="password" id="authPass" placeholder="••••••••"></div>
+            <button onclick="executeAuth()" id="authSubmitBtn" class="w-full py-4 bg-yellow-500 text-black font-black rounded-xl uppercase text-xs">Login ➔</button>
         </div>
     </div>
 
-    <div id="appTerminal">
-        <header class="flex justify-between items-center mb-2 px-1">
-            <div class="flex items-center gap-2">
-                <div onclick="showM('settingsM')" class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold uppercase cursor-pointer" id="userInitial">?</div>
-                <div>
-                    <p class="text-[8px] text-gray-400 font-bold uppercase">REAL BALANCE</p>
-                    <h1 id="balanceDisp" class="text-xl font-extrabold text-white tracking-tight">$0.00</h1>
-                </div>
+    <div id="mainTerminal">
+        <header class="flex justify-between items-center mb-3 px-1">
+            <div class="flex items-center gap-3">
+                <div id="profileIco" class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black">U</div>
+                <div><p class="text-[8px] text-gray-500 font-bold uppercase">Live Wallet</p><h1 id="balanceText" class="text-xl font-extrabold text-white">$0.00</h1></div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="showM('depM')" class="bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">DEPOSIT</button>
-                <button onclick="showM('witM')" class="bg-white text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">WITHDRAW</button>
-            </div>
+            <button onclick="location.reload()" class="text-xs text-gray-500 font-bold underline">LOGOUT</button>
         </header>
-
-        <div class="px-1 mb-2">
-            <div class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex items-center justify-between">
-                <span class="text-[9px] text-gray-500 font-bold uppercase">Select Asset</span>
-                <select id="assetSelect" onchange="updateAsset(this.value)" class="bg-transparent text-yellow-500 font-black text-xs outline-none">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
-                    <option value="FX:EURUSD">EUR/USD</option>
-                    <option value="OANDA:XAUUSD">GOLD</option>
-                </select>
-            </div>
-        </div>
-
-        <main class="relative flex-grow rounded-2xl overflow-hidden border border-gray-800 bg-black mb-2">
-            <div id="tv_chart" class="h-full w-full"></div>
-            
-            <div id="floatingTimer">
-                <span>⏱</span> <span id="timerClock">00:00</span>
-            </div>
-
-            <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[9px] font-black z-50 uppercase">Trade Active...</div>
+        <main class="relative flex-grow rounded-[30px] overflow-hidden border border-white/5 bg-black mb-3">
+            <div id="chartContainer" class="h-full w-full"></div>
+            <div id="tradeTimer" class="hidden absolute bottom-6 right-6 bg-yellow-500 text-black px-5 py-2 rounded-full font-black text-sm z-50">⏱ <span id="clock">00:00</span></div>
         </main>
-
-        <footer class="glass-card p-3 rounded-2xl">
-            <div class="grid grid-cols-2 gap-3 mb-3">
-                <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">AMOUNT</span>
-                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-bold text-white w-full">
-                </div>
-                <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">TIME</span>
-                    <select id="duration" class="bg-transparent font-bold text-white w-full outline-none">
-                        <option value="5">5 Sec</option>
-                        <option value="15">15 Sec</option>
-                        <option value="30">30 Sec</option>
-                        <option value="60">1 Min</option>
-                        <option value="300">5 Min</option>
-                    </select>
-                </div>
+        <footer class="p-4 rounded-[32px] bg-[#1c222d]">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-black/40 px-5 py-3 rounded-2xl"><span class="text-[9px] text-gray-500 block mb-1">Amount</span><input id="invAmount" type="number" value="100" class="bg-transparent outline-none font-black text-white w-full"></div>
+                <div class="bg-black/40 px-5 py-3 rounded-2xl"><span class="text-[9px] text-gray-500 block mb-1">Time</span><select id="invTime" class="bg-transparent font-black text-sm text-white w-full"><option value="5">5 Sec</option><option value="60">1 Min</option></select></div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white text-sm uppercase">CALL</button>
-                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white text-sm uppercase">PUT</button>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="startTrade('UP')" class="btn-up h-16 rounded-2xl font-black text-white">CALL</button>
+                <button onclick="startTrade('DOWN')" class="btn-down h-16 rounded-2xl font-black text-white">PUT</button>
             </div>
         </footer>
     </div>
 
-    <div id="resultOverlay" class="result-overlay">
-        <div class="result-card">
-            <div id="resIcon" class="mb-4 text-6xl"></div>
-            <h2 id="resTitle" class="text-xl font-bold uppercase tracking-widest mb-2"></h2>
-            <h1 id="resAmount" class="text-4xl font-extrabold mb-8 tracking-tighter"></h1>
-            <button onclick="closeResult()" class="w-full py-3 bg-black/40 text-white font-bold rounded-xl uppercase text-xs">Continue Trading</button>
-        </div>
-    </div>
-
-    <div id="depM" class="modal">...</div> 
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // Firebase Config (Original)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50",
-            authDomain: "waqas-47f30.firebaseapp.com",
-            projectId: "waqas-47f30",
-            storageBucket: "waqas-47f30.appspot.com",
-            messagingSenderId: "374104279093",
-            appId: "1:374104279093:web:6e1844b60456c700940364"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        let userData = null;
-        let mode = 'reg';
-        let currentSymbol = 'BINANCE:BTCUSDT';
-        let tradeActive = false;
+        const SB_URL = 'https://yeoetblketgwpsudnvhr.supabase.co'; 
+        const SB_KEY = 'sb_publishable_sgL37oN4LMWE2_ln9X6hYQ_DzkggigP';
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        // Auth & Terminal Logic (Original)
-        auth.onAuthStateChanged(user => {
-            if(user) {
-                db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    userData = doc.data();
-                    document.getElementById('balanceDisp').innerText = "$" + (userData?.balance || 0).toFixed(2);
-                    document.getElementById('appTerminal').style.display = 'flex';
-                    document.getElementById('authSection').style.display = 'none';
-                    if(!window.tvw) loadChart();
-                });
-            }
-        });
+        let user = null;
+        let authMode = 'login';
+        let isTrading = false;
 
-        function loadChart() {
-            window.tvw = new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true });
+        function setAuthMode(m) {
+            authMode = m;
+            document.getElementById('tabLogin').classList.toggle('active', m === 'login');
+            document.getElementById('tabReg').classList.toggle('active', m === 'reg');
+            document.getElementById('regFields').style.display = m === 'reg' ? 'block' : 'none';
+            document.getElementById('authSubmitBtn').innerText = m === 'reg' ? 'Create Account ➔' : 'Log In ➔';
         }
 
-        /* --- New Trade Logic --- */
-        async function initTrade(type) {
-            if(tradeActive) return;
-            const amt = parseFloat(document.getElementById('tradeAmt').value);
-            const dur = parseInt(document.getElementById('duration').value);
-            
-            if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Amount");
+        async function executeAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
+            if(authMode === 'reg') {
+                const tid = Math.floor(100000 + Math.random() * 900000);
+                const { error } = await supabase.from('profiles').insert([{ email, password: pass, tid, balance: 3000 }]);
+                if(error) alert("Error: Account exists!"); else { alert("Registered! Please Login."); setAuthMode('login'); }
+            } else {
+                const { data } = await supabase.from('profiles').select('*').eq('email', email).eq('password', pass).single();
+                if(data) {
+                    if(data.is_blocked) return alert("ACCOUNT BLOCKED BY ADMIN!");
+                    user = data;
+                    document.getElementById('authWrapper').style.display = 'none';
+                    document.getElementById('mainTerminal').style.display = 'flex';
+                    syncUI(); loadChart();
+                } else alert("Invalid Login");
+            }
+        }
 
-            tradeActive = true;
-            // Deduct balance
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+        async function syncUI() {
+            const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            if(data) {
+                user = data;
+                document.getElementById('balanceText').innerText = "$" + parseFloat(user.balance).toFixed(2);
+                document.getElementById('profileIco').innerText = user.email[0].toUpperCase();
+            }
+        }
 
-            // Start Timer UI
-            const timerDiv = document.getElementById('floatingTimer');
-            const timerClock = document.getElementById('timerClock');
-            timerDiv.style.display = 'flex';
+        function loadChart() { new TradingView.widget({ "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "1", "theme": "dark", "container_id": "chartContainer", "hide_top_toolbar": true, "backgroundColor": "#0b0e14" }); }
 
-            let timeLeft = dur;
-            const countdown = setInterval(() => {
-                timeLeft--;
-                let m = Math.floor(timeLeft / 60);
-                let s = timeLeft % 60;
-                timerClock.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                
-                if(timeLeft <= 0) {
-                    clearInterval(countdown);
-                    timerDiv.style.display = 'none';
-                    processResult(amt);
+        async function startTrade(type) {
+            const amt = parseFloat(document.getElementById('invAmount').value);
+            if(amt > user.balance || isTrading || amt <= 0) return alert("Check Balance");
+            isTrading = true;
+            await supabase.from('profiles').update({ balance: user.balance - amt }).eq('id', user.id);
+            syncUI();
+            let time = parseInt(document.getElementById('invTime').value);
+            document.getElementById('tradeTimer').classList.remove('hidden');
+            const itv = setInterval(async () => {
+                time--;
+                document.getElementById('clock').innerText = `00:${time < 10 ? '0'+time : time}`;
+                if(time <= 0) {
+                    clearInterval(itv);
+                    document.getElementById('tradeTimer').classList.add('hidden');
+                    isTrading = false;
+                    let win = user.trade_control === 'win' ? true : (user.trade_control === 'loss' ? false : Math.random() > 0.5);
+                    if(win) {
+                        const profit = amt * 1.82;
+                        await supabase.from('profiles').update({ balance: user.balance + profit }).eq('id', user.id);
+                        alert("WIN! +$" + profit.toFixed(2));
+                    } else alert("LOSS!");
+                    syncUI();
                 }
             }, 1000);
         }
-
-        async function processResult(invested) {
-            // Demo Logic: 50/50 Chance
-            const isWin = Math.random() > 0.5;
-            const profit = invested * 1.82; // 82% Profit
-
-            const overlay = document.getElementById('resultOverlay');
-            const icon = document.getElementById('resIcon');
-            const title = document.getElementById('resTitle');
-            const amount = document.getElementById('resAmount');
-
-            if(isWin) {
-                icon.innerText = "🏆";
-                title.innerText = "PROFIT";
-                title.style.color = "#22c55e";
-                amount.innerText = "+$" + profit.toFixed(2);
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(profit) });
-            } else {
-                icon.innerText = "❌";
-                title.innerText = "LOSS";
-                title.style.color = "#ef4444";
-                amount.innerText = "-$" + invested.toFixed(2);
-            }
-
-            overlay.style.display = 'flex';
-            tradeActive = false;
-        }
-
-        function closeResult() {
-            document.getElementById('resultOverlay').style.display = 'none';
-        }
-
-        // Modal Helpers (Original)
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; }
     </script>
 </body>
 </html>
