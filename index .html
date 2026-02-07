@@ -18,10 +18,15 @@
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
+
+        /* --- Naye Styles Screenshot ke mutabiq --- */
+        #tradeTimerContainer { display: none; position: absolute; bottom: 30px; right: 20px; z-index: 50; }
+        .timer-btn { background: #ffcc00; color: #000; padding: 6px 16px; border-radius: 20px; font-weight: 800; display: flex; items-center: center; gap: 5px; box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3); font-size: 14px; }
         
-        /* New Styles for Timer and Popups */
-        #tradeTimer { display: none; position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 8px 15px; border-radius: 50px; font-weight: 900; font-size: 14px; z-index: 60; box-shadow: 0 0 20px rgba(234, 179, 8, 0.4); }
-        .result-popup { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; text-align: center; }
+        .result-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .result-card { background: #1a1f29; border-radius: 30px; padding: 40px 20px; width: 85%; max-w: 320px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .res-amount { font-size: 32px; font-weight: 800; margin: 10px 0 30px 0; }
+        .continue-btn { background: #111; color: #fff; width: 100%; py: 12px; border-radius: 12px; font-weight: 700; text-transform: uppercase; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -75,7 +80,14 @@
 
         <main class="relative flex-grow rounded-2xl overflow-hidden border border-gray-800 bg-black mb-2">
             <div id="tv_chart" class="h-full w-full"></div>
-            <div id="tradeTimer">⏱ <span id="timerSeconds">00:00</span></div>
+            
+            <div id="tradeTimerContainer">
+                <div class="timer-btn">
+                    <span>⏱</span>
+                    <span id="countdownText">00:00</span>
+                </div>
+            </div>
+
             <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[9px] font-black z-50 uppercase">Trade Active...</div>
         </main>
 
@@ -103,12 +115,12 @@
         </footer>
     </div>
 
-    <div id="resultPopup" class="result-popup">
-        <div class="glass-card p-8 rounded-[40px] w-[85%] max-w-sm border-white/10">
+    <div id="resultOverlay" class="result-overlay">
+        <div class="result-card">
             <div id="resIcon" class="mb-4"></div>
-            <h2 id="resTitle" class="text-2xl font-black uppercase mb-1">PROFIT</h2>
-            <h1 id="resAmount" class="text-4xl font-extrabold mb-8 tracking-tighter">+$0.00</h1>
-            <button onclick="closeResult()" class="w-full py-4 bg-[#1a1f29] text-white font-bold rounded-2xl uppercase text-xs tracking-widest">Continue Trading</button>
+            <h2 id="resStatus" class="text-xl font-bold uppercase tracking-widest">PROFIT</h2>
+            <div id="resValue" class="res-amount">+$182.00</div>
+            <button onclick="closeResult()" class="continue-btn py-3">Continue Trading</button>
         </div>
     </div>
 
@@ -193,7 +205,7 @@
         let userData = null;
         let mode = 'reg';
         let currentSymbol = 'BINANCE:BTCUSDT';
-        let isTrading = false;
+        let tradeInProgress = false;
 
         function switchTab(t) {
             mode = t;
@@ -227,7 +239,7 @@
                     document.getElementById('settingPass').value = userData?.password || "";
                     document.getElementById('authSection').style.display = 'none';
                     document.getElementById('appTerminal').style.display = 'flex';
-                    if(!window.tvWidget) loadChart();
+                    if(!window.tvw) loadChart();
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
@@ -235,7 +247,6 @@
             }
         });
 
-        // Withdrawal & Deposit Functions (Unchanged)
         async function handleWithdraw() {
             const net = document.getElementById('witNetwork').value;
             const addr = document.getElementById('witAddress').value.trim();
@@ -251,7 +262,7 @@
         }
 
         function loadChart() {
-            window.tvWidget = new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true });
+            window.tvw = new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true });
         }
         function updateAsset(val) { currentSymbol = val; loadChart(); }
 
@@ -281,27 +292,16 @@
             hideM('depM');
         }
 
-        // --- NEW TRADE LOGIC WITH TIMER AND POPUP ---
-
+        /* --- TRADE LOGIC (Timer + Popups) --- */
         async function initTrade(type) {
-            if(isTrading) return;
+            if(tradeInProgress) return;
             const amt = parseFloat(document.getElementById('tradeAmt').value);
-            let dur = parseInt(document.getElementById('duration').value);
-            
-            if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Amount or Insufficient Balance");
+            const dur = parseInt(document.getElementById('duration').value);
 
-            isTrading = true;
-            // Deduct balance initially
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
+            if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Amount or Low Balance");
 
-            // Show Timer
-            const timerEl = document.getElementById('tradeTimer');
-            const timerSeconds = document.getElementById('timerSeconds');
-            timerEl.style.display = 'block';
+            tradeInProgress = true;
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
 
-            let timeLeft = dur;
-            const countdown = setInterval(() => {
-                timeLeft--;
-                let mins = Math.floor(timeLeft / 60);
-                let secs = timeLeft % 60;
-                timerSeconds.inne
+            // Timer start
+         
