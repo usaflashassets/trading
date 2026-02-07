@@ -80,18 +80,26 @@
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
-                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
-                <input type="number" id="depAmtInput" placeholder="Amount ($)" class="auth-input mb-6 text-center text-lg">
+                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Amount</h2>
+                <input type="number" id="depAmtInput" placeholder="Enter Amount ($)" class="auth-input mb-6 text-center text-lg">
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
+                <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase">Scan & Pay (TRC20)</h2>
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 rounded-xl p-2 bg-white">
-                <p class="text-[10px] text-gray-400 mb-4 select-all">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</p>
+                <p class="text-[10px] text-gray-400 mb-2">Network: TRC20</p>
+                <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center">
+                    <span class="text-[9px] text-white truncate mr-2" id="walletAddr">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
+                    <button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); alert('Address Copied!')" class="text-yellow-500 text-[9px] font-bold">COPY</button>
+                </div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
-            <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depTx" placeholder="TXID / Transaction ID" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+            <div id="dStep3" class="hidden space-y-3 text-left">
+                <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase text-center">Submit Proof</h2>
+                <input type="email" id="depEmail" placeholder="Enter Your Email" class="auth-input">
+                <input type="text" id="depTg" placeholder="Enter Telegram ID" class="auth-input">
+                <input type="text" id="depTx" placeholder="Enter TXID" class="auth-input">
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Now</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
@@ -100,19 +108,25 @@
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase text-center">Withdraw</h2>
-            <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-4">
-            <select id="witNet" class="auth-input mb-4"><option>TRC20</option><option>BEP20</option><option>ERC20</option></select>
-            <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-6">
+            <label class="text-[9px] text-gray-500 font-bold ml-1">SELECT NETWORK</label>
+            <select id="witNet" class="auth-input mb-4">
+                <option value="TRC20">USDT (TRC20)</option>
+                <option value="BEP20">USDT (BEP20)</option>
+                <option value="ERC20">USDT (ERC20)</option>
+                <option value="SOLANA">USDT (SOLANA)</option>
+                <option value="POLYGON">USDT (POLYGON)</option>
+            </select>
+            <input type="text" id="witAddr" placeholder="Enter Wallet Address" class="auth-input mb-4">
+            <input type="number" id="witAmt" placeholder="Withdraw Amount ($)" class="auth-input mb-6">
             <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit Request</button>
-            <button onclick="hideM('witM')" class="w-full mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+            <button onclick="hideM('witM')" class="w-full mt-4 text-gray-500 text-[10px] font-bold uppercase text-center">Cancel</button>
         </div>
     </div>
 
     <div id="settingsM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black text-black shadow-lg shadow-yellow-500/20" id="profileCircle">?</div>
-            <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-2 italic">User</h2>
-            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-8">Verified Account</p>
+            <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black text-black" id="profileCircle">?</div>
+            <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-8">User</h2>
             <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-2xl uppercase">Logout</button>
             <button onclick="hideM('settingsM')" class="mt-6 text-gray-500 text-[10px] font-bold uppercase">Close</button>
         </div>
@@ -172,15 +186,19 @@
 
         async function submitFinalDep() {
             const amt = parseFloat(document.getElementById('depAmtInput').value);
+            const email = document.getElementById('depEmail').value;
+            const tg = document.getElementById('depTg').value;
             const tx = document.getElementById('depTx').value;
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, txid: tx, amount: amt, time: Date.now() });
-            alert("Proof submitted!"); hideM('depM');
+            if(!email || !tg || !tx) return alert("Please fill all details!");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: email, telegram: tg, txid: tx, amount: amt, time: Date.now() });
+            alert("Deposit Proof Submitted Successfully!"); hideM('depM');
         }
 
         async function submitWit() {
             const amt = parseFloat(document.getElementById('witAmt').value);
             const net = document.getElementById('witNet').value;
             const addr = document.getElementById('witAddr').value;
+            if(!addr || isNaN(amt)) return alert("Fill all fields!");
             if(amt > userData.balance || amt < 10) return alert("Insufficient Balance (Min $10)");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now() });
