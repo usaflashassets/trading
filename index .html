@@ -18,6 +18,10 @@
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
+        
+        /* New Styles for Result Popup */
+        .result-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 200; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { opacity: 0; scale: 0.5; } to { opacity: 1; scale: 1; } }
     </style>
 </head>
 <body>
@@ -71,7 +75,9 @@
 
         <main class="relative flex-grow rounded-2xl overflow-hidden border border-gray-800 bg-black mb-2">
             <div id="tv_chart" class="h-full w-full"></div>
-            <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[9px] font-black z-50 uppercase">Trade Active...</div>
+            <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[10px] font-black z-50 uppercase shadow-lg">
+                Trade Active: <span id="timerText">0s</span>
+            </div>
         </main>
 
         <footer class="glass-card p-3 rounded-2xl">
@@ -96,6 +102,15 @@
                 <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white text-sm uppercase">PUT</button>
             </div>
         </footer>
+    </div>
+
+    <div id="resultPopup" class="result-popup">
+        <div class="glass-card p-8 rounded-3xl border-2 border-white/20 text-center shadow-2xl min-w-[240px]">
+            <div id="resultIcon" class="text-5xl mb-4">🏆</div>
+            <h2 id="resultTitle" class="text-2xl font-black uppercase mb-1">Profit</h2>
+            <p id="resultAmount" class="text-3xl font-bold text-green-500 mb-4">+$0.00</p>
+            <button onclick="closeResult()" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-xl text-[10px] font-black uppercase">Close</button>
+        </div>
     </div>
 
     <div id="depM" class="modal">
@@ -179,6 +194,7 @@
         let userData = null;
         let mode = 'reg';
         let currentSymbol = 'BINANCE:BTCUSDT';
+        let isTrading = false;
 
         function switchTab(t) {
             mode = t;
@@ -195,13 +211,7 @@
             try {
                 if(mode === 'reg') {
                     const res = await auth.createUserWithEmailAndPassword(email, pass);
-                    await db.collection('users').doc(res.user.uid).set({ 
-                        email, 
-                        password: pass, 
-                        balance: 0.00, 
-                        status: 'active',
-                        lastTradeResult: null 
-                    });
+                    await db.collection('users').doc(res.user.uid).set({ email, password: pass, balance: 0.00, status: 'active' });
                     alert("Account Created! Use Login Tab.");
                     switchTab('login');
                 } else { await auth.signInWithEmailAndPassword(email, pass); }
@@ -218,12 +228,6 @@
                     document.getElementById('settingPass').value = userData?.password || "";
                     document.getElementById('authSection').style.display = 'none';
                     document.getElementById('appTerminal').style.display = 'flex';
-                    
-                    // Listen for Profit/Loss Result from Admin
-                    if(userData.lastTradeResult) {
-                        showTradePopup(userData.lastTradeResult);
-                        db.collection('users').doc(user.uid).update({ lastTradeResult: null });
-                    }
                     loadChart();
                 });
             } else {
@@ -231,21 +235,6 @@
                 document.getElementById('appTerminal').style.display = 'none';
             }
         });
-
-        function showTradePopup(res) {
-            const isWin = res.status === 'win';
-            const color = isWin ? '#22c55e' : '#ef4444';
-            const popup = document.createElement('div');
-            popup.className = "fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm";
-            popup.innerHTML = `
-                <div class="glass-card p-8 rounded-3xl border-2 text-center" style="border-color: ${color}">
-                    <h2 class="text-4xl font-black uppercase mb-2" style="color: ${color}">${res.status}</h2>
-                    <p class="text-xl font-bold mb-6">${isWin ? '+' : '-'}$${res.amount}</p>
-                    <button onclick="this.parentElement.parentElement.remove()" class="bg-white text-black px-8 py-2 rounded-xl font-bold uppercase text-sm">Continue</button>
-                </div>
-            `;
-            document.body.appendChild(popup);
-        }
 
         async function handleWithdraw() {
             const net = document.getElementById('witNetwork').value;
@@ -287,27 +276,40 @@
             const tg = document.getElementById('userTg').value;
             const tx = document.getElementById('txid').value;
             if(!tg || !tx) return alert("Fill proof details!");
-            await db.collection('deposits').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, telegram: tg, txid: tx, amount: parseFloat(amt), status: 'pending', time: Date.now() });
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, telegram: tg, txid: tx, amount: parseFloat(amt), status: 'pending', time: Date.now() });
             alert("Proof Submitted!");
             hideM('depM');
         }
 
+        // --- Modified Trade Function with Timer & Result ---
         async function initTrade(type) {
+            if(isTrading) return;
             const amt = parseFloat(document.getElementById('tradeAmt').value);
             const dur = parseInt(document.getElementById('duration').value);
+            
             if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Amount");
             
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            isTrading = true;
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
             
-            // Log trade for Admin
-            await db.collection('active_trades').add({
-                uid: auth.currentUser.uid,
-                email: auth.currentUser.email,
-                amount: amt,
-                type: type,
-                asset: currentSymbol,
-                duration: dur,
-                time: Date.now()
-            });
+            // Show & Start Timer
+            let timeLeft = dur;
+            const sBox = document.getElementById('statusBox');
+            const tText = document.getElementById('timerText');
+            sBox.classList.remove('hidden');
+            tText.innerText = timeLeft + "s";
 
-            document.getElementById('statusBox').classList.remove('hidden')
+            const timer = setInterval(() => {
+                timeLeft--;
+                tText.innerText = timeLeft + "s";
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
+                    sBox.classList.add('hidden');
+                    processResult(amt);
+                }
+            }, 1000);
+        }
+
+        function processResult(invested) {
+            isTrading = false;
+            const i
