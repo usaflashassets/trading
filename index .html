@@ -18,10 +18,11 @@
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
-        
-        /* New Styles for Result Popup */
-        .result-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 200; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { opacity: 0; scale: 0.5; } to { opacity: 1; scale: 1; } }
+
+        /* New: Trade Result Popup Styling */
+        .result-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .result-box { transform: scale(0.5); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .result-box.show { transform: scale(1); opacity: 1; }
     </style>
 </head>
 <body>
@@ -75,8 +76,8 @@
 
         <main class="relative flex-grow rounded-2xl overflow-hidden border border-gray-800 bg-black mb-2">
             <div id="tv_chart" class="h-full w-full"></div>
-            <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[10px] font-black z-50 uppercase shadow-lg">
-                Trade Active: <span id="timerText">0s</span>
+            <div id="statusBox" class="hidden absolute top-2 right-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-[9px] font-black z-50 uppercase">
+                Time Left: <span id="timerCountdown">0s</span>
             </div>
         </main>
 
@@ -104,12 +105,12 @@
         </footer>
     </div>
 
-    <div id="resultPopup" class="result-popup">
-        <div class="glass-card p-8 rounded-3xl border-2 border-white/20 text-center shadow-2xl min-w-[240px]">
-            <div id="resultIcon" class="text-5xl mb-4">🏆</div>
-            <h2 id="resultTitle" class="text-2xl font-black uppercase mb-1">Profit</h2>
-            <p id="resultAmount" class="text-3xl font-bold text-green-500 mb-4">+$0.00</p>
-            <button onclick="closeResult()" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-xl text-[10px] font-black uppercase">Close</button>
+    <div id="tradeResultOverlay" class="result-overlay">
+        <div id="tradeResultBox" class="glass-card p-8 rounded-[40px] w-72 text-center border-2 border-white/10 result-box">
+            <div id="resultIcon" class="text-6xl mb-4">🏆</div>
+            <h2 id="resultStatus" class="text-3xl font-black uppercase mb-2 tracking-tighter">WIN</h2>
+            <p id="resultAmount" class="text-xl font-bold text-yellow-500 mb-6">$0.00</p>
+            <button onclick="closeResult()" class="w-full py-3 bg-white text-black font-black rounded-2xl text-xs uppercase">Continue</button>
         </div>
     </div>
 
@@ -194,7 +195,7 @@
         let userData = null;
         let mode = 'reg';
         let currentSymbol = 'BINANCE:BTCUSDT';
-        let isTrading = false;
+        let tradeInProgress = false;
 
         function switchTab(t) {
             mode = t;
@@ -281,35 +282,28 @@
             hideM('depM');
         }
 
-        // --- Modified Trade Function with Timer & Result ---
+        // Updated Trade Logic with Countdown and Popup
         async function initTrade(type) {
-            if(isTrading) return;
+            if(tradeInProgress) return;
             const amt = parseFloat(document.getElementById('tradeAmt').value);
             const dur = parseInt(document.getElementById('duration').value);
             
             if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Amount");
             
-            isTrading = true;
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
-            
-            // Show & Start Timer
+            tradeInProgress = true;
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+
+            // Show Timer
             let timeLeft = dur;
-            const sBox = document.getElementById('statusBox');
-            const tText = document.getElementById('timerText');
-            sBox.classList.remove('hidden');
-            tText.innerText = timeLeft + "s";
+            const statusBox = document.getElementById('statusBox');
+            const timerText = document.getElementById('timerCountdown');
+            statusBox.classList.remove('hidden');
+            timerText.innerText = timeLeft + "s";
 
-            const timer = setInterval(() => {
+            const countdown = setInterval(() => {
                 timeLeft--;
-                tText.innerText = timeLeft + "s";
+                timerText.innerText = timeLeft + "s";
                 if(timeLeft <= 0) {
-                    clearInterval(timer);
-                    sBox.classList.add('hidden');
-                    processResult(amt);
-                }
-            }, 1000);
-        }
-
-        function processResult(invested) {
-            isTrading = false;
-            const i
+                    clearInterval(countdown);
+                    statusBox.classList.add('hidden');
+                    finishTrade
