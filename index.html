@@ -15,7 +15,6 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        #authSection { display: none; } 
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
@@ -23,6 +22,12 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* History Styling */
+        .history-item { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .status-pending { color: #eab308; }
+        .status-success { color: #22c55e; }
+        .status-failed { color: #ef4444; }
     </style>
 </head>
 <body>
@@ -92,7 +97,7 @@
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Amount</h2>
                 <input type="number" id="depAmtInput" placeholder="Enter Amount ($)" class="auth-input mb-6 text-center text-lg">
@@ -135,9 +140,24 @@
     <div id="settingsM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black text-black" id="profileCircle">?</div>
-            <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-8">User</h2>
+            <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-6">User</h2>
+            
+            <button onclick="loadHistory(); showM('historyM'); hideM('settingsM');" class="w-full py-4 bg-white/5 border border-white/10 text-yellow-500 font-black rounded-2xl uppercase mb-3 flex items-center justify-center gap-2">
+                <span>📋</span> Transaction History
+            </button>
+            
             <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-2xl uppercase">Logout</button>
             <button onclick="hideM('settingsM')" class="mt-6 text-gray-500 text-[10px] font-bold uppercase">Close</button>
+        </div>
+    </div>
+
+    <div id="historyM" class="modal">
+        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm flex flex-col h-[70vh]">
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase text-center">History</h2>
+            <div id="historyList" class="flex-grow overflow-y-auto pr-2 custom-scrollbar">
+                <p class="text-center text-gray-500 text-xs py-10">Loading transactions...</p>
+            </div>
+            <button onclick="hideM('historyM')" class="w-full mt-4 py-3 bg-white/10 text-white font-black rounded-2xl uppercase text-xs">Back</button>
         </div>
     </div>
 
@@ -209,7 +229,7 @@
             const amt = parseFloat(document.getElementById('depAmtInput').value);
             const email = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
             if(!email || !tg || !tx) return alert("Please fill all details!");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: email, telegram: tg, txid: tx, amount: amt, time: Date.now() });
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: email, telegram: tg, txid: tx, amount: amt, status: 'pending', type: 'deposit', time: Date.now() });
             alert("Deposit Submitted!"); hideM('depM');
         }
 
@@ -218,8 +238,51 @@
             if(!addr || isNaN(amt)) return alert("Fill all fields!");
             if(amt > userData.balance || amt < 10) return alert("Low Balance (Min $10)");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now() });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, status: 'pending', type: 'withdraw', time: Date.now() });
             alert("Withdrawal Requested!"); hideM('witM');
+        }
+
+        async function loadHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '<p class="text-center text-gray-500 text-xs py-10">Fetching history...</p>';
+            
+            try {
+                const depSnap = await db.collection('requests').where('uid', '==', auth.currentUser.uid).get();
+                const witSnap = await db.collection('withdrawals').where('uid', '==', auth.currentUser.uid).get();
+                
+                let allItems = [];
+                depSnap.forEach(doc => allItems.push(doc.data()));
+                witSnap.forEach(doc => allItems.push(doc.data()));
+                
+                allItems.sort((a, b) => b.time - a.time);
+                
+                if(allItems.length === 0) {
+                    list.innerHTML = '<p class="text-center text-gray-500 text-xs py-10">No transactions found.</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                allItems.forEach(item => {
+                    const date = new Date(item.time).toLocaleDateString();
+                    const statusClass = `status-${item.status || 'pending'}`;
+                    const typeLabel = item.type === 'deposit' ? 'Deposit' : 'Withdraw';
+                    
+                    list.innerHTML += `
+                        <div class="history-item">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] font-bold uppercase ${item.type === 'deposit' ? 'text-green-500' : 'text-red-500'}">${typeLabel}</span>
+                                <span class="text-[9px] text-gray-500">${date}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-black text-white">$${item.amount.toFixed(2)}</span>
+                                <span class="text-[10px] font-bold uppercase ${statusClass}">${item.status || 'pending'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                list.innerHTML = '<p class="text-center text-red-500 text-xs py-10">Error loading history.</p>';
+            }
         }
 
         async function initTrade(type) {
@@ -229,28 +292,4 @@
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
             let iv = setInterval(() => {
-                document.getElementById('timerText').innerText = `00:${l < 10 ? '0'+l : l}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        async function showRes(amt) {
-            const mode = userData.tradeMode || 'normal';
-            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black text-xl uppercase">Profit</h2><h1 class="text-4xl text-white">+$${p.toFixed(2)}</h1>`;
-            } else {
-                box.innerHTML = `<h2 class="text-red-500 font-black text-xl uppercase">Loss</h2><h1 class="text-4xl text-white">-$${amt.toFixed(2)}</h1>`;
-            }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
-            showM('resultM');
-        }
-
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-    </script>
-</body>
-</html>
+                document.getElementById('timerText').innerText = `00:${l < 10 ? '0'
