@@ -19,12 +19,12 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        /* New Sidebar Styles */
-        #sideMenu { position: fixed; top: 0; left: -100%; width: 80%; height: 100%; background: #0f172a; z-index: 2000; transition: 0.3s; padding: 30px 20px; }
-        #sideMenu.active { left: 0; }
-        .menu-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
+        /* Sidebar Fix */
+        #sideMenu { position: fixed; top: 0; left: -100%; width: 80%; height: 100%; background: #0f172a; z-index: 2000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px 20px; visibility: hidden; }
+        #sideMenu.active { left: 0; visibility: visible; }
+        .menu-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; font-weight: 600; }
         .menu-item:hover { background: rgba(255,255,255,0.05); }
-        .history-list { max-height: 400px; overflow-y: auto; text-align: left; }
+        .history-list { max-height: 400px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -42,24 +42,24 @@
         </div>
     </div>
 
-    <div id="sideMenu" class="shadow-2xl">
+    <div id="sideMenu">
         <div class="flex justify-between items-center mb-10">
-            <h2 class="text-xl font-black italic">PROTRADE</h2>
-            <button onclick="toggleMenu()" class="text-gray-400">✕</button>
+            <h2 class="text-xl font-black italic tracking-tighter text-yellow-500">PROTRADE</h2>
+            <button onclick="toggleMenu()" class="text-gray-400 text-2xl">✕</button>
         </div>
-        <div class="space-y-2">
-            <div class="menu-item" onclick="toggleMenu(); showM('depM')"><span>💰</span> Deposit</div>
-            <div class="menu-item" onclick="toggleMenu(); showM('witM')"><span>💳</span> Withdrawal</div>
-            <div class="menu-item" onclick="showHistory('requests')"><span>📜</span> Transactions</div>
-            <div class="menu-item" onclick="showHistory('trades')"><span>📊</span> Trades</div>
+        <div class="space-y-1">
+            <div class="menu-item" onclick="toggleMenu(); showM('depM')">Deposit</div>
+            <div class="menu-item" onclick="toggleMenu(); showM('witM')">Withdrawal</div>
+            <div class="menu-item" onclick="showHistory('requests')">Transactions</div>
+            <div class="menu-item" onclick="showHistory('trades')">Trades</div>
         </div>
         <div class="absolute bottom-10 left-0 w-full px-5">
-            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
-                <div class="flex items-center gap-2 text-blue-400" onclick="showM('settingsM'); toggleMenu();">
-                    <span>⚙️</span> <span class="font-bold text-sm">Settings</span>
+            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                <div class="flex items-center gap-2 text-blue-400 cursor-pointer" onclick="showM('settingsM'); toggleMenu();">
+                    <span class="text-lg">⚙️</span> <span class="font-bold text-sm">Settings</span>
                 </div>
                 <button onclick="auth.signOut(); location.reload();" class="text-red-500 font-bold text-sm flex items-center gap-1">
-                    Logout <span>🚪</span>
+                    Logout <span class="rotate-180">📤</span>
                 </button>
             </div>
         </div>
@@ -68,7 +68,7 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-3">
             <div class="flex items-center gap-3">
-                <div onclick="toggleMenu()" class="w-10 h-10 rounded-xl bg-white/5 flex flex-col items-center justify-center gap-1 cursor-pointer border border-white/10">
+                <div onclick="toggleMenu()" class="w-10 h-10 rounded-xl bg-white/5 flex flex-col items-center justify-center gap-1 cursor-pointer border border-white/10 active:scale-90 transition-transform">
                     <div class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
                     <div class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
                     <div class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
@@ -121,18 +121,16 @@
             <div id="dStep2" class="hidden">
                 <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase">Scan & Pay (TRC20)</h2>
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 rounded-xl p-2 bg-white">
-                <p class="text-[10px] text-gray-400 mb-2">Network: TRC20</p>
                 <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center">
                     <span class="text-[9px] text-white truncate mr-2" id="walletAddr">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
                     <button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); alert('Address Copied!')" class="text-yellow-500 text-[9px] font-bold">COPY</button>
                 </div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
-            <div id="dStep3" class="hidden space-y-3 text-left">
-                <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase text-center">Submit Proof</h2>
-                <input type="email" id="depEmail" placeholder="Enter Your Email" class="auth-input">
-                <input type="text" id="depTg" placeholder="Enter Telegram ID" class="auth-input">
-                <input type="text" id="depTx" placeholder="Enter TXID" class="auth-input">
+            <div id="dStep3" class="hidden space-y-3">
+                <input type="email" id="depEmail" placeholder="Email" class="auth-input">
+                <input type="text" id="depTg" placeholder="Telegram ID" class="auth-input">
+                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Now</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
@@ -142,18 +140,22 @@
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase text-center">Withdraw</h2>
-            <label class="text-[9px] text-gray-500 font-bold ml-1">SELECT NETWORK</label>
             <select id="witNet" class="auth-input mb-4">
                 <option value="TRC20">USDT (TRC20)</option>
                 <option value="BEP20">USDT (BEP20)</option>
-                <option value="ERC20">USDT (ERC20)</option>
-                <option value="SOLANA">USDT (SOLANA)</option>
-                <option value="POLYGON">USDT (POLYGON)</option>
             </select>
-            <input type="text" id="witAddr" placeholder="Enter Wallet Address" class="auth-input mb-4">
-            <input type="number" id="witAmt" placeholder="Withdraw Amount ($)" class="auth-input mb-6">
+            <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-4">
+            <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-6">
             <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit Request</button>
-            <button onclick="hideM('witM')" class="w-full mt-4 text-gray-500 text-[10px] font-bold uppercase text-center">Cancel</button>
+            <button onclick="hideM('witM')" class="w-full mt-4 text-gray-500 text-center text-[10px] uppercase font-bold">Cancel</button>
+        </div>
+    </div>
+
+    <div id="historyM" class="modal">
+        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm">
+            <h2 id="historyTitle" class="text-xl font-black text-yellow-500 mb-4 uppercase text-center">History</h2>
+            <div id="historyContent" class="history-list space-y-3"></div>
+            <button onclick="hideM('historyM')" class="w-full mt-6 py-3 bg-white/10 rounded-xl font-bold uppercase text-[10px]">Close</button>
         </div>
     </div>
 
@@ -166,14 +168,6 @@
         </div>
     </div>
 
-    <div id="historyM" class="modal">
-        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm">
-            <h2 id="historyTitle" class="text-xl font-black text-yellow-500 mb-4 uppercase text-center">History</h2>
-            <div id="historyContent" class="history-list space-y-3"></div>
-            <button onclick="hideM('historyM')" class="w-full mt-6 py-3 bg-white/10 rounded-xl font-bold uppercase text-[10px]">Close</button>
-        </div>
-    </div>
-
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -183,7 +177,6 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg';
 
-        // Sidebar Toggle
         function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }
 
         function switchAuth(t) {
@@ -195,6 +188,7 @@
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            if(!e || !p) return alert("Fill all fields");
             try {
                 if(mode==='reg') {
                     const r = await auth.createUserWithEmailAndPassword(e, p);
@@ -210,7 +204,6 @@
                     userData = doc.data();
                     document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                     const init = user.email[0].toUpperCase();
-                    document.getElementById('userInitial').innerText = init;
                     document.getElementById('profileCircle').innerText = init;
                     document.getElementById('sEmailDisp').innerText = user.email;
                     document.getElementById('authSection').style.display = 'none';
@@ -231,22 +224,17 @@
 
         async function submitFinalDep() {
             const amt = parseFloat(document.getElementById('depAmtInput').value);
-            const email = document.getElementById('depEmail').value;
-            const tg = document.getElementById('depTg').value;
-            const tx = document.getElementById('depTx').value;
-            if(!email || !tg || !tx) return alert("Please fill all details!");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: email, telegram: tg, txid: tx, amount: amt, status: 'pending', time: Date.now() });
-            alert("Deposit Proof Submitted!"); hideM('depM');
+            const e = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
+            if(!e || !tg || !tx) return alert("Fill all details");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, amount: amt, email: e, telegram: tg, txid: tx, status: 'Pending', time: Date.now() });
+            alert("Deposit Submitted!"); hideM('depM');
         }
 
         async function submitWit() {
-            const amt = parseFloat(document.getElementById('witAmt').value);
-            const net = document.getElementById('witNet').value;
-            const addr = document.getElementById('witAddr').value;
-            if(!addr || isNaN(amt)) return alert("Fill all fields!");
-            if(amt > userData.balance || amt < 10) return alert("Insufficient Balance (Min $10)");
+            const amt = parseFloat(document.getElementById('witAmt').value), addr = document.getElementById('witAddr').value;
+            if(!addr || isNaN(amt) || amt > userData.balance) return alert("Invalid Request");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, status: 'pending', time: Date.now() });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, address: addr, status: 'Pending', time: Date.now() });
             alert("Withdrawal Requested!"); hideM('witM');
         }
 
@@ -267,30 +255,36 @@
             const mode = userData.tradeMode || 'normal';
             let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            let status = win ? 'Win' : 'Loss';
-            
             if(win) {
                 await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
                 box.innerHTML = `<h2 class="text-green-500 font-black text-2xl uppercase">Profit</h2><h1 class="text-5xl text-white">+$${p.toFixed(2)}</h1>`;
             } else {
                 box.innerHTML = `<h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2><h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>`;
             }
-            
-            // Save Trade History
-            await db.collection('trades').add({ uid: auth.currentUser.uid, amount: amt, type: type, result: status, profit: win ? p : -amt, time: Date.now() });
-            
+            await db.collection('trades').add({ uid: auth.currentUser.uid, amount: amt, type: type, result: win?'Win':'Loss', profit: win?p:-amt, time: Date.now() });
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
             showM('resultM');
         }
 
-        async function showHistory(collection) {
+        async function showHistory(col) {
             toggleMenu();
             const cont = document.getElementById('historyContent');
-            document.getElementById('historyTitle').innerText = collection.toUpperCase();
+            document.getElementById('historyTitle').innerText = col;
             cont.innerHTML = '<p class="text-center text-gray-500">Loading...</p>';
             showM('historyM');
-            
-            const snap = await db.collection(collection).where('uid', '==', auth.currentUser.uid).orderBy('time', 'desc').get();
-            cont.innerHTML = '';
-            
-            if(snap.empty) { cont.
+            const snap = await db.collection(col).where('uid', '==', auth.currentUser.uid).orderBy('time', 'desc').limit(10).get();
+            cont.innerHTML = snap.empty ? '<p class="text-center text-xs text-gray-500">No Data</p>' : '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                cont.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between border border-white/5">
+                    <div><p class="text-[10px] font-bold">${col==='trades'?d.result:d.status}</p><p class="text-[8px] text-gray-500">${new Date(d.time).toLocaleDateString()}</p></div>
+                    <p class="text-xs font-black text-yellow-500">$${d.amount}</p>
+                </div>`;
+            });
+        }
+
+        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
+    </script>
+</body>
+</html>
