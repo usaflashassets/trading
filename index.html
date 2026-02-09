@@ -15,16 +15,12 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        #authSection { display: none; } 
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* History Scrollbar */
         .h-list::-webkit-scrollbar { width: 4px; }
         .h-list::-webkit-scrollbar-thumb { background: #eab308; border-radius: 10px; }
     </style>
@@ -36,7 +32,7 @@
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
 
-    <div id="authSection" class="h-full flex items-center justify-center p-4">
+    <div id="authSection" class="hidden h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
@@ -137,21 +133,20 @@
     </div>
 
     <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm text-center">
-            <div class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-black text-black" id="profileCircle">?</div>
-            <h2 id="sEmailDisp" class="text-[10px] font-bold text-white mb-6 opacity-60">User</h2>
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black text-black" id="profileCircle">?</div>
+            <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-6">User</h2>
             
-            <button onclick="toggleHistory()" class="w-full py-3 mb-3 bg-white/5 text-white border border-white/10 font-black rounded-2xl uppercase text-[11px] flex items-center justify-center gap-2">
-                📋 Transaction History
+            <button onclick="toggleHistory()" class="w-full py-4 mb-3 bg-white/5 text-white border border-white/10 font-black rounded-2xl uppercase text-[12px] flex items-center justify-center gap-2">
+                📋 History
             </button>
-
-            <div id="historyContainer" class="hidden mb-4 text-left">
-                <div id="hList" class="h-list space-y-2 max-h-[200px] overflow-y-auto pr-1">
-                    </div>
+            
+            <div id="historyBox" class="hidden mb-6 text-left max-h-[200px] overflow-y-auto h-list pr-1">
+                <div id="historyList" class="space-y-2"></div>
             </div>
 
-            <button onclick="auth.signOut(); location.reload();" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-2xl uppercase text-[11px]">Logout</button>
-            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Close</button>
+            <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-2xl uppercase text-[12px]">Logout</button>
+            <button onclick="hideM('settingsM')" class="mt-6 text-gray-500 text-[10px] font-bold uppercase">Close</button>
         </div>
     </div>
 
@@ -200,9 +195,9 @@
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('BINANCE:BTCUSDT'); chartLoaded = true; }
-                        loader.style.display = 'none'; // Loader hide here
+                        loader.style.display = 'none'; // Loader hidden here
                     }
-                });
+                }, err => { loader.style.display = 'none'; });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
@@ -236,60 +231,39 @@
             alert("Withdrawal Requested!"); hideM('witM');
         }
 
-        // --- Permanent History Logic ---
+        // --- History Logic ---
         async function toggleHistory() {
-            const container = document.getElementById('historyContainer');
-            const list = document.getElementById('hList');
+            const box = document.getElementById('historyBox');
+            const list = document.getElementById('historyList');
+            if(!box.classList.contains('hidden')) { box.classList.add('hidden'); return; }
             
-            if(!container.classList.contains('hidden')) {
-                container.classList.add('hidden');
-                return;
-            }
-
-            container.classList.remove('hidden');
-            list.innerHTML = '<p class="text-[9px] text-gray-500 text-center py-4">Fetching Records...</p>';
-
+            box.classList.remove('hidden');
+            list.innerHTML = '<p class="text-[10px] text-gray-500">Loading records...</p>';
+            
             try {
-                // Fetch Deposits & Withdrawals
-                const [deps, wits] = await Promise.all([
-                    db.collection('requests').where('uid', '==', auth.currentUser.uid).get(),
-                    db.collection('withdrawals').where('uid', '==', auth.currentUser.uid).get()
-                ]);
+                const depSnap = await db.collection('requests').where('uid', '==', auth.currentUser.uid).get();
+                const witSnap = await db.collection('withdrawals').where('uid', '==', auth.currentUser.uid).get();
+                
+                let combined = [];
+                depSnap.forEach(d => combined.push({...d.data(), type: 'Deposit'}));
+                witSnap.forEach(d => combined.push({...d.data(), type: 'Withdraw'}));
+                combined.sort((a,b) => b.time - a.time);
 
-                let history = [];
-                deps.forEach(doc => history.push({...doc.data(), type: 'Deposit'}));
-                wits.forEach(doc => history.push({...doc.data(), type: 'Withdraw'}));
+                if(combined.length === 0) { list.innerHTML = '<p class="text-[10px] text-gray-500">No records found.</p>'; return; }
 
-                // Sort by time (Newest first)
-                history.sort((a,b) => b.time - a.time);
-
-                if(history.length === 0) {
-                    list.innerHTML = '<p class="text-[9px] text-gray-500 text-center py-4">No Transactions Found</p>';
-                    return;
-                }
-
-                list.innerHTML = history.map(item => {
-                    const status = item.status || 'pending';
-                    const color = status === 'success' ? 'text-green-500' : (status === 'failed' ? 'text-red-500' : 'text-yellow-500');
-                    const date = new Date(item.time).toLocaleDateString();
-                    
-                    return `
-                        <div class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex justify-between items-center">
-                            <div class="text-left">
-                                <p class="text-[9px] font-black ${item.type === 'Deposit' ? 'text-blue-400' : 'text-purple-400'} uppercase">${item.type}</p>
-                                <p class="text-[7px] text-gray-600">${date}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] font-bold text-white">$${item.amount.toFixed(2)}</p>
-                                <p class="text-[8px] font-black uppercase ${color}">${status}</p>
-                            </div>
+                list.innerHTML = combined.map(item => `
+                    <div class="bg-black/40 p-2 rounded-xl border border-white/5 flex justify-between items-center">
+                        <div class="text-left">
+                            <p class="text-[9px] font-black ${item.type==='Deposit'?'text-blue-400':'text-purple-400'} uppercase">${item.type}</p>
+                            <p class="text-[7px] text-gray-600">${new Date(item.time).toLocaleDateString()}</p>
                         </div>
-                    `;
-                }).join('');
-
-            } catch(e) {
-                list.innerHTML = '<p class="text-red-500 text-[9px]">Error loading data</p>';
-            }
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-white">$${item.amount.toFixed(2)}</p>
+                            <p class="text-[8px] font-black uppercase ${item.status==='success'?'text-green-500':item.status==='failed'?'text-red-500':'text-yellow-500'}">${item.status || 'pending'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { list.innerHTML = '<p class="text-red-500 text-[9px]">Error loading history</p>'; }
         }
 
         async function initTrade(type) {
@@ -301,4 +275,14 @@
             let iv = setInterval(() => {
                 document.getElementById('timerText').innerText = `00:${l < 10 ? '0'+l : l}`;
                 if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                
+                l--;
+            }, 1000);
+        }
+
+        async function showRes(amt) {
+            const mode = userData.tradeMode || 'normal';
+            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) {
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-green-500 font-black text-xl uppercase">Profit</h2><h1 class="text-4xl text-white">+$${p.toFixed(2)}<
