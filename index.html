@@ -23,6 +23,7 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        select option { background: #1a1f29; color: white; }
     </style>
 </head>
 <body>
@@ -59,10 +60,52 @@
 
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
-                <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-                <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                <option value="FX:EURUSD">EUR/USD</option>
-                <option value="OANDA:XAUUSD">GOLD</option>
+                <optgroup label="CRYPTO">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (Bitcoin)</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT (Ethereum)</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (Solana)</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT</option>
+                    <option value="BINANCE:ADAUSDT">ADA/USDT</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
+                    <option value="BINANCE:DOTUSDT">DOT/USDT</option>
+                    <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
+                    <option value="BINANCE:LTCUSDT">LTC/USDT</option>
+                    <option value="BINANCE:TRXUSDT">TRX/USDT</option>
+                    <option value="BINANCE:AVAXUSDT">AVAX/USDT</option>
+                    <option value="BINANCE:LINKUSDT">LINK/USDT</option>
+                    <option value="BINANCE:SHIBUSDT">SHIB/USDT</option>
+                    <option value="BINANCE:UNIUSDT">UNI/USDT</option>
+                </optgroup>
+                <optgroup label="FOREX">
+                    <option value="FX:EURUSD">EUR/USD</option>
+                    <option value="FX:GBPUSD">GBP/USD</option>
+                    <option value="FX:USDJPY">USD/JPY</option>
+                    <option value="FX:AUDUSD">AUD/USD</option>
+                    <option value="FX:USDCAD">USD/CAD</option>
+                    <option value="FX:USDCHF">USD/CHF</option>
+                    <option value="FX:NZDUSD">NZD/USD</option>
+                    <option value="FX:EURGBP">EUR/GBP</option>
+                    <option value="FX:EURJPY">EUR/JPY</option>
+                    <option value="FX:GBPJPY">GBP/JPY</option>
+                    <option value="FX:EURAUD">EUR/AUD</option>
+                    <option value="FX:GBPAUD">GBP/AUD</option>
+                    <option value="FX:AUDJPY">AUD/JPY</option>
+                </optgroup>
+                <optgroup label="COMMODITIES & STOCKS">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
+                    <option value="OANDA:XAGUSD">SILVER</option>
+                    <option value="TVC:UKOIL">BRENT OIL</option>
+                    <option value="TVC:USOIL">CRUDE OIL</option>
+                    <option value="NASDAQ:AAPL">APPLE</option>
+                    <option value="NASDAQ:TSLA">TESLA</option>
+                    <option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="NASDAQ:AMZN">AMAZON</option>
+                    <option value="NASDAQ:MSFT">MICROSOFT</option>
+                    <option value="NASDAQ:GOOGL">GOOGLE</option>
+                    <option value="NASDAQ:META">META</option>
+                    <option value="NASDAQ:NFLX">NETFLIX</option>
+                </optgroup>
             </select>
         </div>
 
@@ -80,7 +123,13 @@
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5s</option><option value="15">15s</option><option value="30">30s</option><option value="60">1m</option>
+                        <option value="5">5s</option>
+                        <option value="10">10s</option>
+                        <option value="15">15s</option>
+                        <option value="30">30s</option>
+                        <option value="60">1m</option>
+                        <option value="120">2m</option>
+                        <option value="300">5m</option>
                     </select>
                 </div>
             </div>
@@ -138,7 +187,6 @@
                 <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Profile</h2>
                 <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl">&times;</button>
             </div>
-            
             <div class="text-center mb-6">
                 <div class="relative inline-block">
                     <div class="w-20 h-20 bg-gradient-to-tr from-yellow-500 to-yellow-200 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black shadow-lg shadow-yellow-500/20" id="profileCircle">?</div>
@@ -149,7 +197,6 @@
                 <h2 id="sEmailDisp" class="text-sm font-bold text-white mt-4 break-all">User</h2>
                 <span class="text-[9px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold uppercase">Verified Trader</span>
             </div>
-
             <div class="grid grid-cols-2 gap-3 mb-6">
                 <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
                     <p class="text-[7px] text-gray-500 font-bold uppercase">Status</p>
@@ -160,10 +207,7 @@
                     <p class="text-[10px] font-black text-white uppercase">Global</p>
                 </div>
             </div>
-
-            <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
-                Secure Logout
-            </button>
+            <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">Secure Logout</button>
         </div>
     </div>
 
@@ -174,8 +218,7 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg';
-        let chartLoaded = false;
+        let userData = null, mode = 'reg', chartLoaded = false;
 
         function switchAuth(t) {
             mode = t;
@@ -243,40 +286,4 @@
             const amt = parseFloat(document.getElementById('witAmt').value), net = document.getElementById('witNet').value, addr = document.getElementById('witAddr').value;
             if(!addr || isNaN(amt)) return alert("Fill all fields!");
             if(amt > userData.balance || amt < 10) return alert("Low Balance (Min $10)");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now() });
-            alert("Withdrawal Requested!"); hideM('witM');
-        }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                document.getElementById('timerText').innerText = `00:${l < 10 ? '0'+l : l}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        async function showRes(amt) {
-            const mode = userData.tradeMode || 'normal';
-            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black text-xl uppercase">Profit</h2><h1 class="text-4xl text-white">+$${p.toFixed(2)}</h1>`;
-            } else {
-                box.innerHTML = `<h2 class="text-red-500 font-black text-xl uppercase">Loss</h2><h1 class="text-4xl text-white">-$${amt.toFixed(2)}</h1>`;
-            }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
-            showM('resultM');
-        }
-
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-    </script>
-</body>
-</html>
+            await 
