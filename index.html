@@ -23,11 +23,10 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Transaction Styles */
-        .status-pending { color: #eab308; }
-        .status-success { color: #22c55e; }
-        .status-failed { color: #ef4444; }
+        select option { background: #1a1f29; color: white; }
+
+        .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -65,10 +64,13 @@
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option>
+                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:USDCHF">USD/CHF</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option><option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                </optgroup>
+                <optgroup label="STOCKS & METALS">
+                    <option value="OANDA:XAUUSD">GOLD</option><option value="NASDAQ:TSLA">TESLA</option><option value="NASDAQ:NVDA">NVIDIA</option>
                 </optgroup>
             </select>
         </div>
@@ -87,7 +89,7 @@
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5s</option><option value="60">1m</option>
+                        <option value="5">5s</option><option value="15">15s</option><option value="30">30s</option><option value="60">1m</option><option value="120">2m</option><option value="300">5m</option>
                     </select>
                 </div>
             </div>
@@ -101,28 +103,15 @@
     <div id="settingsM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account</h2>
+                <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Details</h2>
                 <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl font-light">&times;</button>
             </div>
-            <div class="mb-6">
+            <div class="mb-8">
                 <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
                 <h2 id="modalEmail" class="text-white font-bold text-sm mb-1 break-all italic">Loading...</h2>
                 <span class="text-[8px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold uppercase border border-green-500/20">Elite Verified</span>
             </div>
-            <button onclick="hideM('settingsM'); showTransactions();" class="w-full py-4 bg-white/5 text-yellow-500 border border-white/10 font-black rounded-2xl uppercase text-[10px] tracking-widest mb-3">History</button>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest">Logout</button>
-        </div>
-    </div>
-
-    <div id="transM" class="modal">
-        <div class="glass-card p-6 rounded-[32px] w-full max-w-md h-[80vh] flex flex-col">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-black text-yellow-500 uppercase italic">Transactions</h2>
-                <button onclick="hideM('transM')" class="text-gray-500 text-2xl font-light">&times;</button>
-            </div>
-            <div id="transList" class="flex-grow overflow-y-auto space-y-3 pr-2">
-                <p class="text-center text-gray-500 text-[10px] uppercase mt-10 italic">No history yet</p>
-            </div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest">Secure Logout</button>
         </div>
     </div>
 
@@ -143,6 +132,7 @@
             </div>
             <div id="dStep3" class="hidden space-y-3">
                 <input type="email" id="depEmail" placeholder="Email" class="auth-input">
+                <input type="text" id="depTg" placeholder="Telegram ID" class="auth-input">
                 <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
@@ -153,9 +143,12 @@
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
+            <select id="witNet" class="auth-input mb-4 text-sm">
+                <option value="TRC20">USDT (TRC20)</option><option value="BEP20">USDT (BEP20)</option><option value="BTC">Bitcoin</option>
+            </select>
             <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-4">
             <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-6">
-            <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit</button>
+            <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit Request</button>
             <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
@@ -174,19 +167,23 @@
 
         function showSuccess(title, msg) {
             const box = document.getElementById('resultBox');
-            box.innerHTML = `<h2 class="text-green-500 font-black text-xl mb-2">${title}</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p><button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Dismiss</button>`;
+            box.innerHTML = `<div class="mb-4"><div class="success-checkmark"><span class="text-green-500 text-3xl">✓</span></div></div>
+            <h2 class="text-green-500 font-black text-xl mb-2">${title}</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
+            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Dismiss</button>`;
             showM('resultM');
         }
 
         function showError(msg) {
             const box = document.getElementById('resultBox');
-            box.innerHTML = `<h2 class="text-red-500 font-black text-xl mb-2">Error</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p><button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Close</button>`;
+            box.innerHTML = `<div class="mb-4"><div class="error-xmark"><span class="text-red-500 text-3xl">!</span></div></div>
+            <h2 class="text-red-500 font-black text-xl mb-2">Failed</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
+            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Close</button>`;
             showM('resultM');
         }
 
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
-        // AUTH LISTENER (FIXED: Added else for non-logged in users)
+        // --- FIXED AUTH & PROFILE LOGIC ---
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -195,20 +192,19 @@
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         const initial = user.email[0].toUpperCase();
+                        
+                        // Main Icon & Modal Details
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
+
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        loader.style.display = 'none'; // Success loading
+                        loader.style.display = 'none';
                     }
-                }, err => {
-                    loader.style.display = 'none';
-                    showError("Database Error: " + err.message);
                 });
             } else { 
-                // IF NO USER, SHOW LOGIN SCREEN
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
                 loader.style.display = 'none'; 
@@ -235,69 +231,17 @@
 
         async function submitFinalDep() {
             const tx = document.getElementById('depTx').value, em = document.getElementById('depEmail').value;
-            const amt = document.getElementById('depAmtInput').value;
-            if(!tx || !em || !amt) return showError("Fill all fields");
-            
-            await db.collection('transactions').add({
-                uid: auth.currentUser.uid,
-                type: 'Deposit',
-                amount: parseFloat(amt),
-                status: 'pending',
-                txid: tx,
-                time: Date.now()
-            });
-
-            await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, email: em, amount: amt, time: Date.now() });
-            hideM('depM'); showSuccess("Submitted", "Pending verification.");
+            if(!tx || !em) return showError("Fill all fields");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, email: em, amount: document.getElementById('depAmtInput').value, time: Date.now() });
+            hideM('depM'); showSuccess("Sent", "Deposit will be verified soon.");
         }
 
         async function submitWit() {
             const amt = parseFloat(document.getElementById('witAmt').value);
-            const addr = document.getElementById('witAddr').value;
-            if(!amt || amt > userData.balance) return showError("Low balance.");
-            
+            if(!amt || amt > userData.balance) return showError("Invalid amount or low balance.");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            
-            await db.collection('transactions').add({
-                uid: auth.currentUser.uid,
-                type: 'Withdraw',
-                amount: amt,
-                status: 'pending',
-                address: addr,
-                time: Date.now()
-            });
-
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, time: Date.now() });
-            hideM('witM'); showSuccess("Sent", "Withdrawal processing.");
-        }
-
-        function showTransactions() {
-            const list = document.getElementById('transList');
-            list.innerHTML = '<p class="text-center py-10 text-[10px] animate-pulse">LOADING...</p>';
-            showM('transM');
-
-            db.collection('transactions')
-                .where('uid', '==', auth.currentUser.uid)
-                .orderBy('time', 'desc')
-                .onSnapshot(snapshot => {
-                    list.innerHTML = '';
-                    if (snapshot.empty) {
-                        list.innerHTML = '<p class="text-center text-gray-400 text-[10px] mt-10">NO HISTORY</p>';
-                        return;
-                    }
-                    snapshot.forEach(doc => {
-                        const d = doc.data();
-                        const stClass = `status-${d.status}`;
-                        list.innerHTML += `
-                            <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex justify-between items-center">
-                                <div><p class="text-[10px] font-black uppercase text-white">${d.type}</p></div>
-                                <div class="text-right">
-                                    <p class="text-sm font-black text-white">$${parseFloat(d.amount).toFixed(2)}</p>
-                                    <p class="text-[8px] font-black uppercase ${stClass}">${d.status}</p>
-                                </div>
-                            </div>`;
-                    });
-                });
+            hideM('witM'); showSuccess("Processing", "Withdrawal request received.");
         }
 
         async function initTrade(type) {
@@ -308,3 +252,23 @@
             let l = dur;
             let iv = setInterval(() => {
                 let m = Math.floor(l/60), s = l%60;
+                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
+                l--;
+            }, 1000);
+        }
+
+        async function showRes(amt) {
+            const m = userData.tradeMode || 'normal';
+            let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
+            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
+            showM('resultM');
+        }
+
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
