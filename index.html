@@ -23,6 +23,7 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        select option { background: #1a1f29; color: white; }
     </style>
 </head>
 <body>
@@ -60,12 +61,15 @@
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option>
+                    <option value="EURUSD">EUR/USD</option><option value="GBPUSD">GBP/USD</option><option value="USDJPY">USD/JPY</option><option value="AUDUSD">AUD/USD</option><option value="USDCAD">USD/CAD</option><option value="USDCHF">USD/CHF</option><option value="NZDUSD">NZD/USD</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option><option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                    <option value="BTCUSDT">BTC/USDT</option><option value="ETHUSDT">ETH/USDT</option><option value="SOLUSDT">SOL/USDT</option><option value="BNBUSDT">BNB/USDT</option><option value="DOGEUSDT">DOGE/USDT</option><option value="XRPUSDT">XRP/USDT</option>
                 </optgroup>
-                </select>
+                <optgroup label="STOCKS & METALS">
+                    <option value="XAUUSD">GOLD</option><option value="XAGUSD">SILVER</option><option value="TSLA">TESLA</option><option value="AAPL">APPLE</option><option value="NVDA">NVIDIA</option>
+                </optgroup>
+            </select>
         </div>
 
         <main class="relative flex-grow rounded-[24px] overflow-hidden bg-black mb-2 border border-white/5">
@@ -96,19 +100,47 @@
 
     <div id="settingsM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 id="modalEmail" class="text-white font-bold text-sm mb-4 italic italic">Loading...</h2>
+            <div id="modalInitial" class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black text-black mb-4">?</div>
+            <h2 id="modalEmail" class="text-white font-bold text-sm mb-6 break-all">...</h2>
             <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Logout</button>
-            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px]">Close</button>
+            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px] uppercase font-bold">Close</button>
         </div>
     </div>
 
-    <div id="depM" class="modal"> </div>
-    <div id="witM" class="modal"> </div>
+    <div id="depM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
+            <div id="dStep1">
+                <input type="number" id="depAmtInput" placeholder="Amount ($)" class="auth-input mb-6 text-center">
+                <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
+            </div>
+            <div id="dStep2" class="hidden">
+                <p class="text-[10px] text-gray-400 mb-4">Transfer USDT (TRC20) to:</p>
+                <div class="bg-black/40 p-3 rounded-xl mb-4 text-[10px] break-all border border-white/10 font-mono">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</div>
+                <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
+            </div>
+            <div id="dStep3" class="hidden space-y-3">
+                <input type="text" id="depTx" placeholder="TXID / Transaction ID" class="auth-input">
+                <button onclick="submitDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+            </div>
+            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] uppercase font-bold">Cancel</button>
+        </div>
+    </div>
+
+    <div id="witM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
+            <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-4">
+            <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-6">
+            <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Request</button>
+            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] uppercase font-bold">Cancel</button>
+        </div>
+    </div>
+
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // Firebase Config (Aapki apni wali)
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
@@ -116,41 +148,40 @@
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
+        function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
 
-        // Fetch price for Normal Mode logic
+        // Fetch Live Price for Normal Mode
         async function getLivePrice(s) {
             try {
-                let cleanSym = s.includes(':') ? s.split(':')[1] : s;
+                // Crypto pairs use Binance API, others use fallback
+                const cleanSym = s.includes('USDT') ? s : s + 'USDT';
                 const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${cleanSym}`);
                 const data = await res.json();
-                return parseFloat(data.price) || Math.random();
-            } catch(e) { return Math.random(); }
+                return parseFloat(data.price) || (Math.random() * 100);
+            } catch(e) { return Math.random() * 100; }
         }
 
-        // --- SESSION FIX ---
+        // Auth Logic + Session Fix
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
-                // Real-time listener
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
+                        document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        loader.style.display = 'none'; // Data milte hi hatado
+                        if(!chartLoaded) { loadChart('EURUSD'); chartLoaded = true; }
+                        loader.style.display = 'none';
                     }
-                }, err => {
-                    console.log(err);
-                    loader.style.display = 'none';
-                });
-            } else { 
-                document.getElementById('authSection').style.display = 'flex'; 
-                document.getElementById('appTerminal').style.display = 'none'; 
-                loader.style.display = 'none'; // Logout hai toh hatado
+                }, () => loader.style.display = 'none');
+            } else {
+                document.getElementById('authSection').style.display = 'flex';
+                document.getElementById('appTerminal').style.display = 'none';
+                loader.style.display = 'none';
             }
         });
 
@@ -158,18 +189,40 @@
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
             if(!e || !p) return;
             document.getElementById('loadingScreen').style.display = 'flex';
-            try { 
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
-                } else { await auth.signInWithEmailAndPassword(e, p); } 
+            try {
+                if(mode==='reg') {
+                    const r = await auth.createUserWithEmailAndPassword(e, p);
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
+                } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { alert(err.message); document.getElementById('loadingScreen').style.display = 'none'; }
         }
 
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        function loadChart(s) {
+            let symbol = s;
+            if(["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT"].includes(s)) symbol = "BINANCE:" + s;
+            else if(["XAUUSD", "XAGUSD"].includes(s)) symbol = "OANDA:" + s;
+            else symbol = "FX_IDC:" + s;
+            new TradingView.widget({ "autosize": true, "symbol": symbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true });
+        }
 
-        // --- CORE TRADE LOGIC (FIXED NORMAL MODE) ---
-        async function initTrade(userChoice) {
+        // Deposit & Withdraw Handlers
+        async function submitDep() {
+            const tx = document.getElementById('depTx').value;
+            if(!tx) return;
+            await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, amount: document.getElementById('depAmtInput').value, status: 'pending' });
+            hideM('depM'); alert("Deposit Submitted!");
+        }
+
+        async function submitWit() {
+            const amt = parseFloat(document.getElementById('witAmt').value);
+            if(amt > userData.balance) return alert("Low Balance");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, status: 'pending' });
+            hideM('witM'); alert("Withdrawal Requested!");
+        }
+
+        // Updated Trade Logic for Normal Mode
+        async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
             const asset = document.getElementById('assetSelect').value;
             if(amt > userData.balance || amt <= 0) return alert("Low balance");
@@ -181,40 +234,40 @@
             let l = dur;
             let iv = setInterval(async () => {
                 document.getElementById('timerText').innerText = `00:${l < 10 ? '0' + l : l}`;
-                if(l <= 0) { 
-                    clearInterval(iv); 
-                    document.getElementById('tradeTimer').style.display = 'none'; 
+                if(l <= 0) {
+                    clearInterval(iv);
+                    document.getElementById('tradeTimer').style.display = 'none';
                     const endPrice = await getLivePrice(asset);
-                    showRes(amt, userChoice, startPrice, endPrice); 
+                    showRes(amt, type, startPrice, endPrice);
                 }
                 l--;
             }, 1000);
         }
 
-        async function showRes(amt, userChoice, startPrice, endPrice) {
+        async function showRes(amt, type, startPrice, endPrice) {
             const m = userData.tradeMode || 'normal';
             let win = false;
 
             if(m === 'profit') win = true;
             else if(m === 'loss') win = false;
             else {
-                // Normal Mode Logic: Up par Win agar exit > entry
-                if(userChoice === 'UP') win = endPrice > startPrice;
-                else win = endPrice < startPrice;
+                // NORMAL LOGIC: Call/Put based on price change
+                win = (type === 'UP') ? (endPrice > startPrice) : (endPrice < startPrice);
             }
 
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; 
-            } else { 
-                box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; 
+            if(win) {
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
+            } else {
+                box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`;
             }
+            box.innerHTML += `<p class="text-[8px] text-gray-500 mt-2 uppercase">Entry: ${startPrice.toFixed(4)} | Exit: ${endPrice.toFixed(4)}</p>`;
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
             showM('resultM');
         }
 
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+        function switchAuth(t) { mode = t; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
     </script>
 </body>
 </html>
