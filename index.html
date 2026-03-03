@@ -15,156 +15,201 @@
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
-        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
-        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        .receipt-line { border-bottom: 1px dashed rgba(255,255,255,0.1); margin: 10px 0; }
+        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); transition: 0.3s; }
+        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); transition: 0.3s; }
+        .receipt-line { border-bottom: 1px dashed rgba(255,255,255,0.1); margin: 12px 0; }
+        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
+        .timer-badge { position: absolute; bottom: 15px; right: 15px; background: #eab308; color: black; padding: 6px 18px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <div id="appTerminal" style="display:none; height:100dvh; flex-direction:column; padding:8px;">
-        <header class="flex justify-between items-center mb-2">
-             <div class="flex items-center gap-2">
-                <div onclick="showM('settingsM')" id="userInitial" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer">?</div>
-                <div><h1 id="balanceDisp" class="text-lg font-black">$0.00</h1></div>
+    <div id="appTerminal">
+        <header class="flex justify-between items-center mb-3 px-1">
+            <div class="flex items-center gap-3">
+                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer">?</div>
+                <div>
+                    <p class="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Main Balance</p>
+                    <h1 id="balanceDisp" class="text-xl font-black text-white">$0.00</h1>
+                </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-black text-xs">DEPOSIT</button>
-                <button onclick="showM('witM')" class="bg-white/10 px-4 py-2 rounded-xl font-black text-xs">WITHDRAW</button>
+                <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">Deposit</button>
+                <button onclick="showM('witM')" class="bg-white/10 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-white/10">Withdraw</button>
             </div>
         </header>
 
-        <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black border border-white/5 mb-2">
+        <div class="mb-3">
+            <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-yellow-500 font-bold text-xs outline-none">
+                <optgroup label="CRYPTO">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (92%)</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT (88%)</option>
+                </optgroup>
+                <optgroup label="FOREX">
+                    <option value="FX:EURUSD">EUR/USD (82%)</option>
+                    <option value="FX:GBPUSD">GBP/USD (85%)</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <main class="relative flex-grow rounded-[32px] overflow-hidden bg-black mb-3 border border-white/5 shadow-2xl">
             <div id="tv_chart" class="h-full w-full"></div>
-            <div class="absolute top-4 left-4 z-50">
-                <select id="pairSelect" onchange="changePair(this.value)" class="bg-black/80 text-white p-2 rounded-lg text-xs font-bold outline-none border border-white/20">
-                    <option value="FX:EURUSD">EUR/USD</option>
-                    <option value="BITSTAMP:BTCUSD">BTC/USDT</option>
-                    <option value="OANDA:XAUUSD">GOLD</option>
-                </select>
-            </div>
+            <div id="tradeTimer" class="timer-badge"><i class="fa-solid fa-clock mr-1"></i> <span id="timerText">00:00</span></div>
         </main>
 
-        <footer class="glass-card p-4 rounded-[28px]">
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <input id="tradeAmt" type="number" value="100" class="auth-input">
-                <select id="duration" class="auth-input">
-                    <option value="60">1 min</option>
-                    <option value="300">5 min</option>
-                </select>
+        <footer class="glass-card p-4 rounded-[32px] border-t border-white/10">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-black/40 p-3 rounded-2xl border border-white/5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase mb-1 block">Investment</span>
+                    <input id="tradeAmt" type="number" value="100" class="bg-transparent outline-none font-black text-white text-lg w-full">
+                </div>
+                <div class="bg-black/40 p-3 rounded-2xl border border-white/5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase mb-1 block">Expiration</span>
+                    <select id="duration" class="bg-transparent font-black text-white text-lg w-full outline-none">
+                        <option value="30">30s</option>
+                        <option value="60">1m</option>
+                        <option value="300">5m</option>
+                    </select>
+                </div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black uppercase">Call</button>
-                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black uppercase">Put</button>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="initTrade('UP')" class="btn-grad-green h-16 rounded-2xl font-black text-white uppercase text-sm shadow-lg shadow-green-900/20 active:scale-95">Call</button>
+                <button onclick="initTrade('DOWN')" class="btn-grad-red h-16 rounded-2xl font-black text-white uppercase text-sm shadow-lg shadow-red-900/20 active:scale-95">Put</button>
             </div>
         </footer>
     </div>
 
     <div id="statusM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div id="statusIcon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"></div>
-            <h2 id="statusTitle" class="text-xl font-black mb-2 uppercase"></h2>
-            <p id="statusDesc" class="text-gray-400 text-xs mb-6"></p>
-            <button onclick="hideM('statusM')" class="w-full py-4 bg-white/10 rounded-2xl font-black uppercase">Continue</button>
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-xs text-center border border-white/10">
+            <div id="statusIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"></div>
+            <h2 id="statusTitle" class="text-2xl font-black mb-2 uppercase italic text-white"></h2>
+            <p id="statusDesc" class="text-gray-400 text-[11px] font-bold mb-8 uppercase tracking-wider"></p>
+            <button onclick="hideM('statusM')" class="w-full py-4 bg-white/10 border border-white/10 rounded-2xl font-black uppercase text-[10px] text-white">Close</button>
         </div>
     </div>
 
     <div id="receiptM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm relative overflow-hidden">
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm relative overflow-hidden border border-white/10">
             <div class="absolute top-0 left-0 w-full h-2 bg-yellow-500"></div>
-            <h2 class="text-center font-black text-2xl mb-6 italic">TRANSACTION</h2>
-            
-            <div class="space-y-4">
-                <div class="flex justify-between"><span class="text-gray-500 text-xs font-bold">TYPE</span><span id="recType" class="font-black text-xs text-yellow-500"></span></div>
-                <div class="receipt-line"></div>
-                <div class="flex justify-between"><span class="text-gray-500 text-xs font-bold">AMOUNT</span><span id="recAmt" class="font-black text-xl text-white"></span></div>
-                <div class="flex justify-between"><span class="text-gray-500 text-xs font-bold">STATUS</span><span class="text-blue-400 font-bold text-xs uppercase">Pending</span></div>
-                <div class="receipt-line"></div>
-                <div class="text-center">
-                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Process ID</p>
-                    <p id="recID" class="text-[9px] font-mono text-gray-400 break-all"></p>
-                </div>
+            <div class="text-center mb-6">
+                <i class="fa-solid fa-receipt text-3xl text-yellow-500 mb-2"></i>
+                <h2 class="font-black text-xl italic uppercase">Request Sent</h2>
             </div>
-            
-            <button onclick="hideM('receiptM')" class="w-full py-4 mt-8 bg-yellow-500 text-black font-black rounded-2xl uppercase shadow-lg">Done</button>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-[10px] font-black uppercase">Transaction Type</span>
+                    <span id="recType" class="font-black text-[11px] text-yellow-500 uppercase"></span>
+                </div>
+                <div class="receipt-line"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-[10px] font-black uppercase">Amount</span>
+                    <span id="recAmt" class="font-black text-2xl text-white"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-[10px] font-black uppercase">Status</span>
+                    <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">Processing</span>
+                </div>
+                <div class="receipt-line"></div>
+                <p class="text-center text-[9px] text-gray-500 font-bold uppercase">Payment verified within 5-15 mins</p>
+            </div>
+            <button onclick="hideM('receiptM')" class="w-full py-4 mt-8 bg-yellow-500 text-black font-black rounded-2xl uppercase shadow-xl text-xs active:scale-95">Confirm</button>
         </div>
     </div>
 
-    <script>
-        // ... (Firebase Config & Initialization)
+    <div id="depM" class="modal">
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center border border-white/10">
+            <div id="dStep1">
+                <h2 class="text-2xl font-black text-yellow-500 mb-6 uppercase italic tracking-tighter">Add Funds</h2>
+                <input type="number" id="depAmtInput" placeholder="Enter Amount ($)" class="auth-input mb-6 text-center text-xl font-black">
+                <button onclick="toDStep(2)" class="w-full py-5 bg-yellow-500 text-black font-black rounded-2xl uppercase text-xs">Next Step</button>
+            </div>
+            <div id="dStep2" class="hidden">
+                <div class="bg-white p-2 rounded-2xl w-40 h-40 mx-auto mb-6 shadow-2xl">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="w-full h-full">
+                </div>
+                <p class="text-[10px] text-gray-500 mb-2 font-black uppercase">USDT TRC20 Address</p>
+                <div class="bg-black/40 p-4 rounded-2xl mb-6 flex justify-between items-center border border-white/10">
+                    <span class="text-[9px] font-mono truncate mr-4">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
+                    <button onclick="copyW()" class="text-yellow-500 font-black text-[10px]">COPY</button>
+                </div>
+                <button onclick="toDStep(3)" class="w-full py-5 bg-yellow-500 text-black font-black rounded-2xl uppercase text-xs">I Have Paid</button>
+            </div>
+            <div id="dStep3" class="hidden space-y-3">
+                <p class="text-xs text-yellow-500 font-black mb-2 uppercase">Submit Proof</p>
+                <input type="email" id="depEmail" placeholder="Registered Email" class="auth-input">
+                <input type="text" id="depTg" placeholder="Telegram Username" class="auth-input">
+                <input type="text" id="depTx" placeholder="Transaction ID (TXID)" class="auth-input">
+                <button onclick="submitFinalDep()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl uppercase text-xs shadow-lg shadow-blue-900/30 mt-4">Submit Details</button>
+            </div>
+            <button onclick="hideM('depM')" class="mt-6 text-gray-600 text-[10px] font-black uppercase tracking-widest">Cancel</button>
+        </div>
+    </div>
 
-        // Utility to show aesthetic alerts instead of boring window.alert()
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", 
+            authDomain: "waqas-47f30.firebaseapp.com", 
+            projectId: "waqas-47f30", 
+            storageBucket: "waqas-47f30.appspot.com", 
+            messagingSenderId: "374104279093", 
+            appId: "1:374104279093:web:6e1844b60456c700940364" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(), db = firebase.firestore();
+        let userData = null;
+
+        // UI Helpers
+        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideM(id) { 
+            document.getElementById(id).style.display = 'none'; 
+            if(id==='depM') toDStep(1); 
+        }
+        function toDStep(s) { 
+            ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); 
+            document.getElementById('dStep'+s).classList.remove('hidden'); 
+        }
+        function copyW() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); showAlert("Copied", "Address copied to clipboard!", "info"); }
+
+        // Aesthetic Alert Function
         function showAlert(title, desc, type='info') {
             const icon = document.getElementById('statusIcon');
             const titleEl = document.getElementById('statusTitle');
             const descEl = document.getElementById('statusDesc');
-            
             titleEl.innerText = title;
             descEl.innerText = desc;
-            
             if(type === 'error') {
-                icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-4xl"></i>';
-                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-500/20 text-red-500";
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-4xl"></i>';
+                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-red-500/20 text-red-500 border border-red-500/30";
             } else {
-                icon.innerHTML = '<i class="fa-solid fa-circle-info text-4xl"></i>';
-                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-blue-500/20 text-blue-500";
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-4xl"></i>';
+                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-green-500/20 text-green-500 border border-green-500/30";
             }
             showM('statusM');
         }
 
-        // Professional Receipt Show
-        function showReceipt(type, amt, id) {
-            document.getElementById('recType').innerText = type.toUpperCase();
+        // Professional Receipt
+        function showReceipt(type, amt) {
+            document.getElementById('recType').innerText = type;
             document.getElementById('recAmt').innerText = "$" + amt;
-            document.getElementById('recID').innerText = id || Math.random().toString(36).substr(2, 12).toUpperCase();
             showM('receiptM');
         }
 
+        // Final Submissions Logic
         async function submitFinalDep() {
-            const tx = document.getElementById('depTx').value;
-            const tg = document.getElementById('depTg').value;
-            const amt = document.getElementById('depAmtInput').value;
+            const tx = document.getElementById('depTx').value, em = document.getElementById('depEmail').value, 
+                  tg = document.getElementById('depTg').value, amt = document.getElementById('depAmtInput').value;
+            if(!tx || !em || !tg) return showAlert("Error", "All fields are required!", "error");
             
-            if(!tx || !tg) {
-                showAlert("Missing Info", "Please provide TXID and Telegram ID for verification.", "error");
-                return;
-            }
-
-            const doc = await db.collection('requests').add({ 
-                uid: auth.currentUser.uid, 
-                txid: tx, 
-                telegram: tg, 
-                amount: parseFloat(amt), 
-                time: Date.now() 
+            await db.collection('requests').add({ 
+                uid: auth.currentUser.uid, txid: tx, email: em, telegram: tg, amount: parseFloat(amt), time: Date.now() 
             });
-            
             hideM('depM');
-            showReceipt("Deposit", amt, doc.id);
+            showReceipt("Deposit", amt);
         }
 
-        async function submitWit() {
-            const amt = parseFloat(document.getElementById('witAmt').value);
-            const addr = document.getElementById('witAddr').value;
-            
-            if(amt > userData.balance) {
-                showAlert("Balance Error", "You don't have enough funds for this withdrawal.", "error");
-                return;
-            }
-
-            const doc = await db.collection('withdrawals').add({ 
-                uid: auth.currentUser.uid, 
-                amount: amt, 
-                address: addr, 
-                time: Date.now() 
-            });
-            
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            
-            hideM('witM');
-            showReceipt("Withdraw", amt, doc.id);
-        }
-
-        // ... (Include your existing Trading & Auth functions)
+        // ... (Baaki saare Trading aur Chart functions yahan add karein jo pehle thay)
+        // Note: Chart load karne wala widget wala code yahan paste kar sakte hain.
     </script>
 </body>
 </html>
