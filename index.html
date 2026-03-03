@@ -13,13 +13,11 @@
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
+        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; font-size: 14px; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        #authSection { display: none; } 
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -33,7 +31,7 @@
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
 
-    <div id="authSection" class="h-full flex items-center justify-center p-4">
+    <div id="authSection" class="hidden h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
@@ -60,14 +58,14 @@
 
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="FOREX MAJOR">
-                    <option value="EURUSD">EUR/USD</option><option value="GBPUSD">GBP/USD</option><option value="USDJPY">USD/JPY</option><option value="AUDUSD">AUD/USD</option><option value="USDCAD">USD/CAD</option><option value="USDCHF">USD/CHF</option><option value="NZDUSD">NZD/USD</option>
+                <optgroup label="FOREX">
+                    <option value="EURUSD">EUR/USD</option><option value="GBPUSD">GBP/USD</option><option value="USDJPY">USD/JPY</option><option value="AUDUSD">AUD/USD</option><option value="USDCAD">USD/CAD</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BTCUSDT">BTC/USDT</option><option value="ETHUSDT">ETH/USDT</option><option value="SOLUSDT">SOL/USDT</option><option value="BNBUSDT">BNB/USDT</option><option value="DOGEUSDT">DOGE/USDT</option><option value="XRPUSDT">XRP/USDT</option>
+                    <option value="BTCUSDT">BTC/USDT</option><option value="ETHUSDT">ETH/USDT</option><option value="SOLUSDT">SOL/USDT</option><option value="BNBUSDT">BNB/USDT</option>
                 </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="XAUUSD">GOLD</option><option value="XAGUSD">SILVER</option><option value="TSLA">TESLA</option><option value="AAPL">APPLE</option><option value="NVDA">NVIDIA</option>
+                <optgroup label="METALS">
+                    <option value="XAUUSD">GOLD</option><option value="XAGUSD">SILVER</option>
                 </optgroup>
             </select>
         </div>
@@ -98,42 +96,53 @@
         </footer>
     </div>
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div id="modalInitial" class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black text-black mb-4">?</div>
-            <h2 id="modalEmail" class="text-white font-bold text-sm mb-6 break-all">...</h2>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Logout</button>
-            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px] uppercase font-bold">Close</button>
-        </div>
-    </div>
-
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
             <div id="dStep1">
-                <input type="number" id="depAmtInput" placeholder="Amount ($)" class="auth-input mb-6 text-center">
-                <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
+                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase italic">Deposit Amount</h2>
+                <input type="number" id="depAmtInput" placeholder="Enter Amount ($)" class="auth-input mb-6 text-center text-lg font-bold">
+                <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Continue</button>
             </div>
             <div id="dStep2" class="hidden">
-                <p class="text-[10px] text-gray-400 mb-4">Transfer USDT (TRC20) to:</p>
-                <div class="bg-black/40 p-3 rounded-xl mb-4 text-[10px] break-all border border-white/10 font-mono">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</div>
+                <h2 class="text-sm font-black text-white mb-4 uppercase">Scan to Pay (TRC20)</h2>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 p-2 bg-white rounded-xl">
+                <div class="bg-black/40 p-3 rounded-xl mb-4 text-[10px] break-all border border-white/10 font-mono text-yellow-500">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
-            <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depTx" placeholder="TXID / Transaction ID" class="auth-input">
-                <button onclick="submitDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+            <div id="dStep3" class="hidden space-y-4">
+                <h2 class="text-sm font-black text-white mb-2 uppercase">Payment Details</h2>
+                <input type="email" id="depEmail" placeholder="Registered Email" class="auth-input">
+                <input type="text" id="depTg" placeholder="Telegram Username / ID" class="auth-input">
+                <input type="text" id="depTx" placeholder="Transaction ID (TXID)" class="auth-input">
+                <button onclick="submitDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Now</button>
             </div>
-            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] uppercase font-bold">Cancel</button>
+            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
 
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
-            <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-4">
-            <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-6">
-            <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Request</button>
-            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] uppercase font-bold">Cancel</button>
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase italic">Withdraw</h2>
+            <div class="space-y-4">
+                <select id="witNet" class="auth-input text-sm">
+                    <option value="TRC20">USDT (TRC20)</option>
+                    <option value="BEP20">USDT (BEP20)</option>
+                    <option value="BTC">Bitcoin</option>
+                </select>
+                <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input">
+                <input type="number" id="witAmt" placeholder="Withdraw Amount ($)" class="auth-input">
+                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit Request</button>
+            </div>
+            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        </div>
+    </div>
+
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
+            <h2 id="modalEmail" class="text-white font-bold text-sm mb-6 break-all italic">Loading...</h2>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Secure Logout</button>
+            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Close</button>
         </div>
     </div>
 
@@ -147,21 +156,18 @@
         let userData = null, mode = 'reg', chartLoaded = false;
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
 
-        // Fetch Live Price for Normal Mode
         async function getLivePrice(s) {
             try {
-                // Crypto pairs use Binance API, others use fallback
-                const cleanSym = s.includes('USDT') ? s : s + 'USDT';
-                const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${cleanSym}`);
+                const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${s.includes('USDT')?s:s+'USDT'}`);
                 const data = await res.json();
                 return parseFloat(data.price) || (Math.random() * 100);
             } catch(e) { return Math.random() * 100; }
         }
 
-        // Auth Logic + Session Fix
+        // Session Sync
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -169,8 +175,9 @@
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
-                        document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
+                        const init = user.email[0].toUpperCase();
+                        document.getElementById('userInitial').innerText = init;
+                        document.getElementById('modalInitial').innerText = init;
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
@@ -205,35 +212,38 @@
             new TradingView.widget({ "autosize": true, "symbol": symbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true });
         }
 
-        // Deposit & Withdraw Handlers
+        // Deposit/Withdraw Functions
         async function submitDep() {
-            const tx = document.getElementById('depTx').value;
-            if(!tx) return;
-            await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, amount: document.getElementById('depAmtInput').value, status: 'pending' });
-            hideM('depM'); alert("Deposit Submitted!");
+            const tx = document.getElementById('depTx').value, em = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value;
+            if(!tx || !em || !tg) return alert("Please fill all details!");
+            await db.collection('requests').add({ 
+                uid: auth.currentUser.uid, 
+                txid: tx, email: em, telegram: tg, 
+                amount: document.getElementById('depAmtInput').value, 
+                status: 'pending', time: Date.now() 
+            });
+            hideM('depM'); alert("Request Sent! Verification usually takes 10-30 mins.");
         }
 
         async function submitWit() {
-            const amt = parseFloat(document.getElementById('witAmt').value);
-            if(amt > userData.balance) return alert("Low Balance");
+            const amt = parseFloat(document.getElementById('witAmt').value), addr = document.getElementById('witAddr').value, net = document.getElementById('witNet').value;
+            if(!amt || !addr || amt > userData.balance) return alert("Invalid amount or address!");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, status: 'pending' });
-            hideM('witM'); alert("Withdrawal Requested!");
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, address: addr, network: net, status: 'pending', time: Date.now() });
+            hideM('witM'); alert("Withdrawal request received.");
         }
 
-        // Updated Trade Logic for Normal Mode
+        // Trade Logic
         async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            const asset = document.getElementById('assetSelect').value;
+            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value), asset = document.getElementById('assetSelect').value;
             if(amt > userData.balance || amt <= 0) return alert("Low balance");
-
             const startPrice = await getLivePrice(asset);
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
             let iv = setInterval(async () => {
-                document.getElementById('timerText').innerText = `00:${l < 10 ? '0' + l : l}`;
+                let m = Math.floor(l/60), s = l%60;
+                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
                 if(l <= 0) {
                     clearInterval(iv);
                     document.getElementById('tradeTimer').style.display = 'none';
@@ -246,15 +256,7 @@
 
         async function showRes(amt, type, startPrice, endPrice) {
             const m = userData.tradeMode || 'normal';
-            let win = false;
-
-            if(m === 'profit') win = true;
-            else if(m === 'loss') win = false;
-            else {
-                // NORMAL LOGIC: Call/Put based on price change
-                win = (type === 'UP') ? (endPrice > startPrice) : (endPrice < startPrice);
-            }
-
+            let win = (m === 'profit') ? true : (m === 'loss' ? false : (type === 'UP' ? endPrice > startPrice : endPrice < startPrice));
             const p = amt * 1.82, box = document.getElementById('resultBox');
             if(win) {
                 await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
@@ -267,7 +269,7 @@
             showM('resultM');
         }
 
-        function switchAuth(t) { mode = t; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
     </script>
 </body>
 </html>
