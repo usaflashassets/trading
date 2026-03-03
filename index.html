@@ -183,23 +183,17 @@
 
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
-        // --- AUTH & PROFILE LOGIC WITH BLOCK CHECK ---
+        // --- FIXED AUTH & PROFILE LOGIC ---
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
-                        // NEW BLOCK CHECK LOGIC
-                        if(userData.status === 'blocked') {
-                            alert("Your account is blocked by Admin.");
-                            auth.signOut().then(() => location.reload());
-                            return;
-                        }
-
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         const initial = user.email[0].toUpperCase();
                         
+                        // Main Icon & Modal Details
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
@@ -224,17 +218,8 @@
             try { 
                 if(mode==='reg') { 
                     const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal', status: 'active' }); 
-                } else { 
-                    const r = await auth.signInWithEmailAndPassword(e, p);
-                    // Double check status on login
-                    const doc = await db.collection('users').doc(r.user.uid).get();
-                    if(doc.exists && doc.data().status === 'blocked') {
-                        showError("This account is blocked.");
-                        auth.signOut();
-                        document.getElementById('loadingScreen').style.display = 'none';
-                    }
-                } 
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
+                } else { await auth.signInWithEmailAndPassword(e, p); } 
             } catch(err) { 
                 document.getElementById('loadingScreen').style.display = 'none';
                 showError(err.message); 
@@ -279,4 +264,11 @@
             const p = amt * 1.82, box = document.getElementById('resultBox');
             if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
             else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 ro
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
+            showM('resultM');
+        }
+
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
