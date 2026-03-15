@@ -118,22 +118,24 @@
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
-                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
+                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit USDT</h2>
+                <p class="text-[10px] text-gray-400 mb-4 font-bold uppercase">Network: BNB Smart Chain (BEP20)</p>
                 <input type="number" id="depAmtInput" placeholder="Amount ($)" class="auth-input mb-6 text-center text-lg">
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 p-2 bg-white rounded-xl">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0x76ecfe8a3bd89297189e16cdcd275d743fb71a62" class="mx-auto mb-4 p-2 bg-white rounded-xl">
                 <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10">
-                    <span class="text-[9px] truncate mr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
+                    <span class="text-[9px] truncate mr-2">0x76ecfe8a3bd89297189e16cdcd275d743fb71a62</span>
                     <button id="copyBtn" onclick="copyWallet()" class="text-yellow-500 text-[9px] font-bold">COPY</button>
                 </div>
+                <p class="text-[8px] text-red-400 mb-4 font-bold uppercase">Send only BEP20 USDT to this address</p>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
                 <input type="email" id="depEmail" placeholder="Email" class="auth-input">
                 <input type="text" id="depTg" placeholder="Telegram ID" class="auth-input">
-                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
+                <input type="text" id="depTx" placeholder="TXID (Transaction ID)" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
@@ -144,7 +146,7 @@
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
             <select id="witNet" class="auth-input mb-4 text-sm">
-                <option value="TRC20">USDT (TRC20)</option><option value="BEP20">USDT (BEP20)</option><option value="BTC">Bitcoin</option>
+                <option value="BEP20">USDT (BEP20)</option><option value="TRC20">USDT (TRC20)</option><option value="BTC">Bitcoin</option>
             </select>
             <input type="text" id="witAddr" placeholder="Wallet Address" class="auth-input mb-4">
             <input type="number" id="witAmt" placeholder="Amount ($)" class="auth-input mb-6">
@@ -181,9 +183,8 @@
             showM('resultM');
         }
 
-        function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
+        function copyWallet() { navigator.clipboard.writeText('0x76ecfe8a3bd89297189e16cdcd275d743fb71a62'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
-        // --- FIXED AUTH & PROFILE LOGIC ---
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -192,12 +193,9 @@
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         const initial = user.email[0].toUpperCase();
-                        
-                        // Main Icon & Modal Details
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
-
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
