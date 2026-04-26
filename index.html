@@ -23,26 +23,25 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        select option { background: #1a1f29; color: white; }
+        
+        /* FAST PRICE OVERLAY */
+        .price-overlay { position: absolute; top: 15px; right: 15px; z-index: 50; pointer-events: none; }
+        .live-tag { background: rgba(0,0,0,0.85); padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: blink 0.8s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+        .price-val { font-family: 'Courier New', monospace; font-weight: 900; font-size: 18px; }
+        .up-move { color: #22c55e; }
+        .down-move { color: #ef4444; }
 
         .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
-        /* FAST MOVEMENT OVERLAY CSS */
-        .price-overlay { position: absolute; top: 15px; right: 15px; z-index: 50; pointer-events: none; }
-        .live-tag { background: rgba(0,0,0,0.85); padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 8px; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .price-val { font-family: 'Courier New', monospace; font-weight: 900; font-size: 16px; transition: color 0.1s ease; }
-        .up-flash { color: #22c55e; }
-        .down-flash { color: #ef4444; }
     </style>
 </head>
 <body>
 
     <div id="loadingScreen">
         <div class="loader-spin"></div>
-        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
+        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Securing Connection...</p>
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
@@ -176,7 +175,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
-        let lastPrice = 1.08542; // Virtual price tracker
+        let basePrice = 1.08542;
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
@@ -199,6 +198,7 @@
 
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
+        // --- FIXED AUTH SESSION HANDLER ---
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -210,11 +210,23 @@
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
+
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; startFastMovement(); }
+                        if(!chartLoaded) { 
+                            loadChart('FX:EURUSD'); 
+                            chartLoaded = true; 
+                            startLivePriceEngine();
+                        }
                         loader.style.display = 'none';
+                    } else {
+                        // User exists in Auth but not in Firestore yet
+                        loader.style.display = 'none';
+                        document.getElementById('authSection').style.display = 'flex';
                     }
+                }, (error) => {
+                    loader.style.display = 'none';
+                    showError("Connection Error: " + error.message);
                 });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
@@ -238,45 +250,27 @@
             }
         }
 
-        // IMPROVED FAST CHART WIDGET
         function loadChart(s) { 
             new TradingView.widget({ 
-                "autosize": true, 
-                "symbol": s, 
-                "interval": "1", 
-                "theme": "dark", 
-                "container_id": "tv_chart", 
-                "hide_top_toolbar": true, 
-                "hide_side_toolbar": true,
-                "style": "1",
-                "withdateranges": false,
-                "allow_symbol_change": true,
-                "save_image": false,
-                "details": false,
-                "hotlist": false,
-                "calendar": false
+                "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", 
+                "hide_top_toolbar": true, "hide_side_toolbar": true, "style": "1", "save_image": false 
             }); 
-            // Reset base price on symbol change for realism
-            lastPrice = (s.includes('BTC') || s.includes('ETH')) ? Math.random()*50000 : Math.random()*2;
+            basePrice = (s.includes('BTC') || s.includes('ETH')) ? 65000.45 : 1.08450;
         }
 
-        // FAST MOVEMENT ENGINE (200ms Jitter)
-        function startFastMovement() {
-            const priceDisplay = document.getElementById('fastPrice');
+        // FAST PRICE ENGINE (QUOTEX STYLE)
+        function startLivePriceEngine() {
+            const el = document.getElementById('fastPrice');
             setInterval(() => {
-                let change = (Math.random() - 0.5) * 0.00025; // Increase for more speed
-                lastPrice += change;
-                priceDisplay.innerText = lastPrice.toFixed(5);
-                
-                // Visual feedback
+                let change = (Math.random() - 0.5) * 0.00045; 
+                basePrice += change;
+                el.innerText = basePrice.toFixed(5);
                 if(change > 0) {
-                    priceDisplay.classList.add('up-flash');
-                    priceDisplay.classList.remove('down-flash');
+                    el.className = "price-val up-move";
                 } else {
-                    priceDisplay.classList.add('down-flash');
-                    priceDisplay.classList.remove('up-flash');
+                    el.className = "price-val down-move";
                 }
-            }, 250); 
+            }, 300);
         }
 
         function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
@@ -297,4 +291,5 @@
         }
 
         async function initTrade(type) {
-            co
+            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
+      
