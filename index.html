@@ -91,22 +91,21 @@
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
-                <h3 class="text-white font-bold mb-4">Scan QR Code to Pay</h3>
+                <h3 class="text-white font-bold mb-4">Scan QR to Pay</h3>
                 
-                <a href="https://raw.githubusercontent.com/Waqas938/trading-app/main/1000059522.jpg" target="_blank" class="block bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-2xl mb-6 hover:bg-yellow-500/20 transition-all">
-                    <p class="text-yellow-500 font-black text-sm uppercase">👉 Click here to view Scanner</p>
-                    <p class="text-[9px] text-gray-400 mt-1">Tap to open QR code in new window</p>
-                </a>
+                <div class="bg-white p-3 rounded-2xl mb-6 inline-block shadow-lg border-4 border-yellow-500">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" alt="QR Code" class="w-[180px] h-[180px]">
+                </div>
 
                 <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10">
-                    <span class="text-[9px] truncate mr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
-                    <button id="copyBtn" onclick="copyWallet()" class="text-yellow-500 text-[9px] font-bold">COPY</button>
+                    <span class="text-[9px] truncate mr-2 text-yellow-500">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
+                    <button id="copyBtn" onclick="copyWallet()" class="text-white bg-yellow-600 px-2 py-1 rounded text-[9px] font-bold">COPY</button>
                 </div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depTx" placeholder="Enter TXID / Transaction ID" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Now</button>
+                <input type="text" id="depTx" placeholder="Enter Transaction ID (TXID)" class="auth-input">
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
@@ -169,8 +168,9 @@
 
         async function submitFinalDep() {
             const tx = document.getElementById('depTx').value;
+            if(!tx) return alert("Please enter TXID");
             await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, amount: document.getElementById('depAmtInput').value, time: Date.now() });
-            hideM('depM'); alert("Payment submitted! Wait for verification.");
+            hideM('depM'); alert("Payment submitted! Verification in progress.");
         }
 
         async function initTrade(type) {
