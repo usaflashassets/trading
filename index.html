@@ -133,13 +133,13 @@
                 </div>
                 <div id="pStep2" class="hidden">
                     <img src="1000059487.jpg" class="mx-auto mb-2 rounded-xl w-48 border-2 border-yellow-500">
-                    <p class="text-yellow-500 font-black italic mb-4">Dubai Live Trade</p>
+                    <p class="text-yellow-500 font-black italic mb-4 uppercase text-xs">Dubai Live Trade</p>
                     <button onclick="toPStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
                 </div>
                 <div id="pStep3" class="hidden space-y-3 text-left">
-                    <input type="text" id="pName" placeholder="Enter your Account Name" class="auth-input">
-                    <input type="number" id="pPaid" placeholder="Enter your send amount" class="auth-input">
-                    <input type="text" id="pTxid" placeholder="Enter your Txid" class="auth-input">
+                    <input type="text" id="pName" placeholder="Account Name" class="auth-input">
+                    <input type="number" id="pPaid" placeholder="Sent Amount" class="auth-input">
+                    <input type="text" id="pTxid" placeholder="Transaction ID (TXID)" class="auth-input">
                     <button onclick="submitDep('PKR')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
                 </div>
             </div>
@@ -178,7 +178,7 @@
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
         
-        // --- SESSION FIX ---
+        // --- VERIFYING SESSION FIX ---
         function clearLoader() { document.getElementById('loadingScreen').style.display = 'none'; }
 
         auth.onAuthStateChanged(user => {
@@ -204,30 +204,53 @@
             }
         });
 
-        // Force clear loader after 5s if stuck
+        // Force hide loader after 5 seconds
         setTimeout(clearLoader, 5000);
 
         // --- DEPOSIT SYSTEM ---
-        function showDepPath(type) { document.getElementById('depChoice').classList.add('hidden'); document.getElementById(type+'Path').classList.remove('hidden'); if(type==='crypto') toCStep(1); else toPStep(1); }
-        function resetDepM() { ['depChoice','cryptoPath','pkrPath','cStep1','cStep2','cStep3','pStep1','pStep2','pStep3'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('depChoice').classList.remove('hidden'); hideM('depM'); }
+        function showDepPath(type) { 
+            document.getElementById('depChoice').classList.add('hidden'); 
+            document.getElementById(type+'Path').classList.remove('hidden'); 
+            if(type==='crypto') toCStep(1); else toPStep(1); 
+        }
+
+        function resetDepM() { 
+            ['depChoice','cryptoPath','pkrPath','cStep1','cStep2','cStep3','pStep1','pStep2','pStep3'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
+            });
+            document.getElementById('depChoice').classList.remove('hidden'); 
+            hideM('depM'); 
+        }
+
         function toCStep(s) { ['cStep1','cStep2','cStep3'].forEach((id, i) => document.getElementById(id).classList.toggle('hidden', i !== s-1)); }
         function toPStep(s) { ['pStep1','pStep2','pStep3'].forEach((id, i) => document.getElementById(id).classList.toggle('hidden', i !== s-1)); }
 
         async function submitDep(method) {
             let info = { uid: auth.currentUser.uid, method: method, time: Date.now(), status: 'pending' };
-            if(method === 'Crypto') { info.amount = document.getElementById('cAmount').value; info.txid = document.getElementById('cTx').value; }
-            else { info.amount = document.getElementById('pPaid').value; info.name = document.getElementById('pName').value; info.txid = document.getElementById('pTxid').value; }
-            if(!info.amount || !info.txid) return alert("Fill all fields");
+            if(method === 'Crypto') { 
+                info.amount = document.getElementById('cAmount').value; 
+                info.txid = document.getElementById('cTx').value; 
+                info.email = document.getElementById('cEmail').value;
+            } else { 
+                info.amount = document.getElementById('pPaid').value; 
+                info.name = document.getElementById('pName').value; 
+                info.txid = document.getElementById('pTxid').value; 
+            }
+            if(!info.amount || !info.txid) return alert("Please fill all fields");
             await db.collection('requests').add(info);
-            resetDepM(); alert("Sent! Verification in progress.");
+            resetDepM(); 
+            alert("Deposit request submitted successfully!");
         }
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
             document.getElementById('loadingScreen').style.display = 'flex';
             try {
-                if(mode==='reg') { const r = await auth.createUserWithEmailAndPassword(e, p); await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); }
-                else { await auth.signInWithEmailAndPassword(e, p); }
+                if(mode==='reg') { 
+                    const r = await auth.createUserWithEmailAndPassword(e, p); 
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
+                } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { clearLoader(); alert(err.message); }
         }
 
@@ -235,15 +258,15 @@
         
         async function submitWit() {
             const amt = parseFloat(document.getElementById('witAmt').value);
-            if(!amt || amt > userData.balance) return alert("Low balance");
+            if(!amt || amt > userData.balance) return alert("Invalid amount or low balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, time: Date.now() });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, wallet: document.getElementById('witAddr').value, network: document.getElementById('witNet').value, time: Date.now() });
             hideM('witM'); alert("Withdrawal request sent!");
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low balance");
+            if(amt > userData.balance || amt <= 0) return alert("Insufficient balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -259,10 +282,6 @@
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
-            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
-            showM('resultM');
-        }
-
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').cla
+            if(win) { 
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
+                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2
