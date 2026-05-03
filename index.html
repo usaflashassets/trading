@@ -24,7 +24,6 @@
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         select option { background: #1a1f29; color: white; }
-
         .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
@@ -101,7 +100,7 @@
     </div>
 
     <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Details</h2>
                 <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl font-light">&times;</button>
@@ -185,6 +184,7 @@
 
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
+        // Loader Fix: Ensure it closes even if firebase takes time
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -192,7 +192,7 @@
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
+                        const initial = user.email ? user.email[0].toUpperCase() : '?';
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
@@ -200,8 +200,12 @@
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                         loader.style.display = 'none';
+                    } else {
+                        // User exists in Auth but not in Firestore yet
+                        loader.style.display = 'none';
+                        document.getElementById('authSection').style.display = 'flex';
                     }
-                });
+                }, (err) => { loader.style.display = 'none'; });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
@@ -253,7 +257,7 @@
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return showError("Low balance");
+            if(!userData || amt > userData.balance || amt <= 0) return showError("Low balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -271,8 +275,4 @@
             const p = amt * 1.82, box = document.getElementById('resultBox');
             if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
             else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
-            showM('resultM');
-        }
-
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; d
+          
