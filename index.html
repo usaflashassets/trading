@@ -96,7 +96,7 @@
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
             <div id="depChoice">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
                 <button onclick="showDepPath('crypto')" class="w-full py-4 mb-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Deposit Crypto</button>
@@ -104,44 +104,15 @@
             </div>
 
             <div id="cryptoPath" class="hidden">
-                <div id="cStep1">
-                    <h2 class="text-lg font-bold mb-4">Crypto Amount</h2>
-                    <input type="number" id="cAmount" placeholder="Amount ($)" class="auth-input mb-6 text-center text-lg">
-                    <button onclick="toCStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
-                </div>
-                <div id="cStep2" class="hidden">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 p-2 bg-white rounded-xl">
-                    <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10">
-                        <span class="text-[9px] truncate mr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
-                        <button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM');alert('Copied')" class="text-yellow-500 text-[9px] font-bold">COPY</button>
-                    </div>
-                    <button onclick="toCStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
-                </div>
-                <div id="cStep3" class="hidden space-y-3">
-                    <input type="email" id="cEmail" placeholder="Email" class="auth-input">
-                    <input type="text" id="cTg" placeholder="Telegram ID" class="auth-input">
-                    <input type="text" id="cTx" placeholder="TXID" class="auth-input">
-                    <button onclick="submitDep('Crypto')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
-                </div>
+                <div id="cStep1"><h2 class="text-lg font-bold mb-4">Crypto Amount</h2><input type="number" id="cAmount" placeholder="Amount ($)" class="auth-input mb-6 text-center text-lg"><button onclick="toCStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button></div>
+                <div id="cStep2" class="hidden"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 p-2 bg-white rounded-xl"><div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10"><span class="text-[9px] truncate mr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span><button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM');alert('Copied')" class="text-yellow-500 text-[9px] font-bold">COPY</button></div><button onclick="toCStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button></div>
+                <div id="cStep3" class="hidden space-y-3"><input type="email" id="cEmail" placeholder="Email" class="auth-input"><input type="text" id="cTg" placeholder="Telegram ID" class="auth-input"><input type="text" id="cTx" placeholder="TXID" class="auth-input"><button onclick="submitDep('Crypto')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button></div>
             </div>
 
             <div id="pkrPath" class="hidden">
-                <div id="pStep1">
-                    <h2 class="text-lg font-bold mb-4">PKR Amount</h2>
-                    <input type="number" id="pAmount" placeholder="Amount (PKR)" class="auth-input mb-6 text-center text-lg">
-                    <button onclick="toPStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
-                </div>
-                <div id="pStep2" class="hidden">
-                    <img src="1000059487.jpg" class="mx-auto mb-2 rounded-xl w-48 border-2 border-yellow-500">
-                    <p class="text-yellow-500 font-black italic mb-4 uppercase text-xs">Dubai Live Trade</p>
-                    <button onclick="toPStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
-                </div>
-                <div id="pStep3" class="hidden space-y-3 text-left">
-                    <input type="text" id="pName" placeholder="Account Name" class="auth-input">
-                    <input type="number" id="pPaid" placeholder="Sent Amount" class="auth-input">
-                    <input type="text" id="pTxid" placeholder="Transaction ID (TXID)" class="auth-input">
-                    <button onclick="submitDep('PKR')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
-                </div>
+                <div id="pStep1"><h2 class="text-lg font-bold mb-4">PKR Amount</h2><input type="number" id="pAmount" placeholder="Amount (PKR)" class="auth-input mb-6 text-center text-lg"><button onclick="toPStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button></div>
+                <div id="pStep2" class="hidden"><img src="1000059487.jpg" class="mx-auto mb-2 rounded-xl w-48 border-2 border-yellow-500"><p class="text-yellow-500 font-black italic mb-4">Dubai Live Trade</p><button onclick="toPStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button></div>
+                <div id="pStep3" class="hidden space-y-3 text-left"><input type="text" id="pName" placeholder="Enter your Account Name" class="auth-input"><input type="number" id="pPaid" placeholder="Enter your send amount" class="auth-input"><input type="text" id="pTxid" placeholder="Enter your Txid" class="auth-input"><button onclick="submitDep('PKR')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button></div>
             </div>
             <button onclick="resetDepM()" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
@@ -161,7 +132,7 @@
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div class="flex justify-between items-center mb-6"><h2 class="text-[10px] font-black text-gray-500 uppercase">Account Details</h2><button onclick="hideM('settingsM')" class="text-gray-500 text-2xl">&times;</button></div>
             <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
-            <h2 id="modalEmail" class="text-white font-bold text-sm mb-4 italic break-all"></h2>
+            <h2 id="modalEmail" class="text-white font-bold text-sm mb-4 italic"></h2>
             <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Secure Logout</button>
         </div>
     </div>
@@ -177,9 +148,10 @@
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
-        
+        function forceHideLoader() { document.getElementById('loadingScreen').classList.add('hidden'); }
+
         // --- VERIFYING SESSION FIX ---
-        function clearLoader() { document.getElementById('loadingScreen').style.display = 'none'; }
+        setTimeout(forceHideLoader, 5000);
 
         auth.onAuthStateChanged(user => {
             if(user) {
@@ -187,86 +159,59 @@
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
+                        document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
+                        document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        clearLoader();
+                        forceHideLoader();
                     }
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
-                clearLoader();
+                forceHideLoader();
             }
         });
 
-        // Force hide loader after 5 seconds
-        setTimeout(clearLoader, 5000);
-
         // --- DEPOSIT SYSTEM ---
-        function showDepPath(type) { 
-            document.getElementById('depChoice').classList.add('hidden'); 
-            document.getElementById(type+'Path').classList.remove('hidden'); 
-            if(type==='crypto') toCStep(1); else toPStep(1); 
-        }
-
-        function resetDepM() { 
-            ['depChoice','cryptoPath','pkrPath','cStep1','cStep2','cStep3','pStep1','pStep2','pStep3'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
-            });
-            document.getElementById('depChoice').classList.remove('hidden'); 
-            hideM('depM'); 
-        }
-
+        function showDepPath(type) { document.getElementById('depChoice').classList.add('hidden'); document.getElementById(type+'Path').classList.remove('hidden'); if(type==='crypto') toCStep(1); else toPStep(1); }
+        function resetDepM() { ['depChoice','cryptoPath','pkrPath','cStep1','cStep2','cStep3','pStep1','pStep2','pStep3'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('depChoice').classList.remove('hidden'); hideM('depM'); }
         function toCStep(s) { ['cStep1','cStep2','cStep3'].forEach((id, i) => document.getElementById(id).classList.toggle('hidden', i !== s-1)); }
         function toPStep(s) { ['pStep1','pStep2','pStep3'].forEach((id, i) => document.getElementById(id).classList.toggle('hidden', i !== s-1)); }
 
         async function submitDep(method) {
             let info = { uid: auth.currentUser.uid, method: method, time: Date.now(), status: 'pending' };
-            if(method === 'Crypto') { 
-                info.amount = document.getElementById('cAmount').value; 
-                info.txid = document.getElementById('cTx').value; 
-                info.email = document.getElementById('cEmail').value;
-            } else { 
-                info.amount = document.getElementById('pPaid').value; 
-                info.name = document.getElementById('pName').value; 
-                info.txid = document.getElementById('pTxid').value; 
-            }
-            if(!info.amount || !info.txid) return alert("Please fill all fields");
+            if(method === 'Crypto') { info.amount = document.getElementById('cAmount').value; info.txid = document.getElementById('cTx').value; }
+            else { info.amount = document.getElementById('pPaid').value; info.name = document.getElementById('pName').value; info.txid = document.getElementById('pTxid').value; }
+            if(!info.amount || !info.txid) return alert("Fill all fields");
             await db.collection('requests').add(info);
-            resetDepM(); 
-            alert("Deposit request submitted successfully!");
+            resetDepM(); alert("Deposit request sent!");
         }
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('loadingScreen').classList.remove('hidden');
             try {
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
-                } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) { clearLoader(); alert(err.message); }
+                if(mode==='reg') { const r = await auth.createUserWithEmailAndPassword(e, p); await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); }
+                else { await auth.signInWithEmailAndPassword(e, p); }
+            } catch(err) { forceHideLoader(); alert(err.message); }
         }
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
         
         async function submitWit() {
             const amt = parseFloat(document.getElementById('witAmt').value);
-            if(!amt || amt > userData.balance) return alert("Invalid amount or low balance");
+            if(!amt || amt > userData.balance) return alert("Low balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, wallet: document.getElementById('witAddr').value, network: document.getElementById('witNet').value, time: Date.now() });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, time: Date.now() });
             hideM('witM'); alert("Withdrawal request sent!");
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Insufficient balance");
+            if(amt > userData.balance || amt <= 0) return alert("Low balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -282,6 +227,13 @@
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2
+            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
+            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
+            showM('resultM');
+        }
+
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
