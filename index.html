@@ -96,7 +96,7 @@
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="depChoice">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
                 <button onclick="showDepPath('crypto')" class="w-full py-4 mb-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Deposit Crypto</button>
@@ -104,15 +104,44 @@
             </div>
 
             <div id="cryptoPath" class="hidden">
-                <div id="cStep1"><h2 class="text-lg font-bold mb-4">Crypto Amount</h2><input type="number" id="cAmount" placeholder="Amount ($)" class="auth-input mb-6 text-center text-lg"><button onclick="toCStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button></div>
-                <div id="cStep2" class="hidden"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 p-2 bg-white rounded-xl"><div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10"><span class="text-[9px] truncate mr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span><button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM');alert('Copied')" class="text-yellow-500 text-[9px] font-bold">COPY</button></div><button onclick="toCStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button></div>
-                <div id="cStep3" class="hidden space-y-3"><input type="email" id="cEmail" placeholder="Email" class="auth-input"><input type="text" id="cTg" placeholder="Telegram ID" class="auth-input"><input type="text" id="cTx" placeholder="TXID" class="auth-input"><button onclick="submitDep('Crypto')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button></div>
+                <div id="cStep1">
+                    <h2 class="text-lg font-bold mb-4">Crypto Amount</h2>
+                    <input type="number" id="cAmount" placeholder="Amount ($)" class="auth-input mb-6 text-center text-lg">
+                    <button onclick="toCStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
+                </div>
+                <div id="cStep2" class="hidden">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 p-2 bg-white rounded-xl">
+                    <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center border border-white/10">
+                        <span class="text-[9px] truncate mr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
+                        <button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM');alert('Copied')" class="text-yellow-500 text-[9px] font-bold">COPY</button>
+                    </div>
+                    <button onclick="toCStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
+                </div>
+                <div id="cStep3" class="hidden space-y-3">
+                    <input type="email" id="cEmail" placeholder="Email" class="auth-input">
+                    <input type="text" id="cTg" placeholder="Telegram ID" class="auth-input">
+                    <input type="text" id="cTx" placeholder="TXID" class="auth-input">
+                    <button onclick="submitDep('Crypto')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+                </div>
             </div>
 
             <div id="pkrPath" class="hidden">
-                <div id="pStep1"><h2 class="text-lg font-bold mb-4">PKR Amount</h2><input type="number" id="pAmount" placeholder="Amount (PKR)" class="auth-input mb-6 text-center text-lg"><button onclick="toPStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button></div>
-                <div id="pStep2" class="hidden"><img src="1000059487.jpg" class="mx-auto mb-2 rounded-xl w-48 border-2 border-yellow-500"><p class="text-yellow-500 font-black italic mb-4">Dubai Live Trade</p><button onclick="toPStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button></div>
-                <div id="pStep3" class="hidden space-y-3 text-left"><input type="text" id="pName" placeholder="Enter your Account Name" class="auth-input"><input type="number" id="pPaid" placeholder="Enter your send amount" class="auth-input"><input type="text" id="pTxid" placeholder="Enter your Txid" class="auth-input"><button onclick="submitDep('PKR')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button></div>
+                <div id="pStep1">
+                    <h2 class="text-lg font-bold mb-4">PKR Amount</h2>
+                    <input type="number" id="pAmount" placeholder="Amount (PKR)" class="auth-input mb-6 text-center text-lg">
+                    <button onclick="toPStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
+                </div>
+                <div id="pStep2" class="hidden">
+                    <img src="1000059487.jpg" class="mx-auto mb-2 rounded-xl w-48 border-2 border-yellow-500">
+                    <p class="text-yellow-500 font-black italic mb-4">Dubai Live Trade</p>
+                    <button onclick="toPStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
+                </div>
+                <div id="pStep3" class="hidden space-y-3 text-left">
+                    <input type="text" id="pName" placeholder="Enter your Account Name" class="auth-input">
+                    <input type="number" id="pPaid" placeholder="Enter your send amount" class="auth-input">
+                    <input type="text" id="pTxid" placeholder="Enter your Txid" class="auth-input">
+                    <button onclick="submitDep('PKR')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+                </div>
             </div>
             <button onclick="resetDepM()" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
@@ -132,7 +161,7 @@
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div class="flex justify-between items-center mb-6"><h2 class="text-[10px] font-black text-gray-500 uppercase">Account Details</h2><button onclick="hideM('settingsM')" class="text-gray-500 text-2xl">&times;</button></div>
             <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
-            <h2 id="modalEmail" class="text-white font-bold text-sm mb-4 italic"></h2>
+            <h2 id="modalEmail" class="text-white font-bold text-sm mb-4 italic break-all"></h2>
             <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Secure Logout</button>
         </div>
     </div>
@@ -148,10 +177,9 @@
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
-        function forceHideLoader() { document.getElementById('loadingScreen').classList.add('hidden'); }
-
-        // --- VERIFYING SESSION FIX ---
-        setTimeout(forceHideLoader, 5000);
+        
+        // --- SESSION FIX ---
+        function clearLoader() { document.getElementById('loadingScreen').style.display = 'none'; }
 
         auth.onAuthStateChanged(user => {
             if(user) {
@@ -159,21 +187,25 @@
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
-                        document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
+                        const initial = user.email[0].toUpperCase();
+                        document.getElementById('userInitial').innerText = initial;
+                        document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        forceHideLoader();
+                        clearLoader();
                     }
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
-                forceHideLoader();
+                clearLoader();
             }
         });
+
+        // Force clear loader after 5s if stuck
+        setTimeout(clearLoader, 5000);
 
         // --- DEPOSIT SYSTEM ---
         function showDepPath(type) { document.getElementById('depChoice').classList.add('hidden'); document.getElementById(type+'Path').classList.remove('hidden'); if(type==='crypto') toCStep(1); else toPStep(1); }
@@ -187,16 +219,16 @@
             else { info.amount = document.getElementById('pPaid').value; info.name = document.getElementById('pName').value; info.txid = document.getElementById('pTxid').value; }
             if(!info.amount || !info.txid) return alert("Fill all fields");
             await db.collection('requests').add(info);
-            resetDepM(); alert("Deposit request sent!");
+            resetDepM(); alert("Sent! Verification in progress.");
         }
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            document.getElementById('loadingScreen').classList.remove('hidden');
+            document.getElementById('loadingScreen').style.display = 'flex';
             try {
                 if(mode==='reg') { const r = await auth.createUserWithEmailAndPassword(e, p); await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); }
                 else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) { forceHideLoader(); alert(err.message); }
+            } catch(err) { clearLoader(); alert(err.message); }
         }
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
@@ -233,7 +265,4 @@
             showM('resultM');
         }
 
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').cla
