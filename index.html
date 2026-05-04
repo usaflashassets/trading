@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ProTrade Global | Elite Terminal</title>
+    <title>ProTrade Global | Professional Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -12,91 +12,140 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; font-size: 16px; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         
-        .profile-trigger { width: 44px; height: 44px; background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px -6px rgba(234, 179, 8, 0.4); border: 2px solid rgba(255,255,255,0.1); }
+        /* Modern Profile Icon */
+        .profile-trigger { 
+            width: 44px; height: 44px; 
+            background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%); 
+            border-radius: 14px; display: flex; align-items: center; justify-content: center; 
+            color: #000; font-weight: 800; cursor: pointer; 
+            box-shadow: 0 8px 15px rgba(234, 179, 8, 0.3); border: 2px solid rgba(255,255,255,0.1); 
+        }
+
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
+        .timer-badge { position: absolute; bottom: 12px; right: 12px; background: #eab308; color: black; padding: 6px 16px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 11px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        select { -webkit-appearance: none; }
     </style>
 </head>
 <body>
+
+    <div id="authSection" class="h-full flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px] border border-white/10 text-center">
+            <h1 class="text-3xl font-black mb-8 italic tracking-tighter">PROTRADE</h1>
+            <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
+            <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Sign In / Register</button>
+        </div>
+    </div>
 
     <div id="appTerminal">
         <header class="flex justify-between items-center p-2 mb-2">
             <div class="flex items-center gap-3">
                 <div onclick="showM('settingsM')" id="userInitial" class="profile-trigger">?</div>
                 <div onclick="toggleCurrency()" class="cursor-pointer">
-                    <p class="text-[7px] text-gray-500 font-bold uppercase tracking-widest">Balance (Tap to Switch)</p>
-                    <h1 id="balanceDisp" class="text-xl font-black text-white">$0.00</h1>
+                    <p class="text-[7px] text-gray-500 font-bold uppercase tracking-[0.2em]">Live Balance ⇵</p>
+                    <h1 id="balanceDisp" class="text-xl font-black text-white leading-none">$0.00</h1>
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2.5 rounded-xl text-[10px] font-black uppercase">Deposit</button>
+                <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-yellow-500/20">Deposit</button>
                 <button onclick="showM('witM')" class="bg-white/5 text-white px-4 py-2.5 rounded-xl text-[10px] font-black uppercase border border-white/10">Withdraw</button>
             </div>
         </header>
 
-        <main class="relative flex-grow rounded-[32px] overflow-hidden bg-black mb-2 border border-white/5">
+        <div class="mb-2 px-1">
+            <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-yellow-500 font-bold text-[11px] outline-none">
+                <optgroup label="FOREX CURRENCY">
+                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:EURGBP">EUR/GBP (85%)</option>
+                    <option value="FX:EURJPY">EUR/JPY (82%)</option><option value="FX:NZDUSD">NZD/USD (80%)</option>
+                </optgroup>
+                <optgroup label="CRYPTO ASSETS">
+                    <option value="BINANCE:BTCUSDT">BITCOIN (BTC)</option><option value="BINANCE:ETHUSDT">ETHEREUM (ETH)</option>
+                    <option value="BINANCE:SOLUSDT">SOLANA (SOL)</option><option value="BINANCE:DOGEUSDT">DOGE COIN</option>
+                </optgroup>
+                <optgroup label="STOCKS & METALS">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
+                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="NASDAQ:AMZN">AMAZON</option><option value="NASDAQ:META">META</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <main class="relative flex-grow rounded-[32px] overflow-hidden bg-black mb-2 border border-white/5 shadow-inner">
             <div id="tv_chart" class="h-full w-full"></div>
             <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
         </main>
 
-        <footer class="glass-card p-4 rounded-[36px]">
+        <footer class="glass-card p-4 rounded-[36px] border-t border-white/10">
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <div class="bg-black/40 p-3 rounded-2xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block mb-1">Amount ($)</span>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1 mb-1">Trade Amount ($)</span>
                     <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-black text-white text-lg w-full">
                 </div>
                 <div class="bg-black/40 p-3 rounded-2xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block mb-1">Duration</span>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1 mb-1">Time Frame</span>
                     <select id="duration" class="bg-transparent font-black text-white text-lg w-full outline-none">
-                        <option value="5">5s</option><option value="30">30s</option><option value="60">1m</option>
-                        <option value="300">5m</option><option value="600">10m</option><option value="900">15m</option>
+                        <option value="5">5 Sec</option><option value="15">15 Sec</option><option value="30">30 Sec</option>
+                        <option value="60">1 Min</option><option value="120">2 Min</option><option value="300">5 Min</option>
+                        <option value="600">10 Min</option><option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white uppercase text-sm">Call</button>
-                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm">Put</button>
+                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white uppercase text-sm shadow-lg shadow-green-900/30">Call</button>
+                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm shadow-lg shadow-red-900/30">Put</button>
             </div>
         </footer>
     </div>
 
     <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center border border-white/10 shadow-2xl">
-            <div class="w-20 h-20 bg-gradient-to-tr from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl rotate-3">
+        <div class="glass-card p-10 rounded-[45px] w-full max-w-sm text-center border border-white/10 shadow-2xl">
+            <div class="w-20 h-20 bg-gradient-to-tr from-yellow-400 to-yellow-600 rounded-[24px] flex items-center justify-center mx-auto mb-6 shadow-2xl rotate-3">
                 <span id="modalInitial" class="text-3xl font-black text-black -rotate-3">?</span>
             </div>
-            <h2 id="modalEmail" class="text-white font-black text-base mb-2">User Account</h2>
-            <div class="flex justify-center mb-6"><span class="bg-green-500/10 text-green-500 text-[9px] px-3 py-1 rounded-full border border-green-500/20 font-black uppercase">● Verified Elite</span></div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest active:scale-95 transition">Logout Account</button>
+            <h2 id="modalEmail" class="text-white font-black text-lg mb-2">User Account</h2>
+            <div class="flex justify-center mb-8"><span class="bg-green-500/10 text-green-500 text-[9px] px-3 py-1 rounded-full border border-green-500/20 font-black uppercase">● Verified Trader</span></div>
+            
+            <div class="space-y-3 mb-8">
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Status</span>
+                    <span class="text-[10px] font-black text-white">VIP Elite</span>
+                </div>
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5 text-left">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Account ID</span>
+                    <span class="text-[10px] font-black text-white">#TR88902</span>
+                </div>
+            </div>
+
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest active:scale-95 transition">Secure Logout</button>
         </div>
     </div>
 
+    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
+    
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, isPkr = false;
+        let userData = null, isPkr = false, chartLoaded = false;
         const PKR_RATE = 280;
 
-        function toggleCurrency() {
-            isPkr = !isPkr;
-            updateBalanceDisplay();
-        }
+        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function toggleCurrency() { isPkr = !isPkr; updateBalanceDisplay(); }
 
         function updateBalanceDisplay() {
             if(!userData) return;
             const bal = userData.balance || 0;
-            if(isPkr) {
-                document.getElementById('balanceDisp').innerText = "Rs " + (bal * PKR_RATE).toLocaleString();
-            } else {
-                document.getElementById('balanceDisp').innerText = "$" + bal.toFixed(2);
-            }
+            document.getElementById('balanceDisp').innerText = isPkr ? "Rs " + (bal * PKR_RATE).toLocaleString() : "$" + bal.toFixed(2);
         }
 
         auth.onAuthStateChanged(user => {
@@ -104,16 +153,55 @@
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     updateBalanceDisplay();
-                    document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
-                    document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
+                    const ini = user.email[0].toUpperCase();
+                    document.getElementById('userInitial').innerText = ini;
+                    document.getElementById('modalInitial').innerText = ini;
                     document.getElementById('modalEmail').innerText = user.email;
+                    document.getElementById('authSection').style.display = 'none';
                     document.getElementById('appTerminal').style.display = 'flex';
-                    new TradingView.widget({ "autosize": true, "symbol": "FX:EURUSD", "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true });
+                    if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                 });
-            } else { document.getElementById('appTerminal').style.display = 'none'; }
+            } else { document.getElementById('authSection').style.display = 'flex'; }
         });
 
-        // Other functions (initTrade, submitWit etc.) same as previous correct version.
+        async function initTrade(type) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
+            if(amt > userData.balance || amt <= 0) return alert("Insufficient Balance");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            document.getElementById('tradeTimer').style.display = 'block';
+            let l = dur;
+            let iv = setInterval(() => {
+                let m = Math.floor(l/60), s = l%60;
+                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; finalizeTrade(amt); }
+                l--;
+            }, 1000);
+        }
+
+        function finalizeTrade(amt) {
+            const win = Math.random() > 0.5;
+            const profit = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) {
+                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(profit) });
+                box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest uppercase">Profit Received</h2><h1 class="text-4xl text-white">+$${profit.toFixed(2)}</h1>`;
+            } else {
+                box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest uppercase">Loss Settled</h2><h1 class="text-4xl text-white">-$${amt.toFixed(2)}</h1>`;
+            }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue Trading</button>`;
+            showM('resultM');
+        }
+
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        
+        async function handleAuth() {
+            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            try { 
+                const r = await auth.signInWithEmailAndPassword(e, p); 
+            } catch { 
+                const r = await auth.createUserWithEmailAndPassword(e, p);
+                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
+            }
+        }
     </script>
 </body>
 </html>
