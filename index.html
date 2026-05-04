@@ -15,13 +15,17 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         
-        /* Updated: Hidden by default to prevent flickering */
-        #authSection { display: none; }
-        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        
+        /* FIX: Initial state is completely hidden to prevent flickering */
+        #authSection, #appTerminal { 
+            display: none; 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+        }
+
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -50,7 +54,7 @@
         </div>
     </div>
 
-    <div id="appTerminal">
+    <div id="appTerminal" class="flex-col p-2">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
                 <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
@@ -185,9 +189,12 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
-        // FIXED LOGIC: On Auth State Change
+        // FIXED AUTH LOGIC
         auth.onAuthStateChanged(user => {
-            // Loading screen remains visible until user status is confirmed
+            const loading = document.getElementById('loadingScreen');
+            const authSec = document.getElementById('authSection');
+            const terminal = document.getElementById('appTerminal');
+
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -199,19 +206,20 @@
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('modalEmailBox').innerText = user.email;
                         
-                        // Hide loading and show app
-                        document.getElementById('loadingScreen').style.display = 'none'; 
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
+                        // Switch UI
+                        loading.style.display = 'none';
+                        authSec.style.display = 'none';
+                        terminal.style.display = 'flex';
+                        setTimeout(() => { terminal.style.opacity = '1'; }, 50);
                         
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                     }
                 });
             } else {
-                // If no user, show login page only
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('appTerminal').style.display = 'none';
-                document.getElementById('authSection').style.display = 'flex';
+                loading.style.display = 'none';
+                terminal.style.display = 'none';
+                authSec.style.display = 'flex';
+                setTimeout(() => { authSec.style.opacity = '1'; }, 50);
             }
         });
 
@@ -222,7 +230,6 @@
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return alert("Fill all fields");
-            // Auto-filling email from logged-in account
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
             hideM('depM'); alert("Request Sent!");
         }
@@ -268,13 +275,11 @@
                 if(mode==='reg') { 
                     const r = await auth.createUserWithEmailAndPassword(e, p); 
                     await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
-                } else { 
-                    await auth.signInWithEmailAndPassword(e, p); 
-                }
+                } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) {
                 alert(err.message);
                 document.getElementById('loadingScreen').style.display = 'none';
             }
         }
         
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-
