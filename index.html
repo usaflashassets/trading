@@ -18,17 +18,13 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
-        /* Session Fix Loading */
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Fancy Profile & Success Popup */
+        
+        /* Profile Fancy Items */
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
-        .success-anim { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -36,16 +32,6 @@
     <div id="loadingScreen">
         <div class="loader-spin"></div>
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
-    </div>
-
-    <div id="successM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-72 text-center border-t-4 border-green-500 success-anim">
-            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <h2 class="text-white font-black uppercase tracking-widest text-lg mb-2">Success!</h2>
-            <p class="text-gray-400 text-[11px] font-bold leading-relaxed">Your request has been submitted successfully for verification.</p>
-        </div>
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
@@ -81,7 +67,7 @@
                     <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
                     <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
                 </optgroup>
-                <optgroup label="CRYPTO (OTC)">
+                <optgroup label="CRYPTO">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
                     <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
                     <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
@@ -122,6 +108,30 @@
         </footer>
     </div>
 
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
+                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
+            </div>
+            <div class="text-center mb-6">
+                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
+                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
+            </div>
+            <div class="space-y-3 mb-8">
+                <div class="profile-item">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
+                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
+                </div>
+                <div class="profile-item">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
+                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
+                </div>
+            </div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
+        </div>
+    </div>
+
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
@@ -152,6 +162,7 @@
                     <option value="" disabled selected>Choose Bank</option>
                     <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
                     <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
+                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
@@ -159,23 +170,6 @@
                 <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
             </div>
             <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
-        </div>
-    </div>
-
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-[3px]">User Profile</h2>
-                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10">&times;</button>
-            </div>
-            <div class="text-center mb-8">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
-                <h3 class="text-white font-bold italic" id="modalEmail">...</h3>
-            </div>
-            <div class="space-y-3 mb-8 text-left">
-                <div class="profile-item"><span class="text-[9px] text-gray-500 font-bold uppercase">Status</span><span class="text-xs font-bold text-green-500">Verified Elite</span></div>
-            </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px] tracking-widest">Logout Account</button>
         </div>
     </div>
 
@@ -188,10 +182,11 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
-        // Verifying Session Fix: Auto-hide after 3.5 seconds anyway
-        setTimeout(() => { if(document.getElementById('loadingScreen')) document.getElementById('loadingScreen').style.display = 'none'; }, 3500);
+        // SESSION ISSUE FIX: Auto-hide loading screen after 3 seconds
+        setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; }, 3000);
 
         auth.onAuthStateChanged(user => {
+            document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -201,16 +196,15 @@
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
+                        document.getElementById('modalEmailBox').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        document.getElementById('loadingScreen').style.display = 'none';
                     }
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
-                document.getElementById('loadingScreen').style.display = 'none';
             }
         });
 
@@ -218,28 +212,19 @@
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
 
-        // FANCY POPUP TRIGGER
-        function showSuccessPopup() {
-            showM('successM');
-            setTimeout(() => hideM('successM'), 2500);
-        }
-
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return alert("Fill all fields");
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); 
-            showSuccessPopup(); // FANCY SUCCESS
+            hideM('depM'); alert("Request Sent!");
         }
 
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
             if(!b || !n || !nm || !amtPkr) return alert("Fill all fields");
-            if((amtPkr/280) > userData.balance) return alert("Insufficient Balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); 
-            showSuccessPopup(); // FANCY SUCCESS
+            hideM('witM'); alert("Withdrawal submitted.");
         }
 
         async function initTrade(type) {
@@ -274,4 +259,7 @@
                 await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
             } else { await auth.signInWithEmailAndPassword(e, p); }
         }
-   
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
