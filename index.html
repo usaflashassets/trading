@@ -18,11 +18,12 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         select option { background: #1a1f29; color: white; }
+        .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -33,7 +34,7 @@
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
-        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
                 <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
@@ -105,16 +106,42 @@
             </div>
             <div id="dStep2" class="hidden">
                 <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 p-2 bg-white rounded-xl w-48 h-48 object-contain">
-                <div class="mb-6"><p class="text-white text-xl font-black italic uppercase">Dubai Live Trade</p></div>
+                <div class="mb-6"><p class="text-white text-xl font-black italic uppercase italic bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">Dubai Live Trade</p></div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depAccName" placeholder="Enter Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Enter Sent Amount" class="auth-input">
-                <input type="text" id="depTx" placeholder="Enter TXID" class="auth-input">
+                <input type="email" id="depEmail" placeholder="Email" class="auth-input">
+                <input type="text" id="depTg" placeholder="Telegram ID" class="auth-input">
+                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        </div>
+    </div>
+
+    <div id="witM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase tracking-tighter">Withdraw Funds</h2>
+            <div class="space-y-3">
+                <select id="witBank" class="auth-input text-sm">
+                    <option value="" disabled selected>Choose Bank</option>
+                    <option value="EasyPaisa">EasyPaisa</option>
+                    <option value="JazzCash">JazzCash</option>
+                    <option value="SadaPay">SadaPay</option>
+                    <option value="NayaPay">NayaPay</option>
+                    <option value="HBL Bank">HBL Bank</option>
+                    <option value="UBL Bank">UBL Bank</option>
+                    <option value="Meezan Bank">Meezan Bank</option>
+                    <option value="Bank Alfalah">Bank Alfalah</option>
+                    <option value="Allied Bank">Allied Bank</option>
+                    <option value="MCB Bank">MCB Bank</option>
+                </select>
+                <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
+                <input type="text" id="witAccName" placeholder="Account Holder Name" class="auth-input">
+                <input type="number" id="witAmt" placeholder="Withdraw Amount (PKR)" class="auth-input">
+                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Submit Request</button>
+            </div>
+            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
 
@@ -126,21 +153,10 @@
             </div>
             <div class="mb-8">
                 <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
-                <h2 id="modalEmail" class="text-white font-bold text-sm mb-1 break-all italic italic">Loading...</h2>
+                <h2 id="modalEmail" class="text-white font-bold text-sm mb-1 break-all italic">Loading...</h2>
                 <span class="text-[8px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold uppercase border border-green-500/20">Elite Verified</span>
             </div>
             <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest">Secure Logout</button>
-        </div>
-    </div>
-
-    <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
-            <select id="witNet" class="auth-input mb-4 text-sm"><option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option><option value="Bank">Bank Transfer</option></select>
-            <input type="text" id="witAddr" placeholder="Account Number" class="auth-input mb-4">
-            <input type="number" id="witAmt" placeholder="Amount (PKR)" class="auth-input mb-6">
-            <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit Request</button>
-            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
 
@@ -156,47 +172,80 @@
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
+        
+        function showSuccess(title, msg) {
+            const box = document.getElementById('resultBox');
+            box.innerHTML = `<div class="mb-4"><div class="success-checkmark"><span class="text-green-500 text-3xl">✓</span></div></div>
+            <h2 class="text-green-500 font-black text-xl mb-2">${title}</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
+            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Dismiss</button>`;
+            showM('resultM');
+        }
+
+        function showError(msg) {
+            const box = document.getElementById('resultBox');
+            box.innerHTML = `<div class="mb-4"><div class="error-xmark"><span class="text-red-500 text-3xl">!</span></div></div>
+            <h2 class="text-red-500 font-black text-xl mb-2">Failed</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
+            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Close</button>`;
+            showM('resultM');
+        }
 
         auth.onAuthStateChanged(user => {
+            const loader = document.getElementById('loadingScreen');
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
-                        document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
+                        const initial = user.email[0].toUpperCase();
+                        document.getElementById('userInitial').innerText = initial;
+                        document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        document.getElementById('loadingScreen').style.display = 'none';
+                        loader.style.display = 'none';
                     }
                 });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
-                document.getElementById('appTerminal').style.display = 'none';
-                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('appTerminal').style.display = 'none'; 
+                loader.style.display = 'none'; 
             }
         });
 
         async function submitFinalDep() {
-            const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
-            if(!acc || !amt || !tx) return alert("Fill all fields");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); alert("Sent! Admin will verify soon.");
+            const tx = document.getElementById('depTx').value, em = document.getElementById('depEmail').value;
+            if(!tx || !em) return showError("Fill all fields");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, txid: tx, email: em, amount: document.getElementById('depAmtInput').value, currency: 'PKR', time: Date.now() });
+            hideM('depM'); showSuccess("Sent", "Deposit will be verified soon.");
         }
 
         async function submitWit() {
+            const bank = document.getElementById('witBank').value;
+            const num = document.getElementById('witAccNum').value;
+            const name = document.getElementById('witAccName').value;
             const amt = parseFloat(document.getElementById('witAmt').value);
-            if(!amt || amt > userData.balance) return alert("Low balance");
+            
+            if(!bank || !num || !name || !amt) return showError("Please fill all details.");
+            if(amt > userData.balance) return showError("Insufficient balance.");
+
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, time: Date.now() });
-            hideM('witM'); alert("Withdrawal request sent.");
+            await db.collection('withdrawals').add({ 
+                uid: auth.currentUser.uid, 
+                email: auth.currentUser.email,
+                bankName: bank,
+                accountNumber: num,
+                accountName: name,
+                amount: amt, 
+                time: Date.now() 
+            });
+            hideM('witM'); 
+            showSuccess("Processing", "Withdrawal request submitted successfully.");
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Check balance/amount");
+            if(amt > userData.balance || amt <= 0) return showError("Low balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -209,14 +258,11 @@
         }
 
         async function showRes(amt) {
-            const win = Math.random() > 0.5;
+            const m = userData.tradeMode || 'normal';
+            let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; 
-            } else { 
-                box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; 
-            }
+            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
+            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
             showM('resultM');
         }
@@ -224,12 +270,8 @@
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(mode==='reg') { 
-                const r = await auth.createUserWithEmailAndPassword(e, p); 
-                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 }); 
-            } else { await auth.signInWithEmailAndPassword(e, p); }
+            if(!e || !p) return showError("Email & Password required.");
+            document.getElementById('loadingScreen').style.display = 'flex';
+            try { if(mode==='reg') { const r = await auth.createUserWithEmailAndPassword(e, p); await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); } else { await auth.signInWithEmailAndPassword(e, p); } } catch(err) { document.getElementById('loadingScreen').style.display = 'none'; showError(err.message); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+        function switch
