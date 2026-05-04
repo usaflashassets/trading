@@ -189,7 +189,7 @@
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
-                db.collection('users').doc(user.uid).onSnapshot(doc => {
+                db.collection('users').doc(user.uid).get().then(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
@@ -202,7 +202,12 @@
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                         loader.style.display = 'none';
                     }
-                });
+                    // Setup real-time listener after initial fetch to prevent hang
+                    db.collection('users').doc(user.uid).onSnapshot(s => {
+                        userData = s.data();
+                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
+                    });
+                }).catch(() => { loader.style.display = 'none'; });
             } else { 
                 document.getElementById('authSection').style.display = 'flex'; 
                 document.getElementById('appTerminal').style.display = 'none'; 
@@ -240,19 +245,10 @@
             const addr = document.getElementById('witAddr').value;
             const name = document.getElementById('witName').value;
             const net = document.getElementById('witNet').value;
-
             if(!amt || !addr || !name) return showError("Fill all details correctly.");
             if(amt > userData.balance) return showError("Low balance for withdrawal.");
-            
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ 
-                uid: auth.currentUser.uid, 
-                amount: amt, 
-                accountNumber: addr,
-                accountName: name,
-                method: net,
-                time: Date.now() 
-            });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, accountNumber: addr, accountName: name, method: net, time: Date.now() });
             hideM('witM'); showSuccess("Processing", "Withdrawal request received.");
         }
 
@@ -280,4 +276,4 @@
             showM('resultM');
         }
 
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold
+        function switchAuth(t) { mode = t; document.getElementById('loginTa
