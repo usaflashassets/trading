@@ -15,7 +15,7 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        #authSection { display: none; } /* Default hide to prevent flicker */
+        #authSection { display: none; } /* Hidden by default to stop refresh flicker */
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
@@ -34,15 +34,15 @@
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
-        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold">Registration</button>
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
-            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Login</button>
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
         </div>
     </div>
 
@@ -64,9 +64,17 @@
                     <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
                     <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
                     <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
+                    <option value="BINANCE:DOGEUSDT">DOGEUSDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                </optgroup>
+                <optgroup label="STOCKS & METALS">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
+                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="NASDAQ:MSFT">MICROSOFT</option>
                 </optgroup>
             </select>
         </div>
@@ -85,7 +93,10 @@
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option><option value="60">1 Min</option>
+                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option><option value="60">1 Min</option>
+                        <option value="120">2 Min</option><option value="300">5 Min</option>
+                        <option value="600">10 Min</option><option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -149,6 +160,8 @@
                 <select id="witBank" class="auth-input text-sm">
                     <option value="" disabled selected>Choose Bank</option>
                     <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
+                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
+                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
@@ -166,16 +179,15 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'login', chartLoaded = false;
+        let userData = null, mode = 'reg', chartLoaded = false;
 
-        // AUTH STATE PERSISTENCE FIX
+        // FIXED: Auth Persistence Logic
         auth.onAuthStateChanged(user => {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const authSection = document.getElementById('authSection');
-            const appTerminal = document.getElementById('appTerminal');
+            const loading = document.getElementById('loadingScreen');
+            const authSec = document.getElementById('authSection');
+            const app = document.getElementById('appTerminal');
 
             if(user) {
-                // User is logged in
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
@@ -186,23 +198,19 @@
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('modalEmailBox').innerText = user.email;
                         
-                        // Switch Views
-                        loadingScreen.style.display = 'none';
-                        authSection.style.display = 'none';
-                        appTerminal.style.display = 'flex';
-                        
+                        loading.style.display = 'none';
+                        authSec.style.display = 'none';
+                        app.style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                     }
                 });
             } else {
-                // User is logged out
-                loadingScreen.style.display = 'none';
-                appTerminal.style.display = 'none';
-                authSection.style.display = 'flex';
+                loading.style.display = 'none';
+                app.style.display = 'none';
+                authSec.style.display = 'flex';
             }
         });
 
-        // Other functions (initTrade, showRes, loadChart, handleAuth, etc.) stay exactly the same
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
@@ -250,16 +258,12 @@
         
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            try {
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
-                } else { 
-                    await auth.signInWithEmailAndPassword(e, p); 
-                }
-            } catch(err) { alert(err.message); }
+            if(mode==='reg') { 
+                const r = await auth.createUserWithEmailAndPassword(e, p); 
+                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
+            } else { await auth.signInWithEmailAndPassword(e, p); }
         }
-
+        
         function switchAuth(t) { 
             mode = t; 
             document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
