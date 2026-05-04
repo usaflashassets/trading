@@ -59,13 +59,10 @@
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:USDCHF">USD/CHF</option>
+                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option><option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD</option><option value="NASDAQ:TSLA">TESLA</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
                 </optgroup>
             </select>
         </div>
@@ -78,13 +75,13 @@
         <footer class="glass-card p-3 rounded-[24px]">
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Amount</span>
-                    <input id="tradeAmt" type="number" value="100" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
+                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Amount ($)</span>
+                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
                 </div>
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5s</option><option value="15">15s</option><option value="30">30s</option><option value="60">1m</option><option value="120">2m</option><option value="300">5m</option>
+                        <option value="5">5s</option><option value="30">30s</option><option value="60">1m</option><option value="300">5m</option>
                     </select>
                 </div>
             </div>
@@ -104,12 +101,12 @@
             </div>
             <div id="dStep2" class="hidden">
                 <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 p-2 bg-white rounded-xl w-48 h-48 object-contain">
-                <div class="mb-6 font-black text-white">DUBAI LIVE TRADE</div>
+                <p class="text-white font-bold mb-6">DUBAI LIVE TRADE</p>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Sent Amount" class="auth-input">
+                <input type="text" id="depAccName" placeholder="Sender Name" class="auth-input">
+                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input">
                 <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
@@ -123,12 +120,12 @@
             <div class="space-y-3">
                 <select id="witBank" class="auth-input text-sm">
                     <option value="" disabled selected>Choose Bank</option>
-                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option><option value="HBL">HBL</option><option value="Meezan">Meezan Bank</option><option value="UBL">UBL</option><option value="Bank Alfalah">Bank Alfalah</option>
+                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option><option value="HBL">HBL Bank</option><option value="UBL">UBL Bank</option><option value="Meezan">Meezan Bank</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
-                <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="witAmt" placeholder="Amount (PKR)" class="auth-input">
-                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase">Submit</button>
+                <input type="text" id="witAccName" placeholder="Account Holder Name" class="auth-input">
+                <input type="number" id="witAmtPKR" placeholder="Withdraw Amount (PKR)" class="auth-input">
+                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Submit Request</button>
             </div>
             <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
@@ -136,9 +133,9 @@
 
     <div id="settingsM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
-            <div class="flex justify-between items-center mb-6"><h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Profile</h2><button onclick="hideM('settingsM')" class="text-gray-500 text-2xl">&times;</button></div>
+            <div class="flex justify-between items-center mb-6"><h2 class="text-[10px] font-black text-gray-500 uppercase">Profile</h2><button onclick="hideM('settingsM')" class="text-gray-500 text-2xl">&times;</button></div>
             <div id="modalInitial" class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black text-black mb-4">?</div>
-            <p id="modalEmail" class="text-white font-bold mb-6 italic text-sm">Email</p>
+            <p id="modalEmail" class="text-white font-bold mb-6 italic text-sm">Loading...</p>
             <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Logout</button>
         </div>
     </div>
@@ -151,13 +148,11 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
+        const PKR_RATE = 280; // FIX: 1 Dollar = 280 PKR (Isko apne hisab se change kar lein)
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
-
-        // Fix: Loader auto-hide fallback
-        setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; }, 5000);
 
         auth.onAuthStateChanged(user => {
             if(user) {
@@ -176,7 +171,6 @@
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('appTerminal').style.display = 'none';
                 document.getElementById('loadingScreen').style.display = 'none';
             }
         });
@@ -185,21 +179,38 @@
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return alert("Fill all fields");
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); alert("Submitted! Wait for approval.");
+            hideM('depM'); alert("Submitted! Wait for verification.");
         }
 
         async function submitWit() {
-            const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, a = parseFloat(document.getElementById('witAmt').value);
-            if(!b || !n || !nm || !a) return alert("Fill all fields");
-            if(a > userData.balance) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-a) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: a, time: Date.now() });
-            hideM('witM'); alert("Request Sent.");
+            const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
+            
+            if(!b || !n || !nm || !amtPkr) return alert("Fill all details");
+            
+            // FIX: PKR amount ko Dollar mein convert karke check karna
+            const amtUsd = amtPkr / PKR_RATE; 
+
+            if(amtUsd > userData.balance) return alert("Insufficient Balance (Requires $" + amtUsd.toFixed(2) + ")");
+
+            // Balance Dollar mein kategi
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amtUsd) });
+            
+            await db.collection('withdrawals').add({ 
+                uid: auth.currentUser.uid, 
+                email: auth.currentUser.email,
+                bankName: b, 
+                accountNumber: n, 
+                accountName: nm, 
+                amount: amtPkr, // Admin ko PKR show hoga
+                time: Date.now() 
+            });
+            hideM('witM'); 
+            alert("Withdrawal request of PKR " + amtPkr + " sent successfully.");
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Check balance");
+            if(amt > userData.balance || amt <= 0) return alert("Low balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -217,9 +228,7 @@
             if(win) { 
                 db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
                 box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { 
-                box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`;
-            }
+            } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold">Continue</button>`;
             showM('resultM');
         }
