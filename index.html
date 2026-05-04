@@ -22,7 +22,7 @@
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Fancy Profile Styling */
+        /* Profile Fancy Styling */
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
     </style>
@@ -71,7 +71,7 @@
                     <option value="FX:EURGBP">EUR/GBP (82%)</option>
                     <option value="FX:EURJPY">EUR/JPY (80%)</option>
                 </optgroup>
-                <optgroup label="CRYPTO">
+                <optgroup label="CRYPTO (OTC)">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
                     <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
                     <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
@@ -165,26 +165,34 @@
     <div id="settingsM" class="modal">
         <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-500/10 blur-[50px] rounded-full"></div>
+            
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-xs font-black text-yellow-500 uppercase tracking-[3px]">User Profile</h2>
                 <button onclick="hideM('settingsM')" class="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/10 transition-all text-xl border border-white/10">&times;</button>
             </div>
+
             <div class="text-center mb-8">
                 <div id="modalInitial" class="w-20 h-20 bg-gradient-to-tr from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4 shadow-[0_0_25px_rgba(234,179,8,0.25)] border-4 border-white/5">?</div>
                 <h3 class="text-lg font-bold text-white mb-1 italic">ProTrade Elite</h3>
                 <p class="text-[9px] text-gray-500 uppercase tracking-widest font-extrabold">Authenticated User</p>
             </div>
+
             <div class="space-y-3 mb-8 text-left">
                 <div class="profile-item">
                     <span class="text-[9px] text-gray-500 font-bold uppercase">Email Address</span>
                     <span id="modalEmail" class="text-sm font-semibold text-white italic">Loading...</span>
                 </div>
                 <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Status</span>
-                    <span class="text-sm font-semibold text-green-500">Live & Secure</span>
+                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
+                    <span class="text-sm font-semibold text-green-500">Live Server</span>
                 </div>
             </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[11px] tracking-widest">Log Out Account</button>
+
+            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[11px] tracking-widest shadow-lg shadow-red-500/20">
+                Log Out Account
+            </button>
+            
+            <p class="mt-6 text-center text-[8px] text-gray-600 font-bold uppercase tracking-widest">Version 2.2.0 Secured</p>
         </div>
     </div>
 
@@ -198,8 +206,12 @@
         let userData = null, mode = 'reg', chartLoaded = false;
         const PKR_RATE = 280;
 
-        // Auto-hide loader safety
-        setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; }, 4000);
+        // Fix Verifying Session issue (Auto-hide loader after 4s anyway)
+        setTimeout(() => { 
+            if(document.getElementById('loadingScreen').style.display !== 'none') {
+                document.getElementById('loadingScreen').style.display = 'none';
+            }
+        }, 4000);
 
         auth.onAuthStateChanged(user => {
             if(user) {
@@ -232,7 +244,7 @@
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return alert("Fill all fields");
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); alert("Request Sent! Admin will verify.");
+            hideM('depM'); alert("Request Sent! Admin will verify PKR amount.");
         }
 
         async function submitWit() {
@@ -247,7 +259,7 @@
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Check balance");
+            if(amt > userData.balance || amt <= 0) return alert("Check balance/amount");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -271,11 +283,6 @@
         }
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        
         async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            try {
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
-                } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(e
+            const e =
