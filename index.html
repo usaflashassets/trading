@@ -14,22 +14,14 @@
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
-        
-        /* FIX: Initial state is completely hidden to prevent flickering */
-        #authSection, #appTerminal { 
-            display: none; 
-            opacity: 0; 
-            transition: opacity 0.3s ease; 
-        }
-
+        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
+        #authSection { display: none; } /* Default hide to prevent flicker */
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
     </style>
@@ -41,20 +33,20 @@
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
 
-    <div id="authSection" class="h-full items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
+    <div id="authSection" class="h-full flex items-center justify-center p-4">
+        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
-            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Login</button>
         </div>
     </div>
 
-    <div id="appTerminal" class="flex-col p-2">
+    <div id="appTerminal">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
                 <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
@@ -72,17 +64,9 @@
                     <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
                     <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
                     <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
-                </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
-                    <option value="NASDAQ:MSFT">MICROSOFT</option>
                 </optgroup>
             </select>
         </div>
@@ -101,10 +85,7 @@
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
-                        <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="120">2 Min</option><option value="300">5 Min</option>
-                        <option value="600">10 Min</option><option value="900">15 Min</option>
+                        <option value="5">5 Sec</option><option value="60">1 Min</option>
                     </select>
                 </div>
             </div>
@@ -152,9 +133,9 @@
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depAccName" placeholder="Enter your Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Enter your send amount" class="auth-input">
-                <input type="text" id="depTx" placeholder="Enter your Txid" class="auth-input">
+                <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
+                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input">
+                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
@@ -168,8 +149,6 @@
                 <select id="witBank" class="auth-input text-sm">
                     <option value="" disabled selected>Choose Bank</option>
                     <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
-                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
-                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
@@ -187,15 +166,16 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false;
+        let userData = null, mode = 'login', chartLoaded = false;
 
-        // FIXED AUTH LOGIC
+        // AUTH STATE PERSISTENCE FIX
         auth.onAuthStateChanged(user => {
-            const loading = document.getElementById('loadingScreen');
-            const authSec = document.getElementById('authSection');
-            const terminal = document.getElementById('appTerminal');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const authSection = document.getElementById('authSection');
+            const appTerminal = document.getElementById('appTerminal');
 
             if(user) {
+                // User is logged in
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
@@ -206,23 +186,23 @@
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('modalEmailBox').innerText = user.email;
                         
-                        // Switch UI
-                        loading.style.display = 'none';
-                        authSec.style.display = 'none';
-                        terminal.style.display = 'flex';
-                        setTimeout(() => { terminal.style.opacity = '1'; }, 50);
+                        // Switch Views
+                        loadingScreen.style.display = 'none';
+                        authSection.style.display = 'none';
+                        appTerminal.style.display = 'flex';
                         
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                     }
                 });
             } else {
-                loading.style.display = 'none';
-                terminal.style.display = 'none';
-                authSec.style.display = 'flex';
-                setTimeout(() => { authSec.style.opacity = '1'; }, 50);
+                // User is logged out
+                loadingScreen.style.display = 'none';
+                appTerminal.style.display = 'none';
+                authSection.style.display = 'flex';
             }
         });
 
+        // Other functions (initTrade, showRes, loadChart, handleAuth, etc.) stay exactly the same
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
@@ -269,17 +249,23 @@
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
         
         async function handleAuth() {
-            document.getElementById('loadingScreen').style.display = 'flex';
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
             try {
                 if(mode==='reg') { 
                     const r = await auth.createUserWithEmailAndPassword(e, p); 
                     await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
-                } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) {
-                alert(err.message);
-                document.getElementById('loadingScreen').style.display = 'none';
-            }
+                } else { 
+                    await auth.signInWithEmailAndPassword(e, p); 
+                }
+            } catch(err) { alert(err.message); }
         }
-        
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-
+
+        function switchAuth(t) { 
+            mode = t; 
+            document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; 
+        }
+    </script>
+</body>
+</html>
