@@ -182,11 +182,14 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
+        function hideLoading() { document.getElementById('loadingScreen').style.display = 'none'; }
+        setTimeout(hideLoading, 5000); // Fallback: 5 sec baad force hide
+
         auth.onAuthStateChanged(user => {
-            document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
+                    hideLoading();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         const initial = user.email[0].toUpperCase();
@@ -197,9 +200,22 @@
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                    } else {
+                        hideLoading();
+                        document.getElementById('authSection').style.display = 'flex';
+                        document.getElementById('authSection').style.alignItems = 'center';
+                        document.getElementById('authSection').style.justifyContent = 'center';
+                        document.getElementById('appTerminal').style.display = 'none';
                     }
+                }, err => {
+                    console.error("Firestore error:", err);
+                    hideLoading();
+                    document.getElementById('authSection').style.display = 'flex';
+                    document.getElementById('authSection').style.alignItems = 'center';
+                    document.getElementById('authSection').style.justifyContent = 'center';
                 });
             } else {
+                hideLoading();
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('authSection').style.alignItems = 'center';
                 document.getElementById('authSection').style.justifyContent = 'center';
@@ -241,7 +257,6 @@
         }
 
         async function showRes(amt) {
-            // Always fetch fresh data from Firestore so admin Global Control changes apply instantly
             const freshDoc = await db.collection('users').doc(auth.currentUser.uid).get();
             const freshData = freshDoc.data();
             const tradeMode = (freshData && freshData.tradeMode) ? freshData.tradeMode : 'normal';
@@ -258,12 +273,4 @@
             showM('resultM');
         }
 
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-        async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(mode==='reg') { 
-                const r = await auth.createUserWithEmailAndPassword(e, p); 
-                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
-            } else { await auth.signInWithEmailAndPassword(e, p); }
-        }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getEl
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "t
