@@ -18,14 +18,11 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-
-        
-        /* Profile Fancy Items */
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
 
-        /* Fancy Toast Popup */
-        #fancyToast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-120px); z-index: 99999; min-width: 300px; max-width: 340px; border-radius: 24px; padding: 18px 22px; display: flex; align-items: center; gap: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease; opacity: 0; pointer-events: none; }
+        /* Fancy Toast */
+        #fancyToast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-120px); z-index: 99999; min-width: 300px; max-width: 340px; border-radius: 24px; padding: 18px 22px; display: flex; align-items: center; gap: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease; opacity: 0; pointer-events: none; overflow: hidden; }
         #fancyToast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
         #fancyToast.toast-success { background: linear-gradient(135deg, #052e16 0%, #0f2a1a 100%); border: 1px solid rgba(34,197,94,0.3); }
         #fancyToast.toast-error { background: linear-gradient(135deg, #2d0a0a 0%, #1c0a0a 100%); border: 1px solid rgba(239,68,68,0.3); }
@@ -42,8 +39,6 @@
     </style>
 </head>
 <body>
-
-
 
     <div id="authSection" class="h-full items-center justify-center p-4" style="display:none;">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
@@ -203,9 +198,8 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
-        // Instant session restore from localStorage
+        // Instant session restore — no flash, no black screen
         if(localStorage.getItem('isLoggedIn') === 'true') {
-            document.getElementById('authSection').style.display = 'none';
             document.getElementById('appTerminal').style.display = 'flex';
             const savedBal = localStorage.getItem('userBalance');
             if(savedBal) document.getElementById('balanceDisp').innerText = '$' + parseFloat(savedBal).toFixed(2);
@@ -243,6 +237,7 @@
             }
         });
 
+        // Fancy Toast
         let toastTimer;
         function showToast(type, title, msg) {
             const t = document.getElementById('fancyToast');
@@ -251,7 +246,6 @@
             document.getElementById('toastIcon').innerText = icons[type];
             document.getElementById('toastTitle').innerText = title;
             document.getElementById('toastMsg').innerText = msg;
-            // Reset bar
             const bar = document.getElementById('toastBar');
             bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = '';
             t.classList.add('show');
@@ -274,4 +268,5 @@
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
             if(!b || !n || !nm || !amtPkr) return showToast('warn', 'Fields Missing', 'Please fill all required fields.');
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: aut
