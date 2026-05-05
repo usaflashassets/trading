@@ -18,7 +18,7 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: hideLoader 0.4s ease forwards 2s; } @keyframes hideLoader { 0% { opacity:1; pointer-events:all; } 100% { opacity:0; pointer-events:none; display:none; visibility:hidden; } }
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -26,180 +26,10 @@
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
 
-        /* ===== FANCY POPUP STYLES ===== */
-        #fancyPopup {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        #fancyPopup.show { display: flex; }
-        .fp-backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            animation: fpFadeIn 0.3s ease forwards;
-        }
-        .fp-box {
-            position: relative;
-            z-index: 2;
-            border-radius: 32px;
-            padding: 40px 32px 32px;
-            width: 100%;
-            max-width: 340px;
-            text-align: center;
-            animation: fpSlideUp 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
-            overflow: hidden;
-        }
-        .fp-box.type-success {
-            background: linear-gradient(145deg, #0a1628 0%, #0d1f1a 60%, #071a10 100%);
-            border: 1px solid rgba(34,197,94,0.25);
-            box-shadow: 0 0 60px rgba(34,197,94,0.15), 0 30px 60px rgba(0,0,0,0.6);
-        }
-        .fp-box.type-withdraw {
-            background: linear-gradient(145deg, #0a0e1f 0%, #0e1428 60%, #080d1c 100%);
-            border: 1px solid rgba(99,102,241,0.3);
-            box-shadow: 0 0 60px rgba(99,102,241,0.15), 0 30px 60px rgba(0,0,0,0.6);
-        }
-        .fp-box.type-win {
-            background: linear-gradient(145deg, #071a0e 0%, #0a2010 60%, #061508 100%);
-            border: 1px solid rgba(34,197,94,0.3);
-            box-shadow: 0 0 80px rgba(34,197,94,0.2), 0 30px 60px rgba(0,0,0,0.7);
-        }
-        .fp-box.type-loss {
-            background: linear-gradient(145deg, #1a0707 0%, #200a0a 60%, #150606 100%);
-            border: 1px solid rgba(239,68,68,0.3);
-            box-shadow: 0 0 80px rgba(239,68,68,0.15), 0 30px 60px rgba(0,0,0,0.7);
-        }
-        .fp-glow-ring {
-            width: 90px; height: 90px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 20px;
-            position: relative;
-            font-size: 36px;
-        }
-        .fp-glow-ring::before {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 50%;
-            animation: fpRingSpin 2.5s linear infinite;
-        }
-        .fp-glow-ring::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            opacity: 0.4;
-            filter: blur(12px);
-        }
-        .type-success .fp-glow-ring, .type-win .fp-glow-ring {
-            background: rgba(34,197,94,0.1);
-        }
-        .type-success .fp-glow-ring::before, .type-win .fp-glow-ring::before {
-            background: conic-gradient(transparent 0deg, #22c55e 180deg, transparent 360deg);
-        }
-        .type-success .fp-glow-ring::after, .type-win .fp-glow-ring::after {
-            background: #22c55e;
-        }
-        .type-withdraw .fp-glow-ring {
-            background: rgba(99,102,241,0.1);
-        }
-        .type-withdraw .fp-glow-ring::before {
-            background: conic-gradient(transparent 0deg, #6366f1 180deg, transparent 360deg);
-        }
-        .type-withdraw .fp-glow-ring::after {
-            background: #6366f1;
-        }
-        .type-loss .fp-glow-ring {
-            background: rgba(239,68,68,0.1);
-        }
-        .type-loss .fp-glow-ring::before {
-            background: conic-gradient(transparent 0deg, #ef4444 180deg, transparent 360deg);
-        }
-        .type-loss .fp-glow-ring::after {
-            background: #ef4444;
-        }
-        .fp-title {
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .type-success .fp-title, .type-win .fp-title { color: #22c55e; }
-        .type-withdraw .fp-title { color: #818cf8; }
-        .type-loss .fp-title { color: #f87171; }
-
-        .fp-amount {
-            font-size: 42px;
-            font-weight: 900;
-            color: white;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-        .fp-sub {
-            font-size: 11px;
-            color: rgba(255,255,255,0.35);
-            font-weight: 600;
-            margin-bottom: 28px;
-        }
-        .fp-btn {
-            width: 100%;
-            padding: 15px;
-            border-radius: 18px;
-            font-weight: 900;
-            font-size: 11px;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-        .fp-btn:active { transform: scale(0.97); }
-        .type-success .fp-btn, .type-win .fp-btn {
-            background: linear-gradient(135deg, #22c55e, #15803d);
-            color: white;
-        }
-        .type-withdraw .fp-btn {
-            background: linear-gradient(135deg, #6366f1, #4338ca);
-            color: white;
-        }
-        .type-loss .fp-btn {
-            background: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.6);
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-        /* Particles */
-        .fp-particles {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            border-radius: 32px;
-        }
-        .fp-particle {
-            position: absolute;
-            width: 3px; height: 3px;
-            border-radius: 50%;
-            animation: fpParticle 1.8s ease-out forwards;
-            opacity: 0;
-        }
-        @keyframes fpFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fpSlideUp { from { opacity: 0; transform: translateY(40px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes fpRingSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes fpParticle {
-            0% { opacity: 1; transform: translate(0,0) scale(1); }
-            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
-        }
-        /* Trade result popup */
-        #resultM { background: transparent !important; }
-        #resultBox { display: none !important; }
+        /* Fancy Notification Popup */
+        #fancyNotif { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
+        .fancy-card { background: #111827; border: 1px solid rgba(255,255,255,0.1); padding: 40px 20px; border-radius: 40px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .success-icon { width: 60px; height: 60px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 30px; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
     </style>
 </head>
 <body>
@@ -283,6 +113,15 @@
         </footer>
     </div>
 
+    <div id="fancyNotif">
+        <div class="fancy-card">
+            <div class="success-icon">✓</div>
+            <h2 class="text-white text-xl font-black uppercase italic mb-2">Request Sent!</h2>
+            <p class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest leading-loose">Your request is being processed<br>by Dubai Live Trade.</p>
+            <button onclick="closeFancy()" class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase text-[10px]">Close</button>
+        </div>
+    </div>
+
     <div id="settingsM" class="modal">
         <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
             <div class="flex justify-between items-center mb-8">
@@ -350,10 +189,84 @@
 
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
-    <!-- ===== FANCY POPUP ===== -->
-    <div id="fancyPopup">
-        <div class="fp-backdrop" onclick="closeFancyPopup()"></div>
-        <div class="fp-box" id="fpBox">
-            <div class="fp-particles" id="fpParticles"></div>
-            <div class="fp-glow-ring" id="fpIcon">✓</div>
-            <div class="fp-titl
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(), db = firebase.firestore();
+        let userData = null, mode = 'reg', chartLoaded = false;
+
+        auth.onAuthStateChanged(user => {
+            document.getElementById('loadingScreen').style.display = 'none'; 
+            if(user) {
+                db.collection('users').doc(user.uid).onSnapshot(doc => {
+                    userData = doc.data();
+                    if(userData) {
+                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
+                        const initial = user.email[0].toUpperCase();
+                        document.getElementById('userInitial').innerText = initial;
+                        document.getElementById('modalInitial').innerText = initial;
+                        document.getElementById('modalEmail').innerText = user.email;
+                        document.getElementById('modalEmailBox').innerText = user.email;
+                        document.getElementById('authSection').style.display = 'none';
+                        document.getElementById('appTerminal').style.display = 'flex';
+                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                    }
+                });
+            } else {
+                document.getElementById('authSection').style.display = 'flex';
+                document.getElementById('appTerminal').style.display = 'none';
+            }
+        });
+
+        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
+        function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
+
+        // Fancy Notification Controls
+        function triggerFancy() { document.getElementById('fancyNotif').style.display = 'flex'; }
+        function closeFancy() { document.getElementById('fancyNotif').style.display = 'none'; }
+
+        async function submitFinalDep() {
+            const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
+            if(!acc || !amt || !tx) return alert("Fill all fields");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
+            hideM('depM'); 
+            triggerFancy(); // Use fancy popup
+        }
+
+        async function submitWit() {
+            const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
+            if(!b || !n || !nm || !amtPkr) return alert("Fill all fields");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
+            hideM('witM'); 
+            triggerFancy(); // Use fancy popup
+        }
+
+        async function initTrade(type) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
+            if(amt > userData.balance || amt <= 0) return alert("Check balance");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            document.getElementById('tradeTimer').style.display = 'block';
+            let l = dur;
+            let iv = setInterval(() => {
+                let m = Math.floor(l/60), s = l%60;
+                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
+                l--;
+            }, 1000);
+        }
+
+        function showRes(amt) {
+            const tradeMode = userData.tradeMode || 'normal';
+            let win;
+            if(tradeMode === 'profit') { win = true; }
+            else if(tradeMode === 'loss') { win = false; }
+            else { win = Math.random() > 0.5; }
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) { 
+                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
+                box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
+            } else { box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue</but
