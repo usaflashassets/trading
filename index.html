@@ -180,16 +180,31 @@
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
 
+        // --- UPDATED TRADE LOGIC WITH BALANCE LOCK ---
         async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return showError("Low balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            const amt = parseFloat(document.getElementById('tradeAmt').value), 
+                  dur = parseInt(document.getElementById('duration').value);
+
+            // Strict Balance Check
+            if (amt > userData.balance || userData.balance <= 0 || amt <= 0) {
+                showError("Insufficient Balance! Please contact admin.");
+                return; // Stop the function here
+            }
+
+            await db.collection('users').doc(auth.currentUser.uid).update({ 
+                balance: firebase.firestore.FieldValue.increment(-amt) 
+            });
+
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
             let iv = setInterval(() => {
                 let m = Math.floor(l/60), s = l%60;
                 document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
+                if(l <= 0) { 
+                    clearInterval(iv); 
+                    document.getElementById('tradeTimer').style.display = 'none'; 
+                    showRes(amt); 
+                }
                 l--;
             }, 1000);
         }
@@ -198,13 +213,22 @@
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
-            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
+            if(win) { 
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
+                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; 
+            } else { 
+                box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; 
+            }
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
             showM('resultM');
         }
 
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+        function switchAuth(t) { 
+            mode = t; 
+            document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; 
+        }
     </script>
 </body>
 </html>
