@@ -18,7 +18,7 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: hideLoader 0.4s ease forwards 2s; } @keyframes hideLoader { 0% { opacity:1; pointer-events:all; } 100% { opacity:0; pointer-events:none; display:none; visibility:hidden; } }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -356,7 +356,4 @@
         <div class="fp-box" id="fpBox">
             <div class="fp-particles" id="fpParticles"></div>
             <div class="fp-glow-ring" id="fpIcon">✓</div>
-            <div class="fp-title" id="fpTitle">Success</div>
-            <div class="fp-amount" id="fpAmount"></div>
-            <div class="fp-sub" id="fpSub"></div>
-            <button class="fp-btn" onclick="clo
+            <div class="fp-titl
