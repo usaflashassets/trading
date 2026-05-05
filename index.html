@@ -60,31 +60,42 @@
 
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="FOREX MAJOR PAIRS">
+                <optgroup label="FOREX MAJOR">
                     <option value="FX:EURUSD">EUR/USD (98%)</option>
                     <option value="FX:GBPUSD">GBP/USD (95%)</option>
                     <option value="FX:USDJPY">USD/JPY (92%)</option>
                     <option value="FX:AUDUSD">AUD/USD (90%)</option>
-                    <option value="FX:USDCAD">USD/CAD (88%)</option>
-                    <option value="FX:USDCHF">USD/CHF (87%)</option>
-                    <option value="FX:NZDUSD">NZD/USD (85%)</option>
+                    <option value="FX:USDCAD">USD/CAD (89%)</option>
+                    <option value="FX:USDCHF">USD/CHF (88%)</option>
+                    <option value="FX:NZDUSD">NZD/USD (87%)</option>
                 </optgroup>
-                <optgroup label="FOREX CROSS PAIRS">
+                <optgroup label="FOREX CROSSES">
+                    <option value="FX:EURJPY">EUR/JPY (85%)</option>
+                    <option value="FX:GBPJPY">GBP/JPY (85%)</option>
                     <option value="FX:EURGBP">EUR/GBP (84%)</option>
-                    <option value="FX:EURJPY">EUR/JPY (83%)</option>
-                    <option value="FX:GBPJPY">GBP/JPY (82%)</option>
-                    <option value="FX:EURAUD">EUR/AUD (81%)</option>
-                    <option value="FX:EURCAD">EUR/CAD (80%)</option>
-                    <option value="FX:GBPAUD">GBP/AUD (79%)</option>
-                    <option value="FX:GBPCAD">GBP/CAD (78%)</option>
-                    <option value="FX:AUDJPY">AUD/JPY (77%)</option>
-                    <option value="FX:CADJPY">CAD/JPY (76%)</option>
-                    <option value="FX:CHFJPY">CHF/JPY (75%)</option>
-                    <option value="FX:EURNZD">EUR/NZD (74%)</option>
-                    <option value="FX:GBPNZD">GBP/NZD (73%)</option>
-                    <option value="FX:AUDNZD">AUD/NZD (72%)</option>
-                    <option value="FX:NZDJPY">NZD/JPY (71%)</option>
-                    <option value="FX:AUDCAD">AUD/CAD (70%)</option>
+                    <option value="FX:EURAUD">EUR/AUD (83%)</option>
+                    <option value="FX:EURCAD">EUR/CAD (82%)</option>
+                    <option value="FX:GBPAUD">GBP/AUD (81%)</option>
+                    <option value="FX:GBPCAD">GBP/CAD (80%)</option>
+                    <option value="FX:GBPCHF">GBP/CHF (79%)</option>
+                    <option value="FX:AUDJPY">AUD/JPY (78%)</option>
+                    <option value="FX:CADJPY">CAD/JPY (77%)</option>
+                    <option value="FX:CHFJPY">CHF/JPY (76%)</option>
+                    <option value="FX:AUDCAD">AUD/CAD (75%)</option>
+                    <option value="FX:AUDNZD">AUD/NZD (74%)</option>
+                    <option value="FX:NZDJPY">NZD/JPY (73%)</option>
+                    <option value="FX:EURNZD">EUR/NZD (72%)</option>
+                    <option value="FX:EURCHF">EUR/CHF (71%)</option>
+                    <option value="FX:CADCHF">CAD/CHF (70%)</option>
+                    <option value="FX:AUDCHF">AUD/CHF (69%)</option>
+                    <option value="FX:NZDCHF">NZD/CHF (68%)</option>
+                    <option value="FX:NZDCAD">NZD/CAD (67%)</option>
+                </optgroup>
+                <optgroup label="EXOTIC PAIRS">
+                    <option value="FX:USDTRY">USD/TRY (65%)</option>
+                    <option value="FX:USDZAR">USD/ZAR (62%)</option>
+                    <option value="FX:USDMXN">USD/MXN (60%)</option>
+                    <option value="FX:USDSGD">USD/SGD (58%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO ASSETS">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
@@ -93,22 +104,14 @@
                     <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
                     <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
                     <option value="BINANCE:ADAUSDT">ADA/USDT (OTC)</option>
-                    <option value="BINANCE:AVAXUSDT">AVAX/USDT (OTC)</option>
-                    <option value="BINANCE:DOTUSDT">DOT/USDT (OTC)</option>
-                    <option value="BINANCE:TRXUSDT">TRX/USDT (OTC)</option>
-                    <option value="BINANCE:LINKUSDT">LINK/USDT (OTC)</option>
-                    <option value="BINANCE:MATICUSDT">MATIC/USDT (OTC)</option>
-                    <option value="BINANCE:LTCUSDT">LTC/USDT (OTC)</option>
-                    <option value="BINANCE:BCHUSDT">BCH/USDT (OTC)</option>
-                    <option value="BINANCE:SHIBUSDT">SHIB/USDT (OTC)</option>
                     <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option>
-                </optgroup>
-                <optgroup label="COMMODITIES & INDICES">
-                    <option value="OANDA:XAUUSD">GOLD / XAUUSD</option>
-                    <option value="OANDA:XAGUSD">SILVER / XAGUSD</option>
-                    <option value="OANDA:US30USD">DOW JONES 30</option>
-                    <option value="OANDA:NAS100USD">NASDAQ 100</option>
-                    <option value="OANDA:SPX500USD">S&P 500</option>
+                    <option value="BINANCE:LTCUSDT">LTC/USDT (OTC)</option>
+                    <option value="BINANCE:MATICUSDT">MATIC/USDT (OTC)</option>
+                    <option value="BINANCE:TRXUSDT">TRX/USDT (OTC)</option>
+                    <option value="BINANCE:DOTUSDT">DOT/USDT (OTC)</option>
+                    <option value="BINANCE:LINKUSDT">LINK/USDT (OTC)</option>
+                    <option value="BINANCE:AVAXUSDT">AVAX/USDT (OTC)</option>
+                    <option value="BINANCE:SHIBUSDT">SHIB/USDT (OTC)</option>
                 </optgroup>
             </select>
         </div>
@@ -158,7 +161,7 @@
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
                 <input type="number" id="depAmtInput" placeholder="PKR Amount" class="auth-input mb-6 text-center">
@@ -180,7 +183,7 @@
     </div>
 
     <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input text-sm"><option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option></select>
@@ -194,7 +197,7 @@
     </div>
 
     <div id="fancyResponseM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
+        <div class="glass-card p-8 rounded-[40px] w-full max-sm text-center">
             <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
             <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
             <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
@@ -215,11 +218,25 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
 
-        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
-        function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
+        const forceClear = setTimeout(() => { 
+            if (!isResolved) { 
+                hideLoading(); 
+                document.getElementById('authSection').style.display = 'flex'; 
+            } 
+        }, 6000);
+
+        function hideLoading() { 
+            const ls = document.getElementById('loadingScreen'); 
+            if(ls) {
+                ls.style.opacity = '0'; 
+                setTimeout(() => ls.style.display = 'none', 500); 
+            }
+        }
 
         auth.onAuthStateChanged(user => {
-            isResolved = true; clearTimeout(forceClear); hideLoading();
+            isResolved = true; 
+            clearTimeout(forceClear); 
+            hideLoading();
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -233,7 +250,13 @@
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                    } else {
+                        document.getElementById('authSection').style.display = 'flex';
+                        document.getElementById('appTerminal').style.display = 'none';
                     }
+                }, error => {
+                    console.error("Firestore Error:", error);
+                    document.getElementById('authSection').style.display = 'flex';
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
@@ -257,16 +280,5 @@
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getElementById('witAmtPKR').value);
             if(!b || !n || !nm || !amt) return;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/280)) });
-            await db.collection('requests_withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
-            hideM('witM'); showFancy("Withdrawal Sent!");
-        }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
+            hideM('witM
