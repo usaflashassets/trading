@@ -8,14 +8,25 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Inter:wght@400;600;700&display=swap');
+        
+        :root {
+            --primary-gold: #f0b90b;
+            --bg-dark: #0b0e11;
+            --card-bg: #1e2329;
+            --text-gray: #848e9c;
+            --success-green: #2ebd85;
+            --danger-red: #f6465d;
+            --border-color: #363c4e;
+        }
+
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        #authSection { display: none; } 
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
@@ -23,10 +34,26 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        select option { background: #1a1f29; color: white; }
 
-        .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        /* Assets Dashboard Styles */
+        .assets-card { width: 100%; max-width: 420px; background: var(--card-bg); border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); font-family: 'Inter', sans-serif; position: relative; }
+        .assets-header { text-align: center; margin-bottom: 25px; }
+        .brand-logo { font-size: 24px; font-weight: 700; color: var(--primary-gold); text-transform: uppercase; }
+        .section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .menu-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; color: white; display: block; text-align: center; }
+        .btn-deposit { background: var(--success-green); }
+        .btn-withdraw { background: var(--danger-red); }
+        .btn-history { background: transparent; border: 1px solid var(--border-color); }
+        .opt-btn { width: 100%; padding: 15px; background: #2b3139; border: 1px solid var(--border-color); border-radius: 12px; color: white; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .asset-input { width: 100%; padding: 14px; background: #2b3139; border: 1px solid var(--border-color); border-radius: 10px; color: white; margin-bottom: 15px; outline: none; }
+        .qr-box { background: white; padding: 10px; border-radius: 15px; width: 180px; margin: 0 auto 10px; }
+        .qr-box img { width: 100%; display: block; }
+        .history-item { background: #2b3139; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 4px solid var(--border-color); }
+        .hist-deposit { border-left-color: var(--success-green); }
+        .hist-withdraw { border-left-color: var(--danger-red); }
+        .close-assets { position: absolute; top: 15px; right: 20px; color: var(--text-gray); font-size: 24px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -36,7 +63,7 @@
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
 
-    <div id="authSection" class="h-full flex items-center justify-center p-4">
+    <div id="authSection" class="h-full flex items-center justify-center p-4" style="display: none;">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
@@ -56,20 +83,17 @@
                 <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
             <div class="flex gap-1.5">
-                <button class="bg-yellow-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight">My Assets</button>
+                <button onclick="showM('assetsM')" class="bg-yellow-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight">My Assets</button>
             </div>
         </header>
 
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:USDCHF">USD/CHF</option>
+                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option><option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD</option><option value="NASDAQ:TSLA">TESLA</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
                 </optgroup>
             </select>
         </div>
@@ -88,7 +112,7 @@
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5s</option><option value="15">15s</option><option value="30">30s</option><option value="60">1m</option><option value="120">2m</option><option value="300">5m</option>
+                        <option value="5">5s</option><option value="15">15s</option><option value="60">1m</option>
                     </select>
                 </div>
             </div>
@@ -99,12 +123,77 @@
         </footer>
     </div>
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Details</h2>
-                <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl font-light">&times;</button>
+    <div id="assetsM" class="modal">
+        <div class="assets-card">
+            <span class="close-assets" onclick="hideM('assetsM')">&times;</span>
+            <div class="assets-header"><div class="brand-logo">Dubai Live Trade</div></div>
+
+            <div id="main-menu" class="section active">
+                <button class="menu-btn btn-deposit" onclick="showAssetsSection('deposit-options')">Deposit</button>
+                <button class="menu-btn btn-withdraw" onclick="showAssetsSection('withdraw-options')">Withdraw</button>
+                <button class="menu-btn btn-history" onclick="renderHistory()">History</button>
             </div>
+
+            <div id="deposit-options" class="section">
+                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('main-menu')">&larr; Back</button>
+                <h3 class="font-bold mb-4">Select Deposit Method</h3>
+                <button class="opt-btn" onclick="setMode('crypto'); showAssetsSection('step-amount')"><span>🪙 Crypto (USDT)</span> <span>&gt;</span></button>
+                <button class="opt-btn" onclick="setMode('pkr'); showAssetsSection('step-amount')"><span>🇵🇰 PKR (Easypaisa/Jazzcash)</span> <span>&gt;</span></button>
+            </div>
+
+            <div id="step-amount" class="section">
+                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('deposit-options')">&larr; Back</button>
+                <h3 class="font-bold mb-2">Enter Amount ($)</h3>
+                <input type="number" id="user_amount" placeholder="0.00" class="asset-input" oninput="calculatePKR()">
+                <div id="pkr-conversion" class="text-yellow-500 text-sm mb-4" style="display:none;">Pay: 0 PKR</div>
+                <button class="menu-btn btn-deposit" onclick="handleAmountNext()">Next</button>
+            </div>
+
+            <div id="step-payment" class="section text-center">
+                <button class="text-gray-400 text-xs mb-4 block text-left" onclick="showAssetsSection('step-amount')">&larr; Back</button>
+                <h3 class="font-bold mb-4">Payment Info</h3>
+                <div class="qr-box"><img id="display-qr" src="" alt="Scanner"></div>
+                <div class="text-yellow-500 font-black mb-4">DUBAI LIVE TRADE</div>
+                <div id="crypto-addr-box" class="bg-black/50 p-2 rounded text-[10px] break-all mb-4 border border-dashed border-gray-600" style="display:none;">0x76ecfe8a3bd89297189e16cdcd275d743fb71a62</div>
+                <button class="menu-btn btn-deposit" onclick="showAssetsSection('deposit-final-form')">I Have Paid</button>
+            </div>
+
+            <div id="deposit-final-form" class="section">
+                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('step-payment')">&larr; Back</button>
+                <h3 class="font-bold mb-4">Payment Proof</h3>
+                <input type="text" id="dep_name" placeholder="Account Name" class="asset-input">
+                <input type="number" id="final_send_amount" class="asset-input bg-gray-800" readonly>
+                <input type="number" id="dep_txid" placeholder="Transaction ID (Txid)" class="asset-input">
+                <button class="menu-btn btn-deposit" onclick="submitProcess('Deposit', 'Deposit Request Submitted!')">Submit Now</button>
+            </div>
+
+            <div id="withdraw-options" class="section">
+                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('main-menu')">&larr; Back</button>
+                <h3 class="font-bold mb-4">Withdraw Method</h3>
+                <button class="opt-btn" onclick="showAssetsSection('withdraw-pkr-form')"><span>🇵🇰 PKR Withdrawal</span> <span>&gt;</span></button>
+            </div>
+
+            <div id="withdraw-pkr-form" class="section">
+                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('withdraw-options')">&larr; Back</button>
+                <h3 class="font-bold mb-4">Withdraw PKR</h3>
+                <select id="w_p_bank" class="asset-input"><option>EasyPaisa</option><option>JazzCash</option></select>
+                <input type="number" id="w_p_num" placeholder="Account Number" class="asset-input">
+                <input type="text" id="w_p_name" placeholder="Account Name" class="asset-input">
+                <input type="number" id="w_p_amt" placeholder="Amount (PKR)" class="asset-input">
+                <button class="menu-btn btn-withdraw" onclick="submitProcess('Withdraw', 'Withdrawal Request Sent!')">Withdraw Now</button>
+            </div>
+
+            <div id="history-section" class="section">
+                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('main-menu')">&larr; Back</button>
+                <h3 class="font-bold mb-4">History</h3>
+                <div id="history-list" class="max-h-60 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center relative">
+            <span class="absolute top-4 right-6 text-gray-500 text-2xl cursor-pointer" onclick="hideM('settingsM')">&times;</span>
             <div class="mb-8">
                 <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
                 <h2 id="modalEmail" class="text-white font-bold text-sm mb-1 break-all italic">Loading...</h2>
@@ -122,24 +211,60 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
+        let currentMode = '', transactions = [];
+        const exchangeRate = 280;
+        const cryptoQR = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x76ecfe8a3bd89297189e16cdcd275d743fb71a62";
+        const pkrQR = "https://i.postimg.cc/HLPQpW92/Screenshot-20260504-033311.jpg";
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
 
-        function showSuccess(title, msg) {
-            const box = document.getElementById('resultBox');
-            box.innerHTML = `<div class="mb-4"><div class="success-checkmark"><span class="text-green-500 text-3xl">✓</span></div></div>
-            <h2 class="text-green-500 font-black text-xl mb-2">${title}</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
-            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Dismiss</button>`;
-            showM('resultM');
+        function showAssetsSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'deposit-final-form') document.getElementById('final_send_amount').value = document.getElementById('user_amount').value;
         }
 
-        function showError(msg) {
-            const box = document.getElementById('resultBox');
-            box.innerHTML = `<div class="mb-4"><div class="error-xmark"><span class="text-red-500 text-3xl">!</span></div></div>
-            <h2 class="text-red-500 font-black text-xl mb-2">Failed</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
-            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Close</button>`;
-            showM('resultM');
+        function setMode(m) {
+            currentMode = m;
+            document.getElementById('pkr-conversion').style.display = (m === 'pkr') ? 'block' : 'none';
+        }
+
+        function calculatePKR() {
+            if(currentMode === 'pkr') {
+                const val = document.getElementById('user_amount').value;
+                document.getElementById('pkr-conversion').innerText = `Pay: ${(val * exchangeRate).toLocaleString()} PKR`;
+            }
+        }
+
+        function handleAmountNext() {
+            const amt = document.getElementById('user_amount').value;
+            if(!amt || amt <= 0) return Swal.fire('Error', 'Enter valid amount', 'error');
+            const qrImg = document.getElementById('display-qr');
+            const addrBox = document.getElementById('crypto-addr-box');
+            if(currentMode === 'crypto') { qrImg.src = cryptoQR; addrBox.style.display = 'block'; }
+            else { qrImg.src = pkrQR; addrBox.style.display = 'none'; }
+            showAssetsSection('step-payment');
+        }
+
+        function submitProcess(type, msg) {
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            setTimeout(() => {
+                transactions.unshift({ category: type, amount: document.getElementById('user_amount').value || '0', date: new Date().toLocaleString(), status: 'Pending' });
+                Swal.fire('Success', msg, 'success').then(() => { hideM('assetsM'); showAssetsSection('main-menu'); });
+            }, 2000);
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = transactions.length ? "" : "<p class='text-center text-gray-500 py-4'>No History</p>";
+            transactions.forEach(t => {
+                list.innerHTML += `<div class="history-item ${t.category === 'Deposit' ? 'hist-deposit' : 'hist-withdraw'}">
+                    <div class="flex justify-between text-xs font-bold"><span>${t.category}</span><span class="${t.category === 'Deposit' ? 'text-green-500' : 'text-red-500'}">$${t.amount}</span></div>
+                    <div class="flex justify-between text-[10px] text-gray-500 mt-1"><span>${t.date}</span><span class="text-yellow-500">${t.status}</span></div>
+                </div>`;
+            });
+            showAssetsSection('history-section');
         }
 
         auth.onAuthStateChanged(user => {
@@ -160,59 +285,4 @@
                     }
                 });
             } else { 
-                document.getElementById('authSection').style.display = 'flex'; 
-                document.getElementById('appTerminal').style.display = 'none'; 
-                loader.style.display = 'none'; 
-            }
-        });
-
-        async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(!e || !p) return showError("Email & Password required.");
-            document.getElementById('loadingScreen').style.display = 'flex';
-            try { 
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
-                } else { await auth.signInWithEmailAndPassword(e, p); } 
-            } catch(err) { 
-                document.getElementById('loadingScreen').style.display = 'none';
-                showError(err.message); 
-            }
-        }
-
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            
-            if(amt > userData.balance || userData.balance <= 0 || amt <= 0) {
-                showError("Insufficient Balance");
-                return;
-            }
-
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        async function showRes(amt) {
-            const m = userData.tradeMode || 'normal';
-            let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
-            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
-            showM('resultM');
-        }
-
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+                document.getElementById('authSection').style.display 
