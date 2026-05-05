@@ -18,13 +18,20 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
+        /* Root Level Session Fix */
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Profile Fancy Items */
+        /* Profile UI Improvements from Screenshot */
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
+        .logout-btn { background: #cc3333; transition: opacity 0.2s ease; font-weight: 800; }
+        .logout-btn:active { opacity: 0.8; }
+
+        /* Fancy Success Popup */
+        .success-circle { width: 70px; height: 70px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 30px rgba(34, 197, 94, 0.3); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -108,11 +115,22 @@
         </footer>
     </div>
 
+    <div id="fancyResponseM" class="modal">
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center border border-white/10">
+            <div class="success-circle">
+                <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
+            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
+            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase text-[10px]">Back to Terminal</button>
+        </div>
+    </div>
+
     <div id="settingsM" class="modal">
         <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
-                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
+                <h2 class="text-[10px] font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
+                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl flex items-center justify-center">&times;</button>
             </div>
             <div class="text-center mb-6">
                 <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
@@ -128,7 +146,7 @@
                     <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
                 </div>
             </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px] tracking-widest">Logout Account</button>
         </div>
     </div>
 
@@ -180,9 +198,13 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false;
+        let userData = null, mode = 'reg', chartLoaded = false, sessionFound = false;
+
+        // Emergency timeout to prevent loading screen hang
+        setTimeout(() => { if(!sessionFound) { document.getElementById('loadingScreen').style.display='none'; document.getElementById('authSection').style.display='flex'; } }, 6000);
 
         auth.onAuthStateChanged(user => {
+            sessionFound = true;
             document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
@@ -201,8 +223,6 @@
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('authSection').style.alignItems = 'center';
-                document.getElementById('authSection').style.justifyContent = 'center';
                 document.getElementById('appTerminal').style.display = 'none';
             }
         });
@@ -210,20 +230,22 @@
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
+        
+        function showSuccessPopup(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
 
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
-            if(!acc || !amt || !tx) return alert("Fill all fields");
+            if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); alert("Request Sent!");
+            hideM('depM'); showSuccessPopup("Deposit request sent! Verification in progress.");
         }
 
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amtPkr) return alert("Fill all fields");
+            if(!b || !n || !nm || !amtPkr) return;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); alert("Withdrawal submitted.");
+            hideM('witM'); showSuccessPopup("Withdrawal request sent! Funds arriving soon.");
         }
 
         async function initTrade(type) {
@@ -241,29 +263,10 @@
         }
 
         function showRes(amt) {
-            const tradeMode = userData.tradeMode || 'normal';
-            let win;
-            if(tradeMode === 'profit') { win = true; }
-            else if(tradeMode === 'loss') { win = false; }
-            else { win = Math.random() > 0.5; }
+            const tm = userData.tradeMode || 'normal';
+            let win = tm === 'profit' ? true : tm === 'loss' ? false : Math.random() > 0.5;
             const p = amt * 1.82, box = document.getElementById('resultBox');
             if(win) { 
                 db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
                 box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
             } else { box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue</button>`;
-            showM('resultM');
-        }
-
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-        async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(mode==='reg') { 
-                const r = await auth.createUserWithEmailAndPassword(e, p); 
-                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
-            } else { await auth.signInWithEmailAndPassword(e, p); }
-        }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
