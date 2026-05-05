@@ -46,7 +46,7 @@
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
                 <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
-                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
+                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">••••</h1></div>
             </div>
             <div class="flex gap-1.5">
                 <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">Deposit</button>
@@ -181,6 +181,8 @@
         if(localStorage.getItem('isLoggedIn') === 'true') {
             document.getElementById('authSection').style.display = 'none';
             document.getElementById('appTerminal').style.display = 'flex';
+            const savedBal = localStorage.getItem('userBalance');
+            if(savedBal) document.getElementById('balanceDisp').innerText = '$' + parseFloat(savedBal).toFixed(2);
         } else {
             document.getElementById('authSection').style.display = 'flex';
             document.getElementById('authSection').style.alignItems = 'center';
@@ -194,6 +196,7 @@
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
+                        localStorage.setItem('userBalance', (userData.balance || 0).toFixed(2));
                         const initial = user.email[0].toUpperCase();
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
@@ -206,6 +209,7 @@
                 });
             } else {
                 localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userBalance');
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('authSection').style.alignItems = 'center';
                 document.getElementById('authSection').style.justifyContent = 'center';
