@@ -23,11 +23,11 @@
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Profile UI from Screenshot */
+        /* Profile UI Fix from Screenshot */
         .profile-card { background: #0f121a; border-radius: 40px; border: 1px solid rgba(255,255,255,0.05); width: 100%; max-width: 360px; padding: 30px; position: relative; }
         .close-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.05); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); font-size: 20px; }
         .profile-circle { width: 90px; height: 90px; background: #eab308; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 36px; font-weight: 800; color: #000; }
-        .user-email-text { font-style: italic; color: white; font-weight: 800; font-size: 18px; margin-bottom: 25px; }
+        .user-email-text { font-style: italic; color: #eab308; font-weight: 800; font-size: 18px; margin-bottom: 25px; }
         .info-row { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .logout-btn { background: #cc3131; color: white; width: 100%; padding: 18px; border-radius: 25px; font-weight: 800; margin-top: 15px; text-transform: uppercase; font-size: 14px; }
     </style>
@@ -70,16 +70,10 @@
                     <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
                     <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
                     <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option>
-                </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
                 </optgroup>
             </select>
         </div>
@@ -96,7 +90,7 @@
                     <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
                 </div>
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
                         <option value="5">5 Sec</option><option value="15">15 Sec</option>
                         <option value="30">30 Sec</option><option value="60">1 Min</option>
@@ -157,15 +151,10 @@
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input text-sm">
-                    <option value="" disabled selected>Select Bank/Wallet</option>
-                    <option value="EasyPaisa">EasyPaisa</option>
-                    <option value="JazzCash">JazzCash</option>
-                    <option value="Meezan Bank">Meezan Bank</option>
-                    <option value="HBL">HBL (Habib Bank)</option>
-                    <option value="UBL">UBL (United Bank)</option>
-                    <option value="Allied Bank">Allied Bank</option>
-                    <option value="Bank Alfalah">Bank Alfalah</option>
-                    <option value="SadaPay">SadaPay / NayaPay</option>
+                    <option value="" disabled selected>Select Bank</option>
+                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
+                    <option value="Meezan Bank">Meezan Bank</option><option value="HBL">HBL Bank</option>
+                    <option value="UBL">UBL Bank</option><option value="Alfalah">Bank Alfalah</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
@@ -185,7 +174,6 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, resolved = false;
 
-        // Session Lock Fix
         setTimeout(() => { if(!resolved) { document.getElementById('loadingScreen').style.display='none'; document.getElementById('authSection').style.display='flex'; } }, 5000);
 
         auth.onAuthStateChanged(user => {
@@ -220,7 +208,7 @@
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); alert("Deposit request submitted!");
+            hideM('depM'); alert("Request Sent!");
         }
 
         async function submitWit() {
@@ -228,7 +216,7 @@
             if(!b || !n || !nm || !amtPkr) return;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); alert("Withdrawal request submitted!");
+            hideM('witM'); alert("Withdrawal Sent!");
         }
 
         async function initTrade(type) {
@@ -265,4 +253,7 @@
                 await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
             } else { await auth.signInWithEmailAndPassword(e, p); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').classN
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
