@@ -1,122 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ProTrade Global | Elite Terminal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ProTrade Global | Elite Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
+        .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
+        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
+        .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
+        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
+        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Profile Fancy Items */
+        .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+        /* ===== FANCY POPUP STYLES ===== */
+        #fancyPopup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #fancyPopup.show { display: flex; }
+        .fp-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            animation: fpFadeIn 0.3s ease forwards;
+        }
+        .fp-box {
+            position: relative;
+            z-index: 2;
+            border-radius: 32px;
+            padding: 40px 32px 32px;
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            animation: fpSlideUp 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+            overflow: hidden;
+        }
+        .fp-box.type-success {
+            background: linear-gradient(145deg, #0a1628 0%, #0d1f1a 60%, #071a10 100%);
+            border: 1px solid rgba(34,197,94,0.25);
+            box-shadow: 0 0 60px rgba(34,197,94,0.15), 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .fp-box.type-withdraw {
+            background: linear-gradient(145deg, #0a0e1f 0%, #0e1428 60%, #080d1c 100%);
+            border: 1px solid rgba(99,102,241,0.3);
+            box-shadow: 0 0 60px rgba(99,102,241,0.15), 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .fp-box.type-win {
+            background: linear-gradient(145deg, #071a0e 0%, #0a2010 60%, #061508 100%);
+            border: 1px solid rgba(34,197,94,0.3);
+            box-shadow: 0 0 80px rgba(34,197,94,0.2), 0 30px 60px rgba(0,0,0,0.7);
+        }
+        .fp-box.type-loss {
+            background: linear-gradient(145deg, #1a0707 0%, #200a0a 60%, #150606 100%);
+            border: 1px solid rgba(239,68,68,0.3);
+            box-shadow: 0 0 80px rgba(239,68,68,0.15), 0 30px 60px rgba(0,0,0,0.7);
+        }
+        .fp-glow-ring {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+            font-size: 36px;
+        }
+        .fp-glow-ring::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            animation: fpRingSpin 2.5s linear infinite;
+        }
+        .fp-glow-ring::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            opacity: 0.4;
+            filter: blur(12px);
+        }
+        .type-success .fp-glow-ring, .type-win .fp-glow-ring {
+            background: rgba(34,197,94,0.1);
+        }
+        .type-success .fp-glow-ring::before, .type-win .fp-glow-ring::before {
+            background: conic-gradient(transparent 0deg, #22c55e 180deg, transparent 360deg);
+        }
+        .type-success .fp-glow-ring::after, .type-win .fp-glow-ring::after {
+            background: #22c55e;
+        }
+        .type-withdraw .fp-glow-ring {
+            background: rgba(99,102,241,0.1);
+        }
+        .type-withdraw .fp-glow-ring::before {
+            background: conic-gradient(transparent 0deg, #6366f1 180deg, transparent 360deg);
+        }
+        .type-withdraw .fp-glow-ring::after {
+            background: #6366f1;
+        }
+        .type-loss .fp-glow-ring {
+            background: rgba(239,68,68,0.1);
+        }
+        .type-loss .fp-glow-ring::before {
+            background: conic-gradient(transparent 0deg, #ef4444 180deg, transparent 360deg);
+        }
+        .type-loss .fp-glow-ring::after {
+            background: #ef4444;
+        }
+        .fp-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .type-success .fp-title, .type-win .fp-title { color: #22c55e; }
+        .type-withdraw .fp-title { color: #818cf8; }
+        .type-loss .fp-title { color: #f87171; }
 
-<style>
-body { background:#05070a; color:#e2e8f0; font-family:sans-serif; margin:0 }
-
-/* ===== FANCY ALERT ===== */
-.fancy-alert {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) scale(0.8);
-    background: #111;
-    color: white;
-    padding: 14px 20px;
-    border-radius: 14px;
-    font-weight: bold;
-    z-index: 99999;
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-.fancy-alert.show {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-}
-</style>
+        .fp-amount {
+            font-size: 42px;
+            font-weight: 900;
+            color: white;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .fp-sub {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            font-weight: 600;
+            margin-bottom: 28px;
+        }
+        .fp-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 18px;
+            font-weight: 900;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .fp-btn:active { transform: scale(0.97); }
+        .type-success .fp-btn, .type-win .fp-btn {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+        .type-withdraw .fp-btn {
+            background: linear-gradient(135deg, #6366f1, #4338ca);
+            color: white;
+        }
+        .type-loss .fp-btn {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        /* Particles */
+        .fp-particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: 32px;
+        }
+        .fp-particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            animation: fpParticle 1.8s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fpFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fpSlideUp { from { opacity: 0; transform: translateY(40px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fpRingSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fpParticle {
+            0% { opacity: 1; transform: translate(0,0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
+        /* Trade result popup */
+        #resultM { background: transparent !important; }
+        #resultBox { display: none !important; }
+    </style>
 </head>
-
 <body>
 
-<!-- FANCY ALERT -->
-<div id="fancyAlert" class="fancy-alert"></div>
+    <div id="loadingScreen">
+        <div class="loader-spin"></div>
+        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
+    </div>
 
-<script>
-// ===== FANCY POPUP FUNCTION =====
-function showFancy(msg, type="success"){
-    const el = document.getElementById("fancyAlert");
-    el.innerText = msg;
+    <div id="authSection" class="h-full items-center justify-center p-4" style="display:none;">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
+            <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
+            <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
+            </div>
+            <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
+            <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
+        </div>
+    </div>
 
-    if(type === "error"){
-        el.style.background = "#ef4444";
-    } else {
-        el.style.background = "#10b981";
-    }
+    <div id="appTerminal">
+        <header class="flex justify-between items-center mb-2 px-1">
+            <div class="flex items-center gap-2">
+                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
+                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
+            </div>
+            <div class="flex gap-1.5">
+                <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">Deposit</button>
+                <button onclick="showM('witM')" class="bg-white/5 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-white/10">Withdraw</button>
+            </div>
+        </header>
 
-    el.classList.add("show");
+        <div class="mb-2 px-1">
+            <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
+                <optgroup label="FOREX MAJOR">
+                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
+                </optgroup>
+                <optgroup label="CRYPTO">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                </optgroup>
+                <optgroup label="STOCKS & METALS">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
+                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="NASDAQ:MSFT">MICROSOFT</option>
+                </optgroup>
+            </select>
+        </div>
 
-    setTimeout(()=>{
-        el.classList.remove("show");
-    },2500);
-}
-</script>
+        <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5 shadow-2xl">
+            <div id="tv_chart" class="h-full w-full"></div>
+            <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
+        </main>
 
-<script>
-const firebaseConfig = {
-apiKey:"AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50",
-authDomain:"waqas-47f30.firebaseapp.com",
-projectId:"waqas-47f30"
-};
-firebase.initializeApp(firebaseConfig);
+        <footer class="glass-card p-4 rounded-[32px]">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
+                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Amount ($)</span>
+                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
+                </div>
+                <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
+                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
+                    <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
+                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option><option value="60">1 Min</option>
+                        <option value="120">2 Min</option><option value="300">5 Min</option>
+                        <option value="600">10 Min</option><option value="900">15 Min</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Call</button>
+                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Put</button>
+            </div>
+        </footer>
+    </div>
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
+                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
+            </div>
+            <div class="text-center mb-6">
+                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
+                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
+            </div>
+            <div class="space-y-3 mb-8">
+                <div class="profile-item">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
+                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
+                </div>
+                <div class="profile-item">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
+                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
+                </div>
+            </div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
+        </div>
+    </div>
 
-// ===== DEPOSIT =====
-async function submitFinalDep(){
-    const acc = document.getElementById('depAccName').value;
-    const amt = document.getElementById('depActualAmt').value;
-    const tx = document.getElementById('depTx').value;
+    <div id="depM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <div id="dStep1">
+                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Funds</h2>
+                <input type="number" id="depAmtInput" placeholder="Enter PKR Amount" class="auth-input mb-6 text-center text-lg">
+                <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
+            </div>
+            <div id="dStep2" class="hidden">
+                <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 p-2 bg-white rounded-xl w-48 h-48 object-contain">
+                <p class="text-white font-black mb-6 italic uppercase">Dubai Live Trade</p>
+                <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
+            </div>
+            <div id="dStep3" class="hidden space-y-3">
+                <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
+                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input">
+                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+            </div>
+            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        </div>
+    </div>
 
-    if(!acc || !amt || !tx)
-        return showFancy("Fill all fields","error");
+    <div id="witM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
+            <div class="space-y-3 text-left">
+                <select id="witBank" class="auth-input text-sm">
+                    <option value="" disabled selected>Choose Bank</option>
+                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
+                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
+                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
+                </select>
+                <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
+                <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
+                <input type="number" id="witAmtPKR" placeholder="Amount (PKR)" class="auth-input">
+                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
+            </div>
+            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        </div>
+    </div>
 
-    await db.collection('requests').add({
-        uid: auth.currentUser.uid,
-        amount: amt,
-        txid: tx
-    });
+    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
-    showFancy("Deposit Request Sent!");
-}
-
-// ===== WITHDRAW =====
-async function submitWit(){
-    const b = document.getElementById('witBank').value;
-    const n = document.getElementById('witAccNum').value;
-    const nm = document.getElementById('witAccName').value;
-    const amt = document.getElementById('witAmtPKR').value;
-
-    if(!b || !n || !nm || !amt)
-        return showFancy("Fill all fields","error");
-
-    await db.collection('withdrawals').add({
-        uid: auth.currentUser.uid,
-        amount: amt
-    });
-
-    showFancy("Withdrawal Submitted!");
-}
-
-// ===== TRADE =====
-function initTrade(){
-    showFancy("Trade Started!");
-}
-
-// ===== BALANCE CHECK =====
-function checkBalance(){
-    showFancy("Check Balance","error");
-}
-</script>
-
-</body>
-</html>
+    <!-- ===== FANCY POPUP ===== -->
+    <div id="fancyPopup">
+        <div class="fp-backdrop" onclick="closeFancyPopup()"></div>
+        <div class="fp-box" id="fpBox">
+            <div class="fp-particles" id="fpParticles"></div>
+            <div class="fp-glow-ring" id="fpIcon">✓</div>
+            <div class="fp-title" id="fpTitle">Success</div>
+            <div class="fp-amount" id="fpAmount"></div>
+            <div class="fp-sub" id="fpSub"></div>
+            <button class="fp-btn" onclick="clo
