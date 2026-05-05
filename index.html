@@ -22,11 +22,10 @@
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Profile Items */
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
 
-        /* Fancy Notification Popup */
+        /* Fancy Notification */
         #fancyNotify { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1a1f2e; border: 1px solid rgba(255,255,255,0.1); padding: 16px 24px; border-radius: 20px; z-index: 10001; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 12px; width: 90%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         #fancyNotify.show { top: 20px; }
         .status-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
@@ -75,19 +74,28 @@
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
-                    <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
-                    <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
+                    <option value="FX:EURUSD">EUR/USD (98%)</option>
+                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option>
+                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (88%)</option>
+                    <option value="FX:USDCHF">USD/CHF (85%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (82%)</option>
+                    <option value="FX:EURJPY">EUR/JPY (80%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
                 </optgroup>
                 <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
+                    <option value="NASDAQ:TSLA">TESLA</option>
+                    <option value="NASDAQ:AAPL">APPLE</option>
+                    <option value="NASDAQ:NVDA">NVIDIA</option>
                     <option value="NASDAQ:MSFT">MICROSOFT</option>
                 </optgroup>
             </select>
@@ -107,10 +115,14 @@
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
-                        <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="120">2 Min</option><option value="300">5 Min</option>
-                        <option value="600">10 Min</option><option value="900">15 Min</option>
+                        <option value="5">5 Sec</option>
+                        <option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option>
+                        <option value="60">1 Min</option>
+                        <option value="120">2 Min</option>
+                        <option value="300">5 Min</option>
+                        <option value="600">10 Min</option>
+                        <option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -173,8 +185,8 @@
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input text-sm">
                     <option value="" disabled selected>Choose Bank</option>
-                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
-                    <option value="SadaPay">SadaPay</option>
+                    <option value="EasyPaisa">EasyPaisa</option>
+                    <option value="JazzCash">JazzCash</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
@@ -205,16 +217,16 @@
             setTimeout(() => popup.classList.remove('show'), 3500);
         }
 
-        // Verifying Session Fix
-        const sessionSafety = setTimeout(() => {
+        // --- Verifying Session Fix ---
+        const autoBypass = setTimeout(() => {
             if(document.getElementById('loadingScreen').style.display !== 'none') {
                 document.getElementById('loadingScreen').style.display = 'none';
                 if(!auth.currentUser) document.getElementById('authSection').style.display = 'flex';
             }
-        }, 5000);
+        }, 3000);
 
         auth.onAuthStateChanged(user => {
-            clearTimeout(sessionSafety);
+            clearTimeout(autoBypass);
             document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
@@ -243,23 +255,23 @@
 
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
-            if(!acc || !amt || !tx) return popNotify('error', 'Error', 'Fill all fields');
+            if(!acc || !amt || !tx) return popNotify('error', 'Fields Empty', 'Please fill all details');
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); popNotify('success', 'Submitted', 'Deposit request sent!');
+            hideM('depM'); popNotify('success', 'Submitted', 'Deposit request sent for approval!');
         }
 
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amtPkr) return popNotify('error', 'Error', 'Fill all fields');
-            if((amtPkr/280) > userData.balance) return popNotify('error', 'Low Balance', 'Insufficient funds');
+            if(!b || !n || !nm || !amtPkr) return popNotify('error', 'Fields Empty', 'Please fill all details');
+            if((amtPkr/280) > userData.balance) return popNotify('error', 'Low Balance', 'Insufficient funds in wallet');
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); popNotify('success', 'Sent', 'Withdrawal is processing');
+            hideM('witM'); popNotify('success', 'Sent', 'Withdrawal request is processing!');
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return popNotify('error', 'Balance', 'Check funds');
+            if(amt > userData.balance || amt <= 0) return popNotify('error', 'Check Funds', 'Insufficient balance for trade');
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -273,7 +285,4 @@
 
         function showRes(amt) {
             const tradeMode = userData.tradeMode || 'normal';
-            let win = tradeMode === 'profit' ? true : (tradeMode === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.Fi
+           
