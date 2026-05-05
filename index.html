@@ -12,7 +12,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
@@ -26,39 +25,357 @@
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
 
-        /* ===== FANCY TOAST SYSTEM ===== */
-        #toastContainer { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 360px; }
-        .toast { pointer-events: all; position: relative; overflow: hidden; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 20px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.6); animation: toastIn 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards; transform: translateY(-80px) scale(0.85); opacity: 0; }
-        .toast.toast-out { animation: toastOut 0.35s ease-in forwards; }
-        @keyframes toastIn { to { transform: translateY(0) scale(1); opacity: 1; } }
-        @keyframes toastOut { to { transform: translateY(-60px) scale(0.9); opacity: 0; } }
-        .toast-success { background: rgba(16, 30, 20, 0.97); border-color: rgba(34,197,94,0.3); }
-        .toast-error   { background: rgba(30, 10, 10, 0.97); border-color: rgba(239,68,68,0.3); }
-        .toast-info    { background: rgba(20, 18, 5, 0.97); border-color: rgba(234,179,8,0.35); }
-        .toast-loading { background: rgba(10, 15, 30, 0.97); border-color: rgba(99,102,241,0.3); }
-        .toast-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-        .toast-success .toast-icon { background: rgba(34,197,94,0.15); box-shadow: 0 0 16px rgba(34,197,94,0.25); }
-        .toast-error   .toast-icon { background: rgba(239,68,68,0.15); box-shadow: 0 0 16px rgba(239,68,68,0.25); }
-        .toast-info    .toast-icon { background: rgba(234,179,8,0.15); box-shadow: 0 0 16px rgba(234,179,8,0.25); }
-        .toast-loading .toast-icon { background: rgba(99,102,241,0.15); box-shadow: 0 0 16px rgba(99,102,241,0.25); }
-        .toast-body { flex: 1; min-width: 0; }
-        .toast-title { font-size: 13px; font-weight: 800; letter-spacing: 0.03em; }
-        .toast-success .toast-title { color: #4ade80; }
-        .toast-error   .toast-title { color: #f87171; }
-        .toast-info    .toast-title { color: #fbbf24; }
-        .toast-loading .toast-title { color: #a5b4fc; }
-        .toast-msg { font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 600; margin-top: 2px; line-height: 1.4; }
-        .toast-spin { width: 20px; height: 20px; border: 2px solid rgba(99,102,241,0.25); border-top-color: #818cf8; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        .toast-bar { position: absolute; bottom: 0; left: 0; height: 2px; border-radius: 0 0 20px 20px; }
-        .toast-bar-anim { animation: barShrink linear forwards; }
-        .toast-success .toast-bar { background: linear-gradient(90deg,#22c55e,#16a34a); }
-        .toast-error   .toast-bar { background: linear-gradient(90deg,#ef4444,#b91c1c); }
-        .toast-info    .toast-bar { background: linear-gradient(90deg,#eab308,#ca8a04); }
-        @keyframes barShrink { from { width: 100%; } to { width: 0%; } }
+        /* ═══════════════════════════════════════════
+           FANCY MODAL SYSTEM
+        ═══════════════════════════════════════════ */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.active { display: flex; animation: modalFadeIn 0.3s ease; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Fancy Modal Box */
+        .fancy-modal-box {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 28px;
+            overflow: hidden;
+            animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(60px) scale(0.92); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Modal Inner Glow Border */
+        .fancy-modal-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(234,179,8,0.6), rgba(255,255,255,0.05), rgba(234,179,8,0.3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .fancy-modal-inner {
+            background: linear-gradient(145deg, #0d1117 0%, #111827 60%, #0a0f1a 100%);
+            padding: 32px 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Decorative corner accent */
+        .fancy-modal-inner::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 120px; height: 120px;
+            background: radial-gradient(circle at top right, rgba(234,179,8,0.08), transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Modal Header */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .modal-title-tag {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-icon-circle {
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .modal-icon-circle.gold { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 4px 15px rgba(251,191,36,0.35); }
+        .modal-icon-circle.red { background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 4px 15px rgba(239,68,68,0.35); }
+        .modal-icon-circle.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 15px rgba(59,130,246,0.35); }
+        .modal-icon-circle.green { background: linear-gradient(135deg, #22c55e, #15803d); box-shadow: 0 4px 15px rgba(34,197,94,0.35); }
+
+        .modal-title-text h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        .modal-title-text p {
+            font-size: 9px;
+            color: rgba(255,255,255,0.35);
+            font-weight: 600;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-close-btn {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.4);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .modal-close-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+
+        /* Divider line */
+        .modal-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+            margin: 0 -28px 24px -28px;
+        }
+
+        /* Fancy Input */
+        .fancy-input-wrap {
+            position: relative;
+            margin-bottom: 14px;
+        }
+        .fancy-input-label {
+            font-size: 8px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .fancy-input {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .fancy-input:focus {
+            border-color: rgba(234,179,8,0.5);
+            box-shadow: 0 0 0 3px rgba(234,179,8,0.07);
+        }
+        .fancy-input option { background: #111827; color: white; }
+
+        /* Step indicator */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .step-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .step-dot.active { background: #eab308; width: 18px; border-radius: 3px; }
+        .step-dot.done { background: rgba(34,197,94,0.6); }
+
+        /* Fancy Primary Button */
+        .fancy-btn-primary {
+            width: 100%;
+            padding: 15px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.15s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .fancy-btn-primary:active { transform: scale(0.97); }
+        .fancy-btn-primary.gold {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            color: #000;
+            box-shadow: 0 8px 25px rgba(251,191,36,0.3);
+        }
+        .fancy-btn-primary.gold:hover { box-shadow: 0 12px 35px rgba(251,191,36,0.45); }
+        .fancy-btn-primary.blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(59,130,246,0.3);
+        }
+        .fancy-btn-primary.white {
+            background: linear-gradient(135deg, #fff 0%, #e5e7eb 100%);
+            color: #000;
+            box-shadow: 0 8px 25px rgba(255,255,255,0.1);
+        }
+
+        /* Cancel link */
+        .fancy-cancel {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 9px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.2);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .fancy-cancel:hover { color: rgba(255,255,255,0.4); }
+
+        /* QR Payment Box */
+        .qr-payment-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .qr-payment-box img {
+            width: 160px; height: 160px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: white;
+            padding: 8px;
+            margin: 0 auto 12px auto;
+            display: block;
+        }
+        .qr-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .qr-sublabel {
+            font-size: 9px;
+            color: rgba(255,255,255,0.25);
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        /* Info badge */
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(234,179,8,0.08);
+            border: 1px solid rgba(234,179,8,0.2);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #fbbf24;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            justify-content: center;
+        }
+
+        /* Result Modal Styles */
+        #resultBox {
+            position: relative;
+            overflow: hidden;
+        }
+        .result-amount {
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin: 8px 0;
+        }
+        .result-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .result-glow-win {
+            position: absolute;
+            top: -40px; left: 50%;
+            transform: translateX(-50%);
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .result-glow-lose {
+            position: absolute;
+            top: -40px; left: 50%;
+            transform: translateX(-50%);
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(239,68,68,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Profile modal special */
+        .profile-avatar-ring {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 12px auto;
+            font-size: 30px;
+            font-weight: 900;
+            color: black;
+            box-shadow: 0 0 0 4px rgba(251,191,36,0.15), 0 0 30px rgba(251,191,36,0.2);
+        }
+        .fancy-profile-item {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Ticker tape at top of modals */
+        .modal-ticker {
+            background: linear-gradient(90deg, rgba(234,179,8,0.06), rgba(234,179,8,0.02));
+            border-bottom: 1px solid rgba(234,179,8,0.08);
+            padding: 6px 28px;
+            font-size: 8px;
+            font-weight: 700;
+            color: rgba(234,179,8,0.5);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: -32px -28px 24px -28px;
+        }
     </style>
 </head>
 <body>
-    <div id="toastContainer"></div>
+
+    <div id="loadingScreen">
         <div class="loader-spin"></div>
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
@@ -137,131 +454,4 @@
         </footer>
     </div>
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
-                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
-            </div>
-            <div class="text-center mb-6">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
-                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
-            </div>
-            <div class="space-y-3 mb-8">
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
-                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
-                </div>
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
-                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
-                </div>
-            </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
-        </div>
-    </div>
-
-    <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div id="dStep1">
-                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Funds</h2>
-                <input type="number" id="depAmtInput" placeholder="Enter PKR Amount" class="auth-input mb-6 text-center text-lg">
-                <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
-            </div>
-            <div id="dStep2" class="hidden">
-                <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 p-2 bg-white rounded-xl w-48 h-48 object-contain">
-                <p class="text-white font-black mb-6 italic uppercase">Dubai Live Trade</p>
-                <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
-            </div>
-            <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input">
-                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
-            </div>
-            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
-        </div>
-    </div>
-
-    <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
-            <div class="space-y-3 text-left">
-                <select id="witBank" class="auth-input text-sm">
-                    <option value="" disabled selected>Choose Bank</option>
-                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
-                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
-                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
-                </select>
-                <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
-                <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="witAmtPKR" placeholder="Amount (PKR)" class="auth-input">
-                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
-            </div>
-            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
-        </div>
-    </div>
-
-    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
-
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false;
-
-        // ===== FANCY TOAST FUNCTION =====
-        function showToast(type, title, msg, duration = 3500) {
-            const icons = { success: '✅', error: '❌', info: '💡', loading: '' };
-            const container = document.getElementById('toastContainer');
-            const t = document.createElement('div');
-            t.className = `toast toast-${type}`;
-            const isLoading = type === 'loading';
-            t.innerHTML = `
-                <div class="toast-icon">${isLoading ? '<div class="toast-spin"></div>' : icons[type]}</div>
-                <div class="toast-body">
-                    <div class="toast-title">${title}</div>
-                    <div class="toast-msg">${msg}</div>
-                </div>
-                ${!isLoading ? `<div class="toast-bar toast-bar-anim" style="animation-duration:${duration}ms"></div>` : ''}
-            `;
-            container.appendChild(t);
-            if(!isLoading) {
-                setTimeout(() => { t.classList.add('toast-out'); setTimeout(() => t.remove(), 380); }, duration);
-            }
-            return t;
-        }
-        function removeToast(t) { if(t && t.parentNode) { t.classList.add('toast-out'); setTimeout(() => t.remove(), 380); } }
-
-        auth.onAuthStateChanged(user => {
-            document.getElementById('loadingScreen').style.display = 'none'; 
-            if(user) {
-                db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    userData = doc.data();
-                    if(userData) {
-                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
-                        document.getElementById('modalEmail').innerText = user.email;
-                        document.getElementById('modalEmailBox').innerText = user.email;
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                    }
-                });
-            } else {
-                document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('authSection').style.alignItems = 'center';
-                document.getElementById('authSection').style.justifyContent = 'center';
-                document.getElementById('appTerminal').style.display = 'none';
-            }
-        });
-
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-        function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
-
-        async function submitFinalDep() {
-            const acc = document.getElementById('depAccName').value, amt = docume
+    <!-- ═════════════
