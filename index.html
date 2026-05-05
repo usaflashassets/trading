@@ -16,7 +16,6 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        /* Loading Screen Fix */
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -61,22 +60,15 @@
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option>
-                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
-                    <option value="FX:USDJPY">USD/JPY (92%)</option>
-                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
-                    <option value="FX:USDCAD">USD/CAD (88%)</option>
-                    <option value="FX:USDCHF">USD/CHF (85%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (82%)</option>
-                    <option value="FX:EURJPY">EUR/JPY (80%)</option>
+                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
-                    <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
-                    <option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option>
-                    <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
                 </optgroup>
             </select>
         </div>
@@ -95,14 +87,10 @@
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option>
-                        <option value="15">15 Sec</option>
-                        <option value="30">30 Sec</option>
-                        <option value="60">1 Min</option>
-                        <option value="120">2 Min</option>
-                        <option value="300">5 Min</option>
-                        <option value="600">10 Min</option>
-                        <option value="900">15 Min</option>
+                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option><option value="60">1 Min</option>
+                        <option value="120">2 Min</option><option value="300">5 Min</option>
+                        <option value="600">10 Min</option><option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -119,8 +107,8 @@
                 <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
-            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Your request has been submitted.</p>
-            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase text-[10px]">Back to Terminal</button>
+            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
+            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase text-[10px]">Excellent</button>
         </div>
     </div>
 
@@ -131,8 +119,8 @@
                 <button onclick="hideM('settingsM')" class="text-white text-2xl">&times;</button>
             </div>
             <div class="text-center mb-6">
-                <div id="modalInitial" class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-2xl font-black text-black mb-3">?</div>
-                <p id="modalEmail" class="text-white font-bold text-sm italic">Loading...</p>
+                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
+                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
             </div>
             <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600 text-white font-black rounded-2xl uppercase text-[10px]">Logout</button>
         </div>
@@ -165,8 +153,7 @@
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input text-sm">
-                    <option value="EasyPaisa">EasyPaisa</option>
-                    <option value="JazzCash">JazzCash</option>
+                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
@@ -177,7 +164,7 @@
         </div>
     </div>
 
-    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
+    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -190,7 +177,7 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, resolved = false;
 
-        // Force resolve if Firebase is slow
+        // Session Lock Fix
         setTimeout(() => { if(!resolved) { document.getElementById('loadingScreen').style.display='none'; document.getElementById('authSection').style.display='flex'; } }, 6000);
 
         auth.onAuthStateChanged(user => {
@@ -201,7 +188,9 @@
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
+                        const initial = user.email[0].toUpperCase();
+                        document.getElementById('userInitial').innerText = initial;
+                        document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
@@ -224,7 +213,7 @@
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); showFancy("Deposit request sent! Verification will take 15 minutes.");
+            hideM('depM'); showFancy("Request Sent! Verification in progress.");
         }
 
         async function submitWit() {
@@ -232,7 +221,7 @@
             if(!b || !n || !nm || !amtPkr) return;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); showFancy("Withdrawal request sent! Your funds are on the way.");
+            hideM('witM'); showFancy("Withdrawal Sent! Funds arriving soon.");
         }
 
         async function initTrade(type) {
@@ -272,7 +261,6 @@
                 } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(e) { alert(e.message); }
         }
-
         function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
     </script>
 </body>
