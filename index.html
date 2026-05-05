@@ -16,7 +16,8 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        #dynamicLoader { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* Persistent Loader Fix */
+        #sessionLoader { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.5s ease; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -28,9 +29,9 @@
 </head>
 <body>
 
-    <div id="dynamicLoader">
+    <div id="sessionLoader">
         <div class="loader-spin"></div>
-        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Initialising Terminal...</p>
+        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Dubai Live Trade...</p>
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4" style="display:none;">
@@ -49,7 +50,7 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
-                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm">?</div>
+                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
                 <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
             <div class="flex gap-1.5">
@@ -64,14 +65,11 @@
                     <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (98%)</option>
                     <option value="FX:USDJPY">USD/JPY (95%)</option><option value="FX:AUDUSD">AUD/USD (92%)</option>
                     <option value="FX:USDCAD">USD/CAD (90%)</option><option value="FX:USDCHF">USD/CHF (88%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (85%)</option><option value="FX:EURJPY">EUR/JPY (85%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO ASSETS">
                     <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
                     <option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
-                </optgroup>
-                <optgroup label="STOCKS & GOLD">
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="TVC:GOLD">GOLD (XAUUSD)</option>
                 </optgroup>
             </select>
         </div>
@@ -92,8 +90,8 @@
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
                         <option value="5">5 Sec</option><option value="15">15 Sec</option>
                         <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="300">5 Min</option><option value="900">15 Min</option>
-                        <option value="1800">30 Min</option>
+                        <option value="300">5 Min</option><option value="600">10 Min</option>
+                        <option value="900">15 Min</option><option value="1800">30 Min</option>
                     </select>
                 </div>
             </div>
@@ -156,15 +154,6 @@
         </div>
     </div>
 
-    <div id="fancyResponseM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
-            <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-            <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
-            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
-            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Excellent</button>
-        </div>
-    </div>
-
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -178,20 +167,16 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
-        // --- SESSION FIX ---
-        function clearLoader() {
-            const loader = document.getElementById('dynamicLoader');
-            if(loader) {
+        // FIXED: Self-Closing Loader after 1.5 seconds
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('sessionLoader');
                 loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 400);
-            }
-        }
-
-        // Auto-remove loader after 2.5 seconds regardless of state
-        setTimeout(clearLoader, 2500);
+                setTimeout(() => loader.style.display = 'none', 500);
+            }, 1500);
+        });
 
         auth.onAuthStateChanged(user => {
-            clearLoader(); // Immediately clear on state detection
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -211,19 +196,17 @@
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
             }
-        }, () => clearLoader()); // Clear on error too
+        });
 
-        // --- LOGIC FUNCTIONS ---
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
-        function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
 
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); showFancy("Request Submitted!");
+            hideM('depM'); alert("Request Sent!");
         }
 
         async function submitWit() {
@@ -231,7 +214,7 @@
             if(!b || !n || !nm || !amt) return;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
-            hideM('witM'); showFancy("Withdrawal Sent!");
+            hideM('witM'); alert("Withdrawal Sent!");
         }
 
         async function initTrade(type) {
@@ -270,4 +253,7 @@
                 } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { alert(err.message); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').in
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
