@@ -31,7 +31,7 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 1; pointer-events: all; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -62,8 +62,8 @@
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
 
-    <div id="authSection" class="h-full items-center justify-center p-4" style="display: none;">
-        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
+    <div id="authSection" class="h-full flex items-center justify-center p-4" style="display: none;">
+        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
                 <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Login</button>
@@ -75,15 +75,13 @@
         </div>
     </div>
 
-    <div id="appTerminal" style="display: none;">
+    <div id="appTerminal">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
                 <div onclick="showM('settingsM')" id="userInitial" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer text-xs">?</div>
                 <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
-            <div class="flex gap-1.5">
-                <button onclick="showM('assetsM')" class="bg-yellow-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight">My Assets</button>
-            </div>
+            <button onclick="showM('assetsM')" class="bg-yellow-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase">My Assets</button>
         </header>
 
         <div class="mb-2">
@@ -188,7 +186,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'login', chartLoaded = false;
-        let currentMode = '', transactions = [];
+        let currentMode = '';
         const exchangeRate = 280;
         const cryptoQR = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x76ecfe8a3bd89297189e16cdcd275d743fb71a62";
         const pkrQR = "https://i.postimg.cc/HLPQpW92/Screenshot-20260504-033311.jpg";
@@ -228,9 +226,11 @@
             showAssetsSection('history-section');
         }
 
-        auth.onAuthStateChanged(user => {
+        // CRITICAL FIX: Session Verification Logic
+        auth.onAuthStateChanged(async user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
+                // Ensure data is fetched before hiding loader
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
@@ -239,7 +239,7 @@
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
                         document.getElementById('modalEmail').innerText = user.email;
+                        
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-   
+                        if(!chartLoaded) { loadChart('FX:EUR
