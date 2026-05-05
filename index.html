@@ -34,11 +34,11 @@
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
                 <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
@@ -144,6 +144,7 @@
         </footer>
     </div>
 
+    <!-- Modals (Settings, Deposit, Withdraw, etc) -->
     <div id="settingsM" class="modal">
         <div class="profile-card p-8 w-full max-w-[360px] relative">
             <button onclick="hideM('settingsM')" class="absolute top-6 right-6 text-white text-2xl">&times;</button>
@@ -161,7 +162,7 @@
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
                 <input type="number" id="depAmtInput" placeholder="PKR Amount" class="auth-input mb-6 text-center">
@@ -183,7 +184,7 @@
     </div>
 
     <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input text-sm"><option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option></select>
@@ -197,7 +198,7 @@
     </div>
 
     <div id="fancyResponseM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
             <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
             <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
             <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
@@ -207,6 +208,7 @@
 
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
+    <!-- Firebase & TradingView Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -257,6 +259,7 @@
                 }, error => {
                     console.error("Firestore Error:", error);
                     document.getElementById('authSection').style.display = 'flex';
+                    hideLoading();
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
@@ -266,7 +269,7 @@
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-        function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
+        function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d)?.classList.add('hidden')); document.getElementById('dStep'+s)?.classList.remove('hidden'); }
         function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
 
         async function submitFinalDep() {
@@ -280,5 +283,4 @@
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getElementById('witAmtPKR').value);
             if(!b || !n || !nm || !amt) return;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/280)) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
-            hideM('witM
+            await db.collection('withdrawals').add({ uid: aut
