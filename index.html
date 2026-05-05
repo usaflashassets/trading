@@ -174,9 +174,12 @@
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input text-sm">
                     <option value="" disabled selected>Choose Bank</option>
-                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
-                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
-                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
+                    <option value="EasyPaisa">EasyPaisa</option>
+                    <option value="JazzCash">JazzCash</option>
+                    <option value="HBL">HBL Bank</option>
+                    <option value="Meezan">Meezan Bank</option>
+                    <option value="UBL">UBL Bank</option>
+                    <option value="SadaPay">SadaPay</option>
                 </select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
@@ -195,6 +198,19 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
+
+        // EMERGENCY AUTO-DISMISS for "Verifying Session"
+        setTimeout(() => {
+            if(document.getElementById('loadingScreen').style.display !== 'none') {
+                console.log("Auto-dismissing loading screen...");
+                document.getElementById('loadingScreen').style.display = 'none';
+                if(!auth.currentUser) {
+                    document.getElementById('authSection').style.display = 'flex';
+                    document.getElementById('authSection').style.alignItems = 'center';
+                    document.getElementById('authSection').style.justifyContent = 'center';
+                }
+            }
+        }, 3000); 
 
         auth.onAuthStateChanged(user => {
             document.getElementById('loadingScreen').style.display = 'none'; 
@@ -261,11 +277,4 @@
             let win;
             if(tradeMode === 'profit') { win = true; }
             else if(tradeMode === 'loss') { win = false; }
-            else { win = Math.random() > 0.5; }
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue</button>`;
-            showM('re
+            else { wi
