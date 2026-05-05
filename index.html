@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ProTrade Global | Elite Terminal</title>
+    <title>Dubai Live Trade | Elite Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -22,11 +22,7 @@
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Profile & Fancy Items */
-        .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
-
-        /* Notification Popup Style */
+        /* Fancy Notification */
         #fancyNotify { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1a1f2e; border: 1px solid rgba(255,255,255,0.1); padding: 16px 24px; border-radius: 20px; z-index: 10001; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 12px; width: 90%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         #fancyNotify.show { top: 20px; }
         .status-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
@@ -85,11 +81,6 @@
                     <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
                     <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
                 </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
-                    <option value="NASDAQ:MSFT">MICROSOFT</option>
-                </optgroup>
             </select>
         </div>
 
@@ -109,8 +100,7 @@
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
                         <option value="5">5 Sec</option><option value="15">15 Sec</option>
                         <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="120">2 Min</option><option value="300">5 Min</option>
-                        <option value="600">10 Min</option><option value="900">15 Min</option>
+                        <option value="300">5 Min</option><option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -119,30 +109,6 @@
                 <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Put</button>
             </div>
         </footer>
-    </div>
-
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
-                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
-            </div>
-            <div class="text-center mb-6">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
-                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
-            </div>
-            <div class="space-y-3 mb-8">
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
-                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
-                </div>
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
-                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
-                </div>
-            </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
-        </div>
     </div>
 
     <div id="depM" class="modal">
@@ -154,35 +120,17 @@
             </div>
             <div id="dStep2" class="hidden">
                 <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 p-2 bg-white rounded-xl w-48 h-48 object-contain">
-                <p class="text-white font-black mb-6 italic uppercase">Dubai Live Trade</p>
+                <p class="text-white font-black mb-4 italic uppercase">Dubai Live Trade</p>
+                <button onclick="downloadScanner()" class="bg-blue-600 text-[10px] px-4 py-2 rounded-lg mb-6 uppercase font-bold">Download Scanner</button>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
             <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input">
-                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
+                <input type="text" id="depAccName" placeholder="Enter Account Name" class="auth-input">
+                <input type="number" id="depActualAmt" placeholder="Enter Send Amount" class="auth-input">
+                <input type="text" id="depTx" placeholder="Enter Txid" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
-        </div>
-    </div>
-
-    <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
-            <div class="space-y-3 text-left">
-                <select id="witBank" class="auth-input text-sm">
-                    <option value="" disabled selected>Choose Bank</option>
-                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
-                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
-                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
-                </select>
-                <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
-                <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="witAmtPKR" placeholder="Amount (PKR)" class="auth-input">
-                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
-            </div>
-            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
 
@@ -195,40 +143,32 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
-        // Custom Fancy Notification Function
         function popNotify(type, title, msg) {
-            const popup = document.getElementById('fancyNotify');
-            const icon = document.getElementById('notifyIcon');
-            const t = document.getElementById('notifyTitle');
-            const m = document.getElementById('notifyMsg');
-
-            t.innerText = title;
-            m.innerText = msg;
-            
-            if(type === 'success') {
-                icon.innerHTML = '✓';
-                icon.className = 'status-icon bg-green-500 text-white';
-            } else if(type === 'error') {
-                icon.innerHTML = '!';
-                icon.className = 'status-icon bg-red-500 text-white';
-            }
-
-            popup.classList.add('show');
-            setTimeout(() => popup.classList.remove('show'), 3500);
+            const p = document.getElementById('fancyNotify'), i = document.getElementById('notifyIcon');
+            document.getElementById('notifyTitle').innerText = title;
+            document.getElementById('notifyMsg').innerText = msg;
+            i.innerHTML = type==='success'?'✓':'!';
+            i.className = `status-icon ${type==='success'?'bg-green-500':'bg-red-500'} text-white`;
+            p.classList.add('show'); setTimeout(() => p.classList.remove('show'), 3000);
         }
 
+        // Fixed Session Verifier
+        const sessionTimeout = setTimeout(() => {
+            if (document.getElementById('loadingScreen').style.display !== 'none') {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('authSection').style.display = 'flex';
+            }
+        }, 5000);
+
         auth.onAuthStateChanged(user => {
+            clearTimeout(sessionTimeout);
             document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
-                        document.getElementById('modalEmail').innerText = user.email;
-                        document.getElementById('modalEmailBox').innerText = user.email;
+                        document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
@@ -236,52 +176,40 @@
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('authSection').style.alignItems = 'center';
-                document.getElementById('authSection').style.justifyContent = 'center';
                 document.getElementById('appTerminal').style.display = 'none';
             }
         });
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
+        
+        function downloadScanner() {
+            const link = document.createElement('a');
+            link.href = 'https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg';
+            link.download = 'DubaiLiveTrade_Scanner.jpg';
+            link.click();
+        }
 
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
-            if(!acc || !amt || !tx) return popNotify('error', 'Error', 'Please fill all fields');
+            if(!acc || !amt || !tx) return popNotify('error', 'Fields Empty', 'Please fill all details');
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); 
-            popNotify('success', 'Deposit Submitted', 'Wait for admin approval');
+            hideM('depM'); popNotify('success', 'Submitted', 'Your deposit is under verification');
         }
 
-        async function submitWit() {
-            const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amtPkr) return popNotify('error', 'Error', 'Please fill all fields');
-            
-            if(amtPkr/280 > userData.balance) return popNotify('error', 'Insufficient', 'Low balance for withdrawal');
-
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); 
-            popNotify('success', 'Withdrawal Sent', 'Processing your payment...');
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        
+        async function handleAuth() {
+            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            try {
+                if(mode==='reg') { 
+                    const r = await auth.createUserWithEmailAndPassword(e, p); 
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
+                } else { await auth.signInWithEmailAndPassword(e, p); }
+            } catch(err) { popNotify('error', 'Auth Failed', err.message); }
         }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return popNotify('error', 'Balance Error', 'Check your account balance');
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        function showRes(amt) {
-            const tradeMode = userData.tradeMode || 'normal';
-            let win;
-            if(tradeMode === 'profit') { win = true; }
-            els
+        function switchAuth(t) { mode = t; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
