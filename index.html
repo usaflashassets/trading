@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dubai Live Trade | Elite Terminal</title>
+    <title>ProTrade Global | Elite Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -16,8 +16,7 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        /* Persistent Session Fix Loader */
-        #sessionLoader { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.4s ease; }
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -29,14 +28,14 @@
 </head>
 <body>
 
-    <div id="sessionLoader">
+    <div id="loadingScreen">
         <div class="loader-spin"></div>
-        <p class="mt-4 text-[10px] font-black text-yellow-500 uppercase tracking-widest italic">Securing Connection...</p>
+        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
-            <h1 class="text-3xl font-black text-center mb-8 uppercase italic">Dubai Live Trade</h1>
+        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
+            <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
                 <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
                 <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
@@ -61,22 +60,14 @@
 
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="FOREX MAJOR (OTC)">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (98%)</option>
-                    <option value="FX:USDJPY">USD/JPY (95%)</option><option value="FX:AUDUSD">AUD/USD (92%)</option>
-                    <option value="FX:USDCAD">USD/CAD (90%)</option><option value="FX:USDCHF">USD/CHF (88%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (85%)</option><option value="FX:EURJPY">EUR/JPY (85%)</option>
-                    <option value="FX:GBPJPY">GBP/JPY (82%)</option><option value="FX:AUDJPY">AUD/JPY (80%)</option>
-                    <option value="FX:EURAUD">EUR/AUD (78%)</option><option value="FX:GBPAUD">GBP/AUD (75%)</option>
+                <optgroup label="FOREX MAJOR">
+                    <option value="FX:EURUSD">EUR/USD (98%)</option>
+                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option>
                 </optgroup>
-                <optgroup label="CRYPTO & STOCKS">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT</option><option value="BINANCE:XRPUSDT">XRP/USDT</option>
-                    <option value="NASDAQ:AAPL">APPLE INC</option><option value="NASDAQ:TSLA">TESLA MOTORS</option>
-                    <option value="NASDAQ:NVDA">NVIDIA CORP</option><option value="NASDAQ:AMZN">AMAZON</option>
-                    <option value="TVC:GOLD">GOLD (XAUUSD)</option><option value="TVC:SILVER">SILVER</option>
-                    <option value="TVC:UKOIL">BRENT OIL</option>
+                <optgroup label="CRYPTO">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
                 </optgroup>
             </select>
         </div>
@@ -95,10 +86,10 @@
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
-                        <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="300">5 Min</option><option value="600">10 Min</option>
-                        <option value="900">15 Min</option><option value="1800">30 Min</option>
+                        <option value="5">5 Sec</option>
+                        <option value="15">15 Sec</option>
+                        <option value="300">5 Min</option>
+                        <option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -107,15 +98,6 @@
                 <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Put</button>
             </div>
         </footer>
-    </div>
-
-    <div id="fancyResponseM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
-            <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-            <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
-            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted Successfully</p>
-            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Excellent</button>
-        </div>
     </div>
 
     <div id="settingsM" class="modal">
@@ -127,10 +109,10 @@
                 <p id="modalEmailLabel" class="text-white font-extrabold italic text-xl mb-8">Loading...</p>
             </div>
             <div class="space-y-4 mb-10">
-                <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Status</span><span class="text-[11px] font-black text-green-500 uppercase italic">Verified Elite</span></div>
-                <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Email</span><span id="modalEmail" class="text-[10px] font-black text-white uppercase italic">...</span></div>
+                <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Account Status</span><span class="text-[11px] font-black text-green-500 uppercase italic">Verified Elite</span></div>
+                <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Email Box</span><span id="modalEmail" class="text-[10px] font-black text-white uppercase italic">Loading...</span></div>
             </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-5 logout-btn text-white font-black rounded-[20px] uppercase text-xs tracking-widest">Logout</button>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-5 logout-btn text-white font-black rounded-[20px] uppercase text-xs tracking-widest">Logout Account</button>
         </div>
     </div>
 
@@ -142,7 +124,7 @@
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
-                <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 bg-white p-1 rounded-xl w-40 h-40 object-contain shadow-2xl">
+                <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 bg-white p-1 rounded-xl w-40 h-40 object-contain">
                 <p class="text-white font-black mb-6 italic uppercase">Dubai Live Trade</p>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
@@ -170,6 +152,15 @@
         </div>
     </div>
 
+    <div id="fancyResponseM" class="modal">
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
+            <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
+            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
+            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Excellent</button>
+        </div>
+    </div>
+
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -181,22 +172,13 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false;
+        let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
 
-        // CRITICAL FIX: Session Loader removal
-        function killLoader() {
-            const loader = document.getElementById('sessionLoader');
-            if(loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }
-        }
-
-        // Auto-kill after 1.5s
-        window.addEventListener('load', () => setTimeout(killLoader, 1500));
+        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
+        function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
 
         auth.onAuthStateChanged(user => {
-            killLoader(); // Kill loader immediately on state change
+            isResolved = true; clearTimeout(forceClear); hideLoading();
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -264,8 +246,16 @@
         }
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-        
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
             try {
                 if(mode==='reg') { 
+                    const r = await auth.createUserWithEmailAndPassword(e, p); 
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
+                } else { await auth.signInWithEmailAndPassword(e, p); }
+            } catch(err) { alert(err.message); }
+        }
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
