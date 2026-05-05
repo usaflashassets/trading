@@ -16,7 +16,8 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+        /* Dynamic Loader Style */
+        #dynamicLoader { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -28,7 +29,7 @@
 </head>
 <body>
 
-    <div id="loadingScreen">
+    <div id="dynamicLoader">
         <div class="loader-spin"></div>
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
@@ -49,7 +50,7 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
-                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
+                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm">?</div>
                 <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
             <div class="flex gap-1.5">
@@ -65,15 +66,19 @@
                     <option value="FX:USDJPY">USD/JPY (95%)</option><option value="FX:AUDUSD">AUD/USD (92%)</option>
                     <option value="FX:USDCAD">USD/CAD (90%)</option><option value="FX:USDCHF">USD/CHF (88%)</option>
                     <option value="FX:EURGBP">EUR/GBP (85%)</option><option value="FX:EURJPY">EUR/JPY (85%)</option>
+                    <option value="FX:GBPJPY">GBP/JPY (82%)</option><option value="FX:AUDJPY">AUD/JPY (80%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO ASSETS">
                     <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
                     <option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
                     <option value="BINANCE:DOGEUSDT">DOGE/USDT</option><option value="BINANCE:XRPUSDT">XRP/USDT</option>
+                    <option value="BINANCE:ADAUSDT">ADA/USDT</option><option value="BINANCE:AVAXUSDT">AVAX/USDT</option>
                 </optgroup>
-                <optgroup label="STOCKS & GOLD">
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:NVDA">NVIDIA</option><option value="TVC:GOLD">GOLD (XAUUSD)</option>
+                <optgroup label="STOCKS & COMMODITIES">
+                    <option value="NASDAQ:AAPL">APPLE INC</option><option value="NASDAQ:TSLA">TESLA MOTORS</option>
+                    <option value="NASDAQ:NVDA">NVIDIA CORP</option><option value="NASDAQ:AMZN">AMAZON</option>
+                    <option value="NASDAQ:META">META (FB)</option><option value="TVC:GOLD">GOLD (XAUUSD)</option>
+                    <option value="TVC:SILVER">SILVER</option><option value="TVC:UKOIL">BRENT OIL</option>
                 </optgroup>
             </select>
         </div>
@@ -180,12 +185,20 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
 
-        // Force Clear Loading Screen after 4 seconds (Fail-Safe)
-        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
-        function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
+        // --- THE FIX: ZAR-PAR LEVEL SESSION HANDLING ---
+        function closeLoader() {
+            if (isResolved) return;
+            isResolved = true;
+            const loader = document.getElementById('dynamicLoader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 400);
+        }
+
+        // Auto-close loader after 3 seconds if Firebase is too slow
+        setTimeout(closeLoader, 3000);
 
         auth.onAuthStateChanged(user => {
-            isResolved = true; clearTimeout(forceClear); hideLoading();
+            closeLoader();
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -207,6 +220,7 @@
             }
         });
 
+        // --- ORIGINAL LOGIC RETAINED ---
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
@@ -216,7 +230,7 @@
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); showFancy("Request Sent!");
+            hideM('depM'); showFancy("Deposit Request Sent!");
         }
 
         async function submitWit() {
@@ -255,12 +269,4 @@
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
         
         async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            try {
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
-                } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) { alert(err.message); }
-        }
-        function switchAuth(t) { mode = t; document.getElementById('loginTa
+            const e = document.getElementBy
