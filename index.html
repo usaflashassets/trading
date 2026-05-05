@@ -14,19 +14,25 @@
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
-        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
-        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
-        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
+        /* App Sections State */
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #authSection { display: none; height: 100dvh; align-items: center; justify-content: center; padding: 16px; }
+        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
+
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Elements */
+        .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
+        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
+        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+
         /* Fancy Notification */
         #fancyNotify { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1a1f2e; border: 1px solid rgba(255,255,255,0.1); padding: 16px 24px; border-radius: 20px; z-index: 10001; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 12px; width: 90%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         #fancyNotify.show { top: 20px; }
         .status-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
-        .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
     </style>
 </head>
 <body>
@@ -41,10 +47,10 @@
 
     <div id="loadingScreen">
         <div class="loader-spin"></div>
-        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
+        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest tracking-tighter">Initializing Session...</p>
     </div>
 
-    <div id="authSection" class="h-full items-center justify-center p-4" style="display:none;">
+    <div id="authSection">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">Dubai Live Trade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
@@ -72,25 +78,27 @@
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
-                    <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
-                    <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
+                    <option value="FX:EURUSD">EUR/USD (98%)</option>
+                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option>
+                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (88%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (82%)</option>
                 </optgroup>
-                <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                <optgroup label="CRYPTO (OTC)">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT</option>
                 </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
-                    <option value="NASDAQ:MSFT">MICROSOFT</option>
+                <optgroup label="METALS">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
+                    <option value="OANDA:XAGUSD">SILVER</option>
                 </optgroup>
             </select>
         </div>
 
-        <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5 shadow-2xl">
+        <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5">
             <div id="tv_chart" class="h-full w-full"></div>
             <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
         </main>
@@ -104,10 +112,12 @@
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
-                        <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="120">2 Min</option><option value="300">5 Min</option>
-                        <option value="600">10 Min</option><option value="900">15 Min</option>
+                        <option value="5">5 Sec</option>
+                        <option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option>
+                        <option value="60">1 Min</option>
+                        <option value="300">5 Min</option>
+                        <option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -118,34 +128,10 @@
         </footer>
     </div>
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
-                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
-            </div>
-            <div class="text-center mb-6">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
-                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
-            </div>
-            <div class="space-y-3 mb-8">
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
-                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
-                </div>
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
-                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
-                </div>
-            </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="bg-red-600 w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout</button>
-        </div>
-    </div>
-
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
-                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
+                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase tracking-tighter">Deposit PKR</h2>
                 <input type="number" id="depAmtInput" placeholder="Enter PKR Amount" class="auth-input mb-6 text-center text-lg">
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
@@ -156,25 +142,35 @@
             </div>
             <div id="dStep3" class="hidden space-y-3">
                 <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Send Amount" class="auth-input">
-                <input type="text" id="depTx" placeholder="Txid" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+                <input type="number" id="depActualAmt" placeholder="Amount Sent" class="auth-input">
+                <input type="text" id="depTx" placeholder="Txid / TID" class="auth-input">
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit Deposit</button>
             </div>
-            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold">Cancel</button>
+            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
 
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase tracking-tighter">Withdraw Funds</h2>
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input"><option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option></select>
                 <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
                 <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
                 <input type="number" id="witAmtPKR" placeholder="Amount (PKR)" class="auth-input">
-                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
+                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Submit</button>
             </div>
-            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold">Cancel</button>
+            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        </div>
+    </div>
+
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm text-center">
+            <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
+            <p id="modalEmail" class="text-white font-bold text-sm mb-6 italic">User Profile</p>
+            <div class="profile-item"><span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span><span class="text-xs font-bold text-green-500">VERIFIED</span></div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="bg-red-600 w-full py-4 text-white font-black rounded-2xl uppercase text-[10px] mt-4">Logout</button>
+            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Close</button>
         </div>
     </div>
 
@@ -188,44 +184,47 @@
         let userData = null, mode = 'reg', chartLoaded = false;
 
         function popNotify(type, title, msg) {
-            const popup = document.getElementById('fancyNotify');
-            const icon = document.getElementById('notifyIcon');
+            const p = document.getElementById('fancyNotify'), i = document.getElementById('notifyIcon');
             document.getElementById('notifyTitle').innerText = title;
             document.getElementById('notifyMsg').innerText = msg;
-            icon.innerHTML = type === 'success' ? '✓' : '!';
-            icon.className = `status-icon ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
-            popup.classList.add('show');
-            setTimeout(() => popup.classList.remove('show'), 3000);
+            i.innerHTML = type==='success'?'✓':'!';
+            i.className = `status-icon ${type==='success'?'bg-green-500':'bg-red-500'} text-white`;
+            p.classList.add('show'); setTimeout(() => p.classList.remove('show'), 3500);
         }
 
-        // --- Verifying Issue Fix ---
-        let sessionChecked = false;
-        setTimeout(() => { 
-            if(!sessionChecked) {
-                document.getElementById('loadingScreen').style.display = 'none';
+        // --- HARD SESSION CHECK (REMOVES VERIFYING SCREEN) ---
+        function clearLoader(showAuth) {
+            document.getElementById('loadingScreen').style.display = 'none';
+            if(showAuth) {
                 document.getElementById('authSection').style.display = 'flex';
+                document.getElementById('appTerminal').style.display = 'none';
+            } else {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('appTerminal').style.display = 'flex';
             }
-        }, 2500);
+        }
+
+        // Safety Timeout (1.5 seconds)
+        const safety = setTimeout(() => {
+            if(!auth.currentUser) clearLoader(true);
+        }, 1500);
 
         auth.onAuthStateChanged(user => {
-            sessionChecked = true;
-            document.getElementById('loadingScreen').style.display = 'none'; 
+            clearTimeout(safety);
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
+                        document.getElementById('modalInitial').innerText = user.email[0].toUpperCase();
                         document.getElementById('modalEmail').innerText = user.email;
-                        document.getElementById('modalEmailBox').innerText = user.email;
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
+                        clearLoader(false);
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                     }
-                });
+                }, () => clearLoader(true));
             } else {
-                document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('appTerminal').style.display = 'none';
+                clearLoader(true);
             }
         });
 
@@ -235,23 +234,23 @@
 
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
-            if(!acc || !amt || !tx) return popNotify('error', 'Error', 'Fill all fields');
+            if(!acc || !amt || !tx) return popNotify('error', 'Error', 'Fill all details');
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); popNotify('success', 'Submitted', 'Deposit request sent!');
+            hideM('depM'); popNotify('success', 'Submitted', 'Deposit request under review');
         }
 
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amtPkr) return popNotify('error', 'Error', 'Fill all fields');
+            if(!b || !n || !nm || !amtPkr) return popNotify('error', 'Error', 'Fill all details');
             if((amtPkr/280) > userData.balance) return popNotify('error', 'Low Balance', 'Insufficient funds');
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); popNotify('success', 'Sent', 'Withdrawal processing!');
+            hideM('witM'); popNotify('success', 'Sent', 'Withdrawal request submitted');
         }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return popNotify('error', 'Balance', 'Check funds');
+            if(amt > userData.balance || amt <= 0) return popNotify('error', 'Funds', 'Check balance');
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -275,4 +274,15 @@
             showM('resultM');
         }
 
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        
+        async function handleAuth() {
+            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            try {
+                if(mode==='reg') { 
+                    const r = await auth.createUserWithEmailAndPassword(e, p); 
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
+                } else { await auth.signInWithEmailAndPassword(e, p); }
+            } catch(err) { popNotify('error', 'Auth Error', err.message); }
+        }
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login'
