@@ -12,56 +12,57 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
-        .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
-        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        #authSection { display: none; }
-        .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
-        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
-        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        select option { background: #1a1f29; color: white; }
-        .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        #assetsM { overflow-y: auto; }
-        .assets-card { width: 100%; max-width: 420px; background: #1e2329; border-radius: 20px; padding: 25px; border: 1px solid #363c4e; box-shadow: 0 15px 35px rgba(0,0,0,0.5); font-family: 'Inter', sans-serif; position: relative; }
-        .assets-card .close-assets { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #848e9c; font-size: 24px; cursor: pointer; line-height: 1; }
-        .assets-header { text-align: center; margin-bottom: 25px; }
-        .assets-brand { font-size: 24px; font-weight: 700; color: #f0b90b; text-transform: uppercase; }
-        .a-section { display: none; animation: aFadeIn 0.3s ease-in-out; }
-        .a-active { display: block; }
-        @keyframes aFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .a-menu-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; color: white; display: block; text-align: center; font-family: 'Inter', sans-serif; }
-        .a-btn-deposit { background: #2ebd85; }
-        .a-btn-withdraw { background: #f6465d; }
-        .a-btn-history { background: transparent; border: 1px solid #363c4e; }
-        .a-menu-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
-        .a-opt-btn { width: 100%; padding: 15px; background: #2b3139; border: 1px solid #363c4e; border-radius: 12px; color: white; margin-bottom: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; font-size: 14px; }
-        .assets-card input, .assets-card select { width: 100%; padding: 14px; background: #2b3139; border: 1px solid #363c4e; border-radius: 10px; color: white; margin-bottom: 15px; outline: none; font-family: 'Inter', sans-serif; font-size: 14px; }
-        .assets-card input::-webkit-outer-spin-button, .assets-card input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .assets-card input[type=number] { -moz-appearance: textfield; }
-        .a-conversion-text { font-size: 14px; color: #f0b90b; margin-top: -10px; margin-bottom: 15px; font-weight: 600; }
-        .a-qr-container { text-align: center; margin: 15px 0; }
-        .a-qr-box { background: white; padding: 10px; border-radius: 15px; width: 220px; margin: 0 auto 10px; }
-        .a-qr-box img { width: 100%; border-radius: 8px; display: block; }
-        .a-brand-label { color: #f0b90b; font-weight: 800; font-size: 18px; text-transform: uppercase; margin-bottom: 10px; }
-        .a-back-btn { background: none; border: none; color: #848e9c; cursor: pointer; font-size: 14px; margin-bottom: 15px; }
-        .a-address-box { background: #161a1e; padding: 12px; border-radius: 8px; font-size: 11px; margin-bottom: 15px; border: 1px dashed #848e9c; word-break: break-all; color: white; }
-        .assets-card label { font-size: 12px; color: #848e9c; display: block; margin-bottom: 5px; }
-        .a-history-item { background: #2b3139; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #363c4e; }
-        .a-hist-deposit { border-left-color: #2ebd85 !important; }
-        .a-hist-withdraw { border-left-color: #f6465d !important; }
-        .a-hist-flex { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .a-hist-type { font-weight: 700; text-transform: uppercase; font-size: 12px; }
-        .a-hist-amt { font-weight: 700; }
-        .a-hist-date { font-size: 10px; color: #848e9c; }
-        .assets-card h3 { color: white; font-size: 16px; font-weight: 700; margin-bottom: 15px; }
-        .swal2-popup { background: #1e2329 !important; color: white !important; border-radius: 20px !important; border: 1px solid #363c4e !important; }
-        .swal2-title { color: white !important; }
+        *{box-sizing:border-box;}
+        body{background:#05070a;color:#e2e8f0;font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;height:100dvh;margin:0;}
+        .glass-card{background:rgba(17,24,39,0.8);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05);}
+        .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+        .auth-input{background:#1a1f29;border:1px solid #2d3748;padding:14px;border-radius:12px;width:100%;color:white;outline:none;}
+        #appTerminal{display:none;height:100dvh;flex-direction:column;padding:8px;}
+        #authSection{display:none;}
+        .timer-badge{position:absolute;bottom:10px;right:10px;background:#eab308;color:black;padding:5px 15px;border-radius:50px;font-weight:800;display:none;z-index:100;font-size:12px;}
+        .btn-grad-green{background:linear-gradient(135deg,#22c55e 0%,#15803d 100%);}
+        .btn-grad-red{background:linear-gradient(135deg,#ef4444 0%,#b91c1c 100%);}
+        #loadingScreen{position:fixed;inset:0;background:#05070a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+        .loader-spin{width:35px;height:35px;border:3px solid #1a1f29;border-top:3px solid #eab308;border-radius:50%;animation:spin 1s linear infinite;}
+        @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+        select option{background:#1a1f29;color:white;}
+        .success-checkmark{width:60px;height:60px;margin:0 auto;border:3px solid #22c55e;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+        .error-xmark{width:60px;height:60px;margin:0 auto;border:3px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+        #assetsM{overflow-y:auto;}
+        .assets-card{width:100%;max-width:420px;background:#1e2329;border-radius:20px;padding:25px;border:1px solid #363c4e;box-shadow:0 15px 35px rgba(0,0,0,0.5);font-family:'Inter',sans-serif;position:relative;}
+        .assets-card .close-assets{position:absolute;top:15px;right:20px;background:none;border:none;color:#848e9c;font-size:24px;cursor:pointer;line-height:1;}
+        .assets-header{text-align:center;margin-bottom:25px;}
+        .assets-brand{font-size:24px;font-weight:700;color:#f0b90b;text-transform:uppercase;}
+        .a-section{display:none;animation:aFadeIn 0.3s ease-in-out;}
+        .a-active{display:block;}
+        @keyframes aFadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+        .a-menu-btn{width:100%;padding:16px;margin-bottom:15px;border-radius:12px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;color:white;display:block;text-align:center;font-family:'Inter',sans-serif;}
+        .a-btn-deposit{background:#2ebd85;}
+        .a-btn-withdraw{background:#f6465d;}
+        .a-btn-history{background:transparent;border:1px solid #363c4e;color:white;}
+        .a-menu-btn:hover{transform:scale(1.02);filter:brightness(1.1);}
+        .a-opt-btn{width:100%;padding:15px;background:#2b3139;border:1px solid #363c4e;border-radius:12px;color:white;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:'Inter',sans-serif;font-size:14px;}
+        .assets-card input,.assets-card select{width:100%;padding:14px;background:#2b3139;border:1px solid #363c4e;border-radius:10px;color:white;margin-bottom:15px;outline:none;font-family:'Inter',sans-serif;font-size:14px;}
+        .assets-card input::-webkit-outer-spin-button,.assets-card input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+        .assets-card input[type=number]{-moz-appearance:textfield;}
+        .a-conversion-text{font-size:14px;color:#f0b90b;margin-top:-10px;margin-bottom:15px;font-weight:600;}
+        .a-qr-container{text-align:center;margin:15px 0;}
+        .a-qr-box{background:white;padding:10px;border-radius:15px;width:220px;margin:0 auto 10px;}
+        .a-qr-box img{width:100%;border-radius:8px;display:block;}
+        .a-brand-label{color:#f0b90b;font-weight:800;font-size:18px;text-transform:uppercase;margin-bottom:10px;}
+        .a-back-btn{background:none;border:none;color:#848e9c;cursor:pointer;font-size:14px;margin-bottom:15px;}
+        .a-address-box{background:#161a1e;padding:12px;border-radius:8px;font-size:11px;margin-bottom:15px;border:1px dashed #848e9c;word-break:break-all;color:white;}
+        .assets-card label{font-size:12px;color:#848e9c;display:block;margin-bottom:5px;}
+        .a-history-item{background:#2b3139;border-radius:12px;padding:15px;margin-bottom:10px;border-left:4px solid #363c4e;}
+        .a-hist-deposit{border-left-color:#2ebd85 !important;}
+        .a-hist-withdraw{border-left-color:#f6465d !important;}
+        .a-hist-flex{display:flex;justify-content:space-between;margin-bottom:5px;}
+        .a-hist-type{font-weight:700;text-transform:uppercase;font-size:12px;}
+        .a-hist-amt{font-weight:700;}
+        .a-hist-date{font-size:10px;color:#848e9c;}
+        .assets-card h3{color:white;font-size:16px;font-weight:700;margin-bottom:15px;}
+        .swal2-popup{background:#1e2329 !important;color:white !important;border-radius:20px !important;border:1px solid #363c4e !important;}
+        .swal2-title{color:white !important;}
     </style>
 </head>
 <body>
@@ -155,7 +156,7 @@
         <div id="a-main-menu" class="a-section a-active">
             <button class="a-menu-btn a-btn-deposit" onclick="aShowSection('a-deposit-options')">Deposit</button>
             <button class="a-menu-btn a-btn-withdraw" onclick="aShowSection('a-withdraw-options')">Withdraw</button>
-            <button class="a-menu-btn a-btn-history" onclick="aRenderHistory()">History</button>
+            <button class="a-menu-btn a-btn-history" onclick="aLoadHistory()">History</button>
         </div>
         <div id="a-history-section" class="a-section">
             <button class="a-back-btn" onclick="aShowSection('a-main-menu')">&larr; Back</button>
@@ -192,7 +193,7 @@
             <label>Account Name</label><input type="text" id="a-dep_name" placeholder="Your Name">
             <label>Amount ($)</label><input type="number" id="a-final_send_amount" readonly>
             <label>Txid (Digits only)</label><input type="number" id="a-dep_txid" placeholder="Enter Transaction ID" inputmode="numeric">
-            <button class="a-menu-btn a-btn-deposit" onclick="aSubmitProcess('Deposit','Deposit Request Submitted!')">Submit Now</button>
+            <button class="a-menu-btn a-btn-deposit" onclick="aSubmitDeposit()">Submit Now</button>
         </div>
         <div id="a-withdraw-options" class="a-section">
             <button class="a-back-btn" onclick="aShowSection('a-main-menu')">&larr; Back</button>
@@ -206,7 +207,7 @@
             <label>Network</label><select id="a-w_c_net"><option>BEP20</option><option>TRC20</option></select>
             <label>Wallet Address</label><input type="text" id="a-w_c_addr" placeholder="0x...">
             <label>Amount ($)</label><input type="number" id="a-w_c_amt" placeholder="0.00" inputmode="decimal">
-            <button class="a-menu-btn a-btn-withdraw" onclick="aSubmitProcess('Withdraw','Withdrawal Request Sent!')">Withdraw Now</button>
+            <button class="a-menu-btn a-btn-withdraw" onclick="aSubmitWithdraw('crypto')">Withdraw Now</button>
         </div>
         <div id="a-withdraw-pkr-form" class="a-section">
             <button class="a-back-btn" onclick="aShowSection('a-withdraw-options')">&larr; Back</button>
@@ -215,7 +216,7 @@
             <label>Account Number</label><input type="number" id="a-w_p_num" placeholder="03xxxxxxxxx" inputmode="numeric">
             <label>Account Name</label><input type="text" id="a-w_p_name" placeholder="Full Name">
             <label>Amount (PKR)</label><input type="number" id="a-w_p_amt" placeholder="0.00" inputmode="decimal">
-            <button class="a-menu-btn a-btn-withdraw" onclick="aSubmitProcess('Withdraw','Withdrawal Request Sent!')">Withdraw Now</button>
+            <button class="a-menu-btn a-btn-withdraw" onclick="aSubmitWithdraw('pkr')">Withdraw Now</button>
         </div>
     </div>
 </div>
@@ -231,30 +232,35 @@
     function showM(id) { document.getElementById(id).style.display = 'flex'; }
     function hideM(id) { document.getElementById(id).style.display = 'none'; }
 
+    function showError(msg) {
+        const box = document.getElementById('resultBox');
+        box.innerHTML = `<div class="mb-4"><div class="error-xmark"><span class="text-red-500 text-3xl">!</span></div></div><h2 class="text-red-500 font-black text-xl mb-2">Failed</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p><button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Close</button>`;
+        showM('resultM');
+    }
+
     function resolveSession(loggedIn, user) {
-        if(sessionResolved) return;
+        if (sessionResolved) return;
         sessionResolved = true;
         showLoader(false);
-        if(loggedIn && user) {
+        if (loggedIn && user) {
             document.getElementById('authSection').style.display = 'none';
             document.getElementById('appTerminal').style.display = 'flex';
             const initial = user.email[0].toUpperCase();
             document.getElementById('userInitial').innerText = initial;
             document.getElementById('modalInitial').innerText = initial;
             document.getElementById('modalEmail').innerText = user.email;
-            if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+            if (!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
         } else {
             document.getElementById('authSection').style.display = 'flex';
             document.getElementById('appTerminal').style.display = 'none';
         }
     }
 
-    // 3 second hard fallback — kuch bhi ho, loading screen hat jayegi
-    setTimeout(() => {
-        if(!sessionResolved) {
-            const u = auth.currentUser;
-            resolveSession(!!u, u);
-        }
-    }, 3000);
+    // 4 second hard fallback — guaranteed band ho jayegi
+    setTimeout(() => { if (!sessionResolved) { const u = auth.currentUser; resolveSession(!!u, u); } }, 4000);
 
-    auth.onAuthStateChanged(
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            db.collection('users').doc(user.uid).get().then(async doc => {
+                if (!doc.exists) {
+                    await db.colle
