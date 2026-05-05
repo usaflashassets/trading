@@ -18,34 +18,23 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         /* Profile Fancy Items */
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
-
-        /* Fancy Toast */
-        #fancyToast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-120px); z-index: 99999; min-width: 300px; max-width: 340px; border-radius: 24px; padding: 18px 22px; display: flex; align-items: center; gap: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease; opacity: 0; pointer-events: none; overflow: hidden; }
-        #fancyToast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
-        #fancyToast.toast-success { background: linear-gradient(135deg, #052e16 0%, #0f2a1a 100%); border: 1px solid rgba(34,197,94,0.3); }
-        #fancyToast.toast-error { background: linear-gradient(135deg, #2d0a0a 0%, #1c0a0a 100%); border: 1px solid rgba(239,68,68,0.3); }
-        #fancyToast.toast-warn { background: linear-gradient(135deg, #1c1200 0%, #1a1000 100%); border: 1px solid rgba(234,179,8,0.3); }
-        .toast-icon { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-        .toast-success .toast-icon { background: rgba(34,197,94,0.15); }
-        .toast-error .toast-icon { background: rgba(239,68,68,0.15); }
-        .toast-warn .toast-icon { background: rgba(234,179,8,0.15); }
-        .toast-bar { position: absolute; bottom: 0; left: 0; height: 3px; border-radius: 0 0 24px 24px; animation: toastBar 3s linear forwards; }
-        .toast-success .toast-bar { background: linear-gradient(90deg, #22c55e, #15803d); }
-        .toast-error .toast-bar { background: linear-gradient(90deg, #ef4444, #b91c1c); }
-        .toast-warn .toast-bar { background: linear-gradient(90deg, #eab308, #a16207); }
-        @keyframes toastBar { from { width: 100%; } to { width: 0%; } }
     </style>
 </head>
 <body>
 
+    <div id="loadingScreen">
+        <div class="loader-spin"></div>
+        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
+    </div>
 
-
-    <div id="authSection" class="h-full flex items-center justify-center p-4" style="display:none!important">
+    <div id="authSection" class="h-full items-center justify-center p-4" style="display:none;">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
@@ -62,7 +51,7 @@
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
                 <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
-                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">••••</h1></div>
+                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
             <div class="flex gap-1.5">
                 <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">Deposit</button>
@@ -186,16 +175,6 @@
 
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
-    <!-- Fancy Toast -->
-    <div id="fancyToast">
-        <div class="toast-icon" id="toastIcon"></div>
-        <div class="flex-1">
-            <p id="toastTitle" class="text-white font-black text-sm uppercase tracking-wider"></p>
-            <p id="toastMsg" class="text-gray-400 text-[11px] mt-0.5 font-medium"></p>
-        </div>
-        <div class="toast-bar" id="toastBar"></div>
-    </div>
-
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
@@ -203,23 +182,13 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
 
-        // FIX 1+2: Instant session & balance restore — no flash, no black screen
-        if(localStorage.getItem('isLoggedIn') === 'true') {
-            document.getElementById('appTerminal').style.display = 'flex';
-            const savedBal = localStorage.getItem('userBalance');
-            if(savedBal) document.getElementById('balanceDisp').innerText = '$' + parseFloat(savedBal).toFixed(2);
-        } else {
-            document.getElementById('authSection').style.display = 'flex';
-        }
-
         auth.onAuthStateChanged(user => {
+            document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
-                localStorage.setItem('isLoggedIn', 'true');
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        localStorage.setItem('userBalance', (userData.balance || 0).toFixed(2));
                         const initial = user.email[0].toUpperCase();
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
@@ -231,28 +200,12 @@
                     }
                 });
             } else {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('userBalance');
                 document.getElementById('authSection').style.display = 'flex';
+                document.getElementById('authSection').style.alignItems = 'center';
+                document.getElementById('authSection').style.justifyContent = 'center';
                 document.getElementById('appTerminal').style.display = 'none';
             }
         });
-
-        // FIX 3: Fancy Toast — boring alert() replace
-        let toastTimer;
-        function showToast(type, title, msg) {
-            const t = document.getElementById('fancyToast');
-            const icons = { success: '✅', error: '❌', warn: '⚠️' };
-            t.className = 'toast-' + type;
-            document.getElementById('toastIcon').innerText = icons[type];
-            document.getElementById('toastTitle').innerText = title;
-            document.getElementById('toastMsg').innerText = msg;
-            const bar = document.getElementById('toastBar');
-            bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = '';
-            t.classList.add('show');
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
-        }
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
@@ -260,16 +213,52 @@
 
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
-            if(!acc || !amt || !tx) return showToast('warn', 'Fields Missing', 'Please fill all required fields.');
+            if(!acc || !amt || !tx) return alert("Fill all fields");
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM');
-            showToast('success', 'Request Submitted', 'Your deposit request has been sent successfully.');
+            hideM('depM'); alert("Request Sent!");
         }
 
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amtPkr) return showToast('warn', 'Fields Missing', 'Please fill all required fields.');
+            if(!b || !n || !nm || !amtPkr) return alert("Fill all fields");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM');
-            showToast('success', 'Withdrawal Submitted', 'Your withdrawal request is under r
+            hideM('witM'); alert("Withdrawal submitted.");
+        }
+
+        async function initTrade(type) {
+            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
+            if(amt > userData.balance || amt <= 0) return alert("Check balance");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            document.getElementById('tradeTimer').style.display = 'block';
+            let l = dur;
+            let iv = setInterval(() => {
+                let m = Math.floor(l/60), s = l%60;
+                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
+                l--;
+            }, 1000);
+        }
+
+        function showRes(amt) {
+            const win = Math.random() > 0.5, p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) { 
+                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
+                box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
+            } else { box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue</button>`;
+            showM('resultM');
+        }
+
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        async function handleAuth() {
+            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            if(mode==='reg') { 
+                const r = await auth.createUserWithEmailAndPassword(e, p); 
+                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0 });
+            } else { await auth.signInWithEmailAndPassword(e, p); }
+        }
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
