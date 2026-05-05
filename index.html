@@ -10,49 +10,58 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Inter:wght@400;600;700&display=swap');
-        
-        :root {
-            --primary-gold: #f0b90b;
-            --bg-dark: #0b0e11;
-            --card-bg: #1e2329;
-            --text-gray: #848e9c;
-            --success-green: #2ebd85;
-            --danger-red: #f6465d;
-            --border-color: #363c4e;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
+        #authSection { display: none; }
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 1; pointer-events: all; }
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .assets-card { width: 100%; max-width: 420px; background: var(--card-bg); border-radius: 20px; padding: 25px; border: 1px solid var(--border-color); font-family: 'Inter', sans-serif; position: relative; }
+        select option { background: #1a1f29; color: white; }
+        .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #assetsM { overflow-y: auto; }
+        .assets-card { width: 100%; max-width: 420px; background: #1e2329; border-radius: 20px; padding: 25px; border: 1px solid #363c4e; box-shadow: 0 15px 35px rgba(0,0,0,0.5); font-family: 'Inter', sans-serif; position: relative; }
+        .assets-card .close-assets { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #848e9c; font-size: 24px; cursor: pointer; line-height: 1; }
         .assets-header { text-align: center; margin-bottom: 25px; }
-        .brand-logo { font-size: 24px; font-weight: 700; color: var(--primary-gold); text-transform: uppercase; }
-        .section { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .menu-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; color: white; display: block; text-align: center; }
-        .btn-deposit { background: var(--success-green); }
-        .btn-withdraw { background: var(--danger-red); }
-        .btn-history { background: transparent; border: 1px solid var(--border-color); }
-        .opt-btn { width: 100%; padding: 15px; background: #2b3139; border: 1px solid var(--border-color); border-radius: 12px; color: white; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .asset-input { width: 100%; padding: 14px; background: #2b3139; border: 1px solid var(--border-color); border-radius: 10px; color: white; margin-bottom: 15px; outline: none; }
-        .qr-box { background: white; padding: 10px; border-radius: 15px; width: 180px; margin: 0 auto 10px; }
-        .qr-box img { width: 100%; display: block; }
-        .history-item { background: #2b3139; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 4px solid var(--border-color); }
-        .hist-deposit { border-left-color: var(--success-green); }
-        .hist-withdraw { border-left-color: var(--danger-red); }
-        .close-assets { position: absolute; top: 15px; right: 20px; color: var(--text-gray); font-size: 24px; cursor: pointer; }
+        .assets-brand { font-size: 24px; font-weight: 700; color: #f0b90b; text-transform: uppercase; }
+        .a-section { display: none; animation: aFadeIn 0.3s ease-in-out; }
+        .a-active { display: block; }
+        @keyframes aFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .a-menu-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; color: white; display: block; text-align: center; font-family: 'Inter', sans-serif; }
+        .a-btn-deposit { background: #2ebd85; }
+        .a-btn-withdraw { background: #f6465d; }
+        .a-btn-history { background: transparent; border: 1px solid #363c4e; }
+        .a-menu-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .a-opt-btn { width: 100%; padding: 15px; background: #2b3139; border: 1px solid #363c4e; border-radius: 12px; color: white; margin-bottom: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; font-size: 14px; }
+        .assets-card input, .assets-card select { width: 100%; padding: 14px; background: #2b3139; border: 1px solid #363c4e; border-radius: 10px; color: white; margin-bottom: 15px; outline: none; font-family: 'Inter', sans-serif; font-size: 14px; }
+        .assets-card input::-webkit-outer-spin-button, .assets-card input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .assets-card input[type=number] { -moz-appearance: textfield; }
+        .a-conversion-text { font-size: 14px; color: #f0b90b; margin-top: -10px; margin-bottom: 15px; font-weight: 600; font-family: 'Inter', sans-serif; }
+        .a-qr-container { text-align: center; margin: 15px 0; }
+        .a-qr-box { background: white; padding: 10px; border-radius: 15px; width: 220px; margin: 0 auto 10px; }
+        .a-qr-box img { width: 100%; border-radius: 8px; display: block; }
+        .a-brand-label { color: #f0b90b; font-weight: 800; font-size: 18px; text-transform: uppercase; margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+        .a-back-btn { background: none; border: none; color: #848e9c; cursor: pointer; font-size: 14px; margin-bottom: 15px; font-family: 'Inter', sans-serif; }
+        .a-address-box { background: #161a1e; padding: 12px; border-radius: 8px; font-size: 11px; margin-bottom: 15px; border: 1px dashed #848e9c; word-break: break-all; color: white; font-family: 'Inter', sans-serif; }
+        .assets-card label { font-size: 12px; color: #848e9c; display: block; margin-bottom: 5px; font-family: 'Inter', sans-serif; }
+        .a-history-item { background: #2b3139; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #363c4e; }
+        .a-hist-deposit { border-left-color: #2ebd85 !important; }
+        .a-hist-withdraw { border-left-color: #f6465d !important; }
+        .a-hist-flex { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .a-hist-type { font-weight: 700; text-transform: uppercase; font-size: 12px; font-family: 'Inter', sans-serif; }
+        .a-hist-amt { font-weight: 700; font-family: 'Inter', sans-serif; }
+        .a-hist-date { font-size: 10px; color: #848e9c; font-family: 'Inter', sans-serif; }
+        .assets-card h3 { color: white; font-size: 16px; font-weight: 700; margin-bottom: 15px; font-family: 'Inter', sans-serif; }
+        .swal2-popup { background: #1e2329 !important; color: white !important; border-radius: 20px !important; border: 1px solid #363c4e !important; }
+        .swal2-title { color: white !important; }
     </style>
 </head>
 <body>
@@ -62,16 +71,16 @@
         <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
     </div>
 
-    <div id="authSection" class="h-full flex items-center justify-center p-4" style="display: none;">
-        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
+    <div id="authSection" class="h-full flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold">Registration</button>
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
-            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Login</button>
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
         </div>
     </div>
 
@@ -81,16 +90,21 @@
                 <div onclick="showM('settingsM')" id="userInitial" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer text-xs">?</div>
                 <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
-            <button onclick="showM('assetsM')" class="bg-yellow-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase">My Assets</button>
+            <div class="flex gap-1.5">
+                <button onclick="openAssets()" class="bg-yellow-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight">My Assets</button>
+            </div>
         </header>
 
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option>
+                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:USDCHF">USD/CHF</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option><option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                </optgroup>
+                <optgroup label="STOCKS & METALS">
+                    <option value="OANDA:XAUUSD">GOLD</option><option value="NASDAQ:TSLA">TESLA</option><option value="NASDAQ:NVDA">NVIDIA</option>
                 </optgroup>
             </select>
         </div>
@@ -109,7 +123,7 @@
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5s</option><option value="15">15s</option><option value="60">1m</option>
+                        <option value="5">5s</option><option value="15">15s</option><option value="30">30s</option><option value="60">1m</option><option value="120">2m</option><option value="300">5m</option>
                     </select>
                 </div>
             </div>
@@ -120,126 +134,108 @@
         </footer>
     </div>
 
-    <div id="assetsM" class="modal">
-        <div class="assets-card">
-            <span class="close-assets" onclick="hideM('assetsM')">&times;</span>
-            <div class="assets-header"><div class="brand-logo">Dubai Live Trade</div></div>
-            <div id="main-menu" class="section active">
-                <button class="menu-btn btn-deposit" onclick="showAssetsSection('deposit-options')">Deposit</button>
-                <button class="menu-btn btn-withdraw" onclick="showAssetsSection('withdraw-options')">Withdraw</button>
-                <button class="menu-btn btn-history" onclick="renderHistory()">History</button>
-            </div>
-            <div id="deposit-options" class="section">
-                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('main-menu')">&larr; Back</button>
-                <h3 class="font-bold mb-4">Select Deposit Method</h3>
-                <button class="opt-btn" onclick="setMode('crypto'); showAssetsSection('step-amount')"><span>🪙 Crypto (USDT)</span> <span>&gt;</span></button>
-                <button class="opt-btn" onclick="setMode('pkr'); showAssetsSection('step-amount')"><span>🇵🇰 PKR (Easypaisa/Jazzcash)</span> <span>&gt;</span></button>
-            </div>
-            <div id="step-amount" class="section">
-                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('deposit-options')">&larr; Back</button>
-                <input type="number" id="user_amount" placeholder="Enter Amount ($)" class="asset-input" oninput="calculatePKR()">
-                <div id="pkr-conversion" class="text-yellow-500 text-sm mb-4" style="display:none;">Pay: 0 PKR</div>
-                <button class="menu-btn btn-deposit" onclick="handleAmountNext()">Next</button>
-            </div>
-            <div id="step-payment" class="section text-center">
-                <button class="text-gray-400 text-xs mb-4 block text-left" onclick="showAssetsSection('step-amount')">&larr; Back</button>
-                <div class="qr-box"><img id="display-qr" src="" alt="Scanner"></div>
-                <div id="crypto-addr-box" class="bg-black/50 p-2 rounded text-[10px] break-all mb-4 border border-dashed border-gray-600" style="display:none;">0x76ecfe8a3bd89297189e16cdcd275d743fb71a62</div>
-                <button class="menu-btn btn-deposit" onclick="showAssetsSection('deposit-final-form')">I Have Paid</button>
-            </div>
-            <div id="deposit-final-form" class="section">
-                <input type="text" id="dep_email_auto" class="asset-input bg-gray-800" readonly>
-                <input type="text" id="dep_name" placeholder="Account Name" class="asset-input">
-                <input type="number" id="final_send_amount" class="asset-input bg-gray-800" readonly>
-                <input type="number" id="dep_txid" placeholder="Transaction ID (Txid)" class="asset-input">
-                <button class="menu-btn btn-deposit" onclick="submitDeposit()">Submit Now</button>
-            </div>
-            <div id="withdraw-options" class="section">
-                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('main-menu')">&larr; Back</button>
-                <select id="w_p_bank" class="asset-input"><option>EasyPaisa</option><option>JazzCash</option></select>
-                <input type="number" id="w_p_num" placeholder="Account Number" class="asset-input">
-                <input type="text" id="w_p_name" placeholder="Account Name" class="asset-input">
-                <input type="number" id="w_p_amt" placeholder="Amount (PKR)" class="asset-input">
-                <button class="menu-btn btn-withdraw" onclick="submitWithdraw()">Withdraw Now</button>
-            </div>
-            <div id="history-section" class="section">
-                <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('main-menu')">&larr; Back</button>
-                <div id="history-list" class="max-h-60 overflow-y-auto"></div>
-            </div>
-        </div>
-    </div>
-
     <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center relative">
-            <span class="absolute top-4 right-6 text-gray-500 text-2xl cursor-pointer" onclick="hideM('settingsM')">&times;</span>
-            <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
-            <h2 id="modalEmail" class="text-white font-bold text-sm mb-4 italic">Loading...</h2>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Secure Logout</button>
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Details</h2>
+                <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl font-light">&times;</button>
+            </div>
+            <div class="mb-8">
+                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
+                <h2 id="modalEmail" class="text-white font-bold text-sm mb-1 break-all italic">Loading...</h2>
+                <span class="text-[8px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold uppercase border border-green-500/20">Elite Verified</span>
+            </div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest">Secure Logout</button>
         </div>
     </div>
 
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
+
+    <!-- MY ASSETS MODAL -->
+    <div id="assetsM" class="modal">
+        <div class="assets-card">
+            <button class="close-assets" onclick="hideM('assetsM')">&times;</button>
+            <div class="assets-header">
+                <div class="assets-brand">Dubai Live Trade</div>
+            </div>
+            <div id="a-main-menu" class="a-section a-active">
+                <button class="a-menu-btn a-btn-deposit" onclick="aShowSection('a-deposit-options')">Deposit</button>
+                <button class="a-menu-btn a-btn-withdraw" onclick="aShowSection('a-withdraw-options')">Withdraw</button>
+                <button class="a-menu-btn a-btn-history" onclick="aRenderHistory()">History</button>
+            </div>
+            <div id="a-history-section" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-main-menu')">&larr; Back</button>
+                <h3>Transaction History</h3>
+                <div id="a-history-list" style="margin-top:15px;max-height:350px;overflow-y:auto;"></div>
+            </div>
+            <div id="a-deposit-options" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-main-menu')">&larr; Back</button>
+                <h3>Select Deposit Method</h3>
+                <button class="a-opt-btn" onclick="aClearInputs();aSetMode('crypto');aShowSection('a-step-amount')"><span>🪙 Crypto (USDT)</span><span>&gt;</span></button>
+                <button class="a-opt-btn" onclick="aClearInputs();aSetMode('pkr');aShowSection('a-step-amount')"><span>🇵🇰 PKR (Easypaisa/Jazzcash)</span><span>&gt;</span></button>
+            </div>
+            <div id="a-step-amount" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-deposit-options')">&larr; Back</button>
+                <h3>Enter Amount ($)</h3>
+                <input type="number" id="a-user_amount" placeholder="0.00" inputmode="decimal" oninput="aCalculatePKR()">
+                <div id="a-pkr-conversion" class="a-conversion-text" style="display:none;">Pay: 0 PKR</div>
+                <button class="a-menu-btn a-btn-deposit" onclick="aHandleAmountNext()">Next</button>
+            </div>
+            <div id="a-step-payment" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-step-amount')">&larr; Back</button>
+                <h3>Payment Info</h3>
+                <div class="a-qr-container">
+                    <div class="a-qr-box"><img id="a-display-qr" src="" alt="QR"></div>
+                    <div class="a-brand-label">Dubai Live Trade</div>
+                </div>
+                <div id="a-crypto-addr-box" class="a-address-box" style="display:none;"><strong>0x76ecfe8a3bd89297189e16cdcd275d743fb71a62</strong></div>
+                <button class="a-menu-btn a-btn-deposit" onclick="aShowSection('a-deposit-final-form')">I Have Paid</button>
+            </div>
+            <div id="a-deposit-final-form" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-step-payment')">&larr; Back</button>
+                <h3>Payment Proof</h3>
+                <label>Email</label><input type="email" id="a-dep_email" placeholder="email@example.com">
+                <label>Account Name</label><input type="text" id="a-dep_name" placeholder="Your Name">
+                <label>Amount ($)</label><input type="number" id="a-final_send_amount" readonly>
+                <label>Txid (Digits only)</label><input type="number" id="a-dep_txid" placeholder="Enter Transaction ID" inputmode="numeric">
+                <button class="a-menu-btn a-btn-deposit" onclick="aSubmitProcess('Deposit','Deposit Request Submitted!')">Submit Now</button>
+            </div>
+            <div id="a-withdraw-options" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-main-menu')">&larr; Back</button>
+                <h3>Withdraw Method</h3>
+                <button class="a-opt-btn" onclick="aClearInputs();aShowSection('a-withdraw-crypto-form')"><span>🪙 Crypto</span><span>&gt;</span></button>
+                <button class="a-opt-btn" onclick="aClearInputs();aShowSection('a-withdraw-pkr-form')"><span>🇵🇰 PKR</span><span>&gt;</span></button>
+            </div>
+            <div id="a-withdraw-crypto-form" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-withdraw-options')">&larr; Back</button>
+                <h3>Withdraw Crypto</h3>
+                <label>Network</label><select id="a-w_c_net"><option>BEP20</option><option>TRC20</option></select>
+                <label>Wallet Address</label><input type="text" id="a-w_c_addr" placeholder="0x...">
+                <label>Amount ($)</label><input type="number" id="a-w_c_amt" placeholder="0.00" inputmode="decimal">
+                <button class="a-menu-btn a-btn-withdraw" onclick="aSubmitProcess('Withdraw','Withdrawal Request Sent!')">Withdraw Now</button>
+            </div>
+            <div id="a-withdraw-pkr-form" class="a-section">
+                <button class="a-back-btn" onclick="aShowSection('a-withdraw-options')">&larr; Back</button>
+                <h3>Withdraw PKR</h3>
+                <label>Bank</label><select id="a-w_p_bank"><option>EasyPaisa</option><option>JazzCash</option><option>HBL</option></select>
+                <label>Account Number</label><input type="number" id="a-w_p_num" placeholder="03xxxxxxxxx" inputmode="numeric">
+                <label>Account Name</label><input type="text" id="a-w_p_name" placeholder="Full Name">
+                <label>Amount (PKR)</label><input type="number" id="a-w_p_amt" placeholder="0.00" inputmode="decimal">
+                <button class="a-menu-btn a-btn-withdraw" onclick="aSubmitProcess('Withdraw','Withdrawal Request Sent!')">Withdraw Now</button>
+            </div>
+        </div>
+    </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'login', chartLoaded = false;
-        let currentMode = '';
-        const exchangeRate = 280;
-        const cryptoQR = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x76ecfe8a3bd89297189e16cdcd275d743fb71a62";
-        const pkrQR = "https://i.postimg.cc/HLPQpW92/Screenshot-20260504-033311.jpg";
+        let userData = null, mode = 'reg', chartLoaded = false;
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
-        function showAssetsSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'deposit-final-form') {
-                document.getElementById('final_send_amount').value = document.getElementById('user_amount').value;
-                document.getElementById('dep_email_auto').value = auth.currentUser.email;
-            }
-        }
 
-        function setMode(m) { currentMode = m; document.getElementById('pkr-conversion').style.display = (m === 'pkr') ? 'block' : 'none'; }
-        function calculatePKR() { if(currentMode === 'pkr') { const val = document.getElementById('user_amount').value; document.getElementById('pkr-conversion').innerText = `Pay: ${(val * exchangeRate).toLocaleString()} PKR`; } }
-        function handleAmountNext() { const amt = document.getElementById('user_amount').value; if(!amt || amt <= 0) return Swal.fire('Error', 'Enter valid amount', 'error'); const qrImg = document.getElementById('display-qr'); const addrBox = document.getElementById('crypto-addr-box'); if(currentMode === 'crypto') { qrImg.src = cryptoQR; addrBox.style.display = 'block'; } else { qrImg.src = pkrQR; addrBox.style.display = 'none'; } showAssetsSection('step-payment'); }
-
-        async function submitDeposit() {
-            const name = document.getElementById('dep_name').value, txid = document.getElementById('dep_txid').value, amt = document.getElementById('final_send_amount').value;
-            if(!name || !txid) return Swal.fire('Error', 'Details required', 'error');
-            Swal.fire({ title: 'Submitting...', didOpen: () => Swal.showLoading() });
-            try { await db.collection('transactions').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, type: 'Deposit', amount: amt, name: name, txid: txid, method: currentMode, status: 'Pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() }); Swal.fire('Success', 'Submitted!', 'success').then(() => { hideM('assetsM'); showAssetsSection('main-menu'); }); } catch(e) { Swal.fire('Error', e.message, 'error'); }
-        }
-
-        async function submitWithdraw() {
-            const num = document.getElementById('w_p_num').value, name = document.getElementById('w_p_name').value, amt = document.getElementById('w_p_amt').value;
-            if(!num || !name || !amt) return Swal.fire('Error', 'Details required', 'error');
-            Swal.fire({ title: 'Processing...', didOpen: () => Swal.showLoading() });
-            try { await db.collection('transactions').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, type: 'Withdraw', amount: amt, accNum: num, accName: name, bank: document.getElementById('w_p_bank').value, status: 'Pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() }); Swal.fire('Success', 'Sent!', 'success').then(() => { hideM('assetsM'); showAssetsSection('main-menu'); }); } catch(e) { Swal.fire('Error', e.message, 'error'); }
-        }
-
-        async function renderHistory() {
-            const list = document.getElementById('history-list'); list.innerHTML = "<p class='text-center py-4'>Loading...</p>";
-            try { const snapshot = await db.collection('transactions').where('uid', '==', auth.currentUser.uid).orderBy('timestamp', 'desc').get(); list.innerHTML = snapshot.empty ? "<p class='text-center py-4'>No History</p>" : ""; snapshot.forEach(doc => { const t = doc.data(); list.innerHTML += `<div class="history-item ${t.type === 'Deposit' ? 'hist-deposit' : 'hist-withdraw'}"><div class="flex justify-between text-xs font-bold"><span>${t.type}</span><span>${t.type === 'Deposit' ? '$'+t.amount : t.amount+' PKR'}</span></div><div class="flex justify-between text-[10px] text-gray-500 mt-1"><span>${t.timestamp ? t.timestamp.toDate().toLocaleString() : 'Just now'}</span><span class="text-yellow-500">${t.status}</span></div></div>`; }); } catch(e) { list.innerHTML = "<p class='text-center py-4'>Error</p>"; }
-            showAssetsSection('history-section');
-        }
-
-        // CRITICAL FIX: Session Verification Logic
-        auth.onAuthStateChanged(async user => {
-            const loader = document.getElementById('loadingScreen');
-            if(user) {
-                // Ensure data is fetched before hiding loader
-                db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    userData = doc.data();
-                    if(userData) {
-                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
-                        document.getElementById('modalEmail').innerText = user.email;
-                        
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EUR
+        function showSuccess(title, msg) {
+            const box = document.getElementById('resultBox');
+            box.innerHTML = `<div class="mb-4"><div class="success-checkmark"><span class="text-green-500 text-3xl">✓</span></div></div><h2 class="tex
