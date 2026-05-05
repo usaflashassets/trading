@@ -15,9 +15,12 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        /* Fixed Loading Screen Logic */
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.4s ease; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         .success-circle { width: 70px; height: 70px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 30px rgba(34, 197, 94, 0.3); }
         .profile-card { background: #0f131d; border: 1px solid #1e293b; border-radius: 40px; }
         .profile-field { background: #1a1f2e; border: 1px solid #2d3748; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -215,34 +218,32 @@
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
 <script>
+    // Firebase Configuration
     const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.firestore();
     
     let userData = null, mode = 'reg', chartLoaded = false;
 
-    // ROOT CONTROL: Pehle sab hide karo, Firebase check ke baad show karo
-    function hideLoading() {
+    // ROOT FIX: Force Kill Loading Screen after 3 seconds if it doesn't close
+    const forceCloser = setTimeout(() => {
+        closeLoading();
+        if(!auth.currentUser) document.getElementById('authSection').style.display = 'flex';
+    }, 3000);
+
+    function closeLoading() {
         const ls = document.getElementById('loadingScreen');
         if (ls) {
             ls.style.opacity = '0';
-            setTimeout(() => { ls.style.display = 'none'; }, 500);
+            setTimeout(() => { ls.style.display = 'none'; }, 400);
         }
     }
 
-    // Emergency Bypass (Agar 3.5 sec mein Firebase login na ho)
-    setTimeout(() => {
-        if (document.getElementById('loadingScreen').style.display !== 'none') {
-            console.log("Emergency Bypass Triggered");
-            hideLoading();
-            if(!auth.currentUser) {
-                document.getElementById('authSection').style.display = 'flex';
-            }
-        }
-    }, 3500);
-
+    // Auth Watcher
     auth.onAuthStateChanged(user => {
-        hideLoading(); // Jaise hi status mile, screen hata do
+        clearTimeout(forceCloser); // If firebase responds, cancel the force timer
+        closeLoading(); 
+        
         if (user) {
             db.collection('users').doc(user.uid).onSnapshot(doc => {
                 userData = doc.data();
@@ -253,12 +254,12 @@
                     document.getElementById('modalInitial').innerText = init;
                     document.getElementById('modalEmailLabel').innerText = user.email;
                     document.getElementById('modalEmail').innerText = user.email;
+                    
                     document.getElementById('authSection').style.display = 'none';
                     document.getElementById('appTerminal').style.display = 'flex';
                     if (!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                 }
             }, err => {
-                console.error("Firestore Error:", err);
                 document.getElementById('authSection').style.display = 'flex';
             });
         } else {
@@ -267,6 +268,7 @@
         }
     });
 
+    // Chart & Trading Functions (Original logic)
     function loadChart(s) {
         new TradingView.widget({
             "autosize": true, "symbol": s, "interval": "1", "timezone": "Etc/UTC", "theme": "dark", "style": "1", "locale": "en",
@@ -308,4 +310,4 @@
     }
 
     async function submitWit() {
-        const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getE
+        const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getEleme
