@@ -65,23 +65,15 @@
                     <option value="FX:USDJPY">USD/JPY (95%)</option><option value="FX:AUDUSD">AUD/USD (92%)</option>
                     <option value="FX:USDCAD">USD/CAD (90%)</option><option value="FX:USDCHF">USD/CHF (88%)</option>
                     <option value="FX:EURGBP">EUR/GBP (85%)</option><option value="FX:EURJPY">EUR/JPY (85%)</option>
-                    <option value="FX:GBPJPY">GBP/JPY (82%)</option><option value="FX:AUDJPY">AUD/JPY (80%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO ASSETS">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (Elite)</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
                     <option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
                     <option value="BINANCE:DOGEUSDT">DOGE/USDT</option><option value="BINANCE:XRPUSDT">XRP/USDT</option>
-                    <option value="BINANCE:ADAUSDT">ADA/USDT</option><option value="BINANCE:AVAXUSDT">AVAX/USDT</option>
                 </optgroup>
-                <optgroup label="STOCKS & COMMODITIES">
-                    <option value="NASDAQ:AAPL">APPLE INC</option><option value="NASDAQ:TSLA">TESLA MOTORS</option>
-                    <option value="NASDAQ:NVDA">NVIDIA CORP</option><option value="NASDAQ:AMZN">AMAZON</option>
-                    <option value="NASDAQ:META">META (FB)</option><option value="TVC:GOLD">GOLD (XAUUSD)</option>
-                    <option value="TVC:SILVER">SILVER</option><option value="TVC:UKOIL">BRENT OIL</option>
-                </optgroup>
-                <optgroup label="INDIAN MARKETS">
-                    <option value="NSE:RELIANCE">RELIANCE</option><option value="NSE:TATASTEEL">TATA STEEL</option>
-                    <option value="NSE:HDFCBANK">HDFC BANK</option><option value="NSE:INFY">INFOSYS</option>
+                <optgroup label="STOCKS & GOLD">
+                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:TSLA">TESLA</option>
+                    <option value="NASDAQ:NVDA">NVIDIA</option><option value="TVC:GOLD">GOLD (XAUUSD)</option>
                 </optgroup>
             </select>
         </div>
@@ -102,9 +94,8 @@
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
                         <option value="5">5 Sec</option><option value="15">15 Sec</option>
                         <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="120">2 Min</option><option value="300">5 Min</option>
-                        <option value="600">10 Min</option><option value="900">15 Min</option>
-                        <option value="1200">20 Min</option><option value="1800">30 Min</option>
+                        <option value="300">5 Min</option><option value="600">10 Min</option>
+                        <option value="900">15 Min</option><option value="1800">30 Min</option>
                     </select>
                 </div>
             </div>
@@ -189,6 +180,7 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
 
+        // Force Clear Loading Screen after 4 seconds (Fail-Safe)
         const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
         function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
 
@@ -224,7 +216,7 @@
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); showFancy("Deposit Request Sent!");
+            hideM('depM'); showFancy("Request Sent!");
         }
 
         async function submitWit() {
@@ -259,3 +251,16 @@
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-[10px]">Continue</button>`;
             showM('resultM');
         }
+
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        
+        async function handleAuth() {
+            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
+            try {
+                if(mode==='reg') { 
+                    const r = await auth.createUserWithEmailAndPassword(e, p); 
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
+                } else { await auth.signInWithEmailAndPassword(e, p); }
+            } catch(err) { alert(err.message); }
+        }
+        function switchAuth(t) { mode = t; document.getElementById('loginTa
