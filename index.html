@@ -20,9 +20,14 @@
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Fancy Success UI */
+        /* Success UI */
         .success-circle { width: 70px; height: 70px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 30px rgba(34, 197, 94, 0.3); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* Profile Specific Styles */
+        .profile-card { background: #0f131d; border: 1px solid #1e293b; border-radius: 40px; }
+        .profile-field { background: #1a1f2e; border: 1px solid #2d3748; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logout-btn { background: linear-gradient(to right, #ef4444, #991b1b); }
     </style>
 </head>
 <body>
@@ -101,28 +106,28 @@
         </footer>
     </div>
 
-    <div id="fancyResponseM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center border border-white/10">
-            <div class="success-circle">
-                <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
-            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
-            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase text-[10px]">Excellent</button>
-        </div>
-    </div>
-
     <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black text-yellow-500 uppercase">Profile</h2>
-                <button onclick="hideM('settingsM')" class="text-white text-2xl">&times;</button>
+        <div class="profile-card p-8 w-full max-w-[360px] relative">
+            <button onclick="hideM('settingsM')" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-white text-2xl">&times;</button>
+            
+            <div class="text-center mt-4 mb-8">
+                <h2 class="text-left text-sm font-black text-yellow-500 uppercase tracking-widest mb-10">User Profile</h2>
+                <div id="modalInitial" class="w-28 h-28 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-5xl font-black text-black mb-6 shadow-2xl shadow-yellow-500/10">?</div>
+                <p id="modalEmailLabel" class="text-white font-extrabold italic text-xl mb-8">Loading...</p>
             </div>
-            <div class="text-center mb-6">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
-                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
+
+            <div class="space-y-4 mb-10">
+                <div class="profile-field">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Account Status</span>
+                    <span class="text-[11px] font-black text-green-500 uppercase italic">Verified Elite</span>
+                </div>
+                <div class="profile-field">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Email Box</span>
+                    <span id="modalEmail" class="text-[10px] font-black text-white uppercase italic">Loading...</span>
+                </div>
             </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600 text-white font-black rounded-2xl uppercase text-[10px]">Logout</button>
+
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-5 logout-btn text-white font-black rounded-[20px] uppercase text-xs tracking-widest shadow-xl">Logout Account</button>
         </div>
     </div>
 
@@ -164,6 +169,15 @@
         </div>
     </div>
 
+    <div id="fancyResponseM" class="modal">
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
+            <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
+            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
+            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase text-[10px]">Excellent</button>
+        </div>
+    </div>
+
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -177,7 +191,6 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, resolved = false;
 
-        // Session Lock Fix
         setTimeout(() => { if(!resolved) { document.getElementById('loadingScreen').style.display='none'; document.getElementById('authSection').style.display='flex'; } }, 6000);
 
         auth.onAuthStateChanged(user => {
@@ -191,6 +204,7 @@
                         const initial = user.email[0].toUpperCase();
                         document.getElementById('userInitial').innerText = initial;
                         document.getElementById('modalInitial').innerText = initial;
+                        document.getElementById('modalEmailLabel').innerText = user.email;
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
@@ -207,8 +221,6 @@
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
         
-        function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
-
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
@@ -250,6 +262,7 @@
             showM('resultM');
         }
 
+        function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
         
         async function handleAuth() {
@@ -259,9 +272,4 @@
                     const r = await auth.createUserWithEmailAndPassword(e, p); 
                     await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
                 } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(e) { alert(e.message); }
-        }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+            } c
