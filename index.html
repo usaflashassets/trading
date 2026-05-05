@@ -15,7 +15,7 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .success-circle { width: 70px; height: 70px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 30px rgba(34, 197, 94, 0.3); }
@@ -218,34 +218,37 @@
     const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.firestore();
-    let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
+    
+    let userData = null, mode = 'reg', chartLoaded = false;
 
-    // Fixed session resolution logic
-    const forceClear = setTimeout(() => { 
-        if (!isResolved) { 
-            hideLoading(); 
-            document.getElementById('authSection').style.display = 'flex'; 
-        } 
-    }, 4000);
-
-    function hideLoading() { 
-        const ls = document.getElementById('loadingScreen'); 
-        if(ls) {
-            ls.style.opacity = '0'; 
-            setTimeout(() => ls.style.display = 'none', 500); 
+    // ROOT CONTROL: Pehle sab hide karo, Firebase check ke baad show karo
+    function hideLoading() {
+        const ls = document.getElementById('loadingScreen');
+        if (ls) {
+            ls.style.opacity = '0';
+            setTimeout(() => { ls.style.display = 'none'; }, 500);
         }
     }
 
+    // Emergency Bypass (Agar 3.5 sec mein Firebase login na ho)
+    setTimeout(() => {
+        if (document.getElementById('loadingScreen').style.display !== 'none') {
+            console.log("Emergency Bypass Triggered");
+            hideLoading();
+            if(!auth.currentUser) {
+                document.getElementById('authSection').style.display = 'flex';
+            }
+        }
+    }, 3500);
+
     auth.onAuthStateChanged(user => {
-        isResolved = true; 
-        clearTimeout(forceClear); 
-        hideLoading();
+        hideLoading(); // Jaise hi status mile, screen hata do
         if (user) {
             db.collection('users').doc(user.uid).onSnapshot(doc => {
                 userData = doc.data();
                 if (userData) {
                     document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                    const init = user.email ? user.email[0].toUpperCase() : '?';
+                    const init = (user.email && user.email[0]) ? user.email[0].toUpperCase() : "?";
                     document.getElementById('userInitial').innerText = init;
                     document.getElementById('modalInitial').innerText = init;
                     document.getElementById('modalEmailLabel').innerText = user.email;
@@ -254,8 +257,8 @@
                     document.getElementById('appTerminal').style.display = 'flex';
                     if (!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                 }
-            }, error => {
-                console.log("Firestore error:", error);
+            }, err => {
+                console.error("Firestore Error:", err);
                 document.getElementById('authSection').style.display = 'flex';
             });
         } else {
@@ -305,6 +308,4 @@
     }
 
     async function submitWit() {
-        const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getElementById('witAmtPKR').value);
-        if (!b || !n || !nm || !amt) return;
-        await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.inc
+        const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getE
