@@ -161,10 +161,12 @@
             <div id="deposit-final-form" class="section">
                 <button class="text-gray-400 text-xs mb-4" onclick="showAssetsSection('step-payment')">&larr; Back</button>
                 <h3 class="font-bold mb-4">Payment Proof</h3>
+                <label class="text-[10px] text-gray-400 text-left block">Account Email</label>
+                <input type="text" id="dep_email_auto" class="asset-input bg-gray-800" readonly>
                 <input type="text" id="dep_name" placeholder="Account Name" class="asset-input">
                 <input type="number" id="final_send_amount" class="asset-input bg-gray-800" readonly>
                 <input type="number" id="dep_txid" placeholder="Transaction ID (Txid)" class="asset-input">
-                <button class="menu-btn btn-deposit" onclick="submitProcess('Deposit', 'Deposit Request Submitted!')">Submit Now</button>
+                <button class="menu-btn btn-deposit" onclick="submitDeposit()">Submit Now</button>
             </div>
 
             <div id="withdraw-options" class="section">
@@ -180,7 +182,7 @@
                 <input type="number" id="w_p_num" placeholder="Account Number" class="asset-input">
                 <input type="text" id="w_p_name" placeholder="Account Name" class="asset-input">
                 <input type="number" id="w_p_amt" placeholder="Amount (PKR)" class="asset-input">
-                <button class="menu-btn btn-withdraw" onclick="submitProcess('Withdraw', 'Withdrawal Request Sent!')">Withdraw Now</button>
+                <button class="menu-btn btn-withdraw" onclick="submitWithdraw()">Withdraw Now</button>
             </div>
 
             <div id="history-section" class="section">
@@ -211,7 +213,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false;
-        let currentMode = '', transactions = [];
+        let currentMode = '';
         const exchangeRate = 280;
         const cryptoQR = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x76ecfe8a3bd89297189e16cdcd275d743fb71a62";
         const pkrQR = "https://i.postimg.cc/HLPQpW92/Screenshot-20260504-033311.jpg";
@@ -222,7 +224,10 @@
         function showAssetsSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'deposit-final-form') document.getElementById('final_send_amount').value = document.getElementById('user_amount').value;
+            if(id === 'deposit-final-form') {
+                document.getElementById('final_send_amount').value = document.getElementById('user_amount').value;
+                document.getElementById('dep_email_auto').value = auth.currentUser.email;
+            }
         }
 
         function setMode(m) {
@@ -247,42 +252,53 @@
             showAssetsSection('step-payment');
         }
 
-        function submitProcess(type, msg) {
-            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            setTimeout(() => {
-                transactions.unshift({ category: type, amount: document.getElementById('user_amount').value || '0', date: new Date().toLocaleString(), status: 'Pending' });
-                Swal.fire('Success', msg, 'success').then(() => { hideM('assetsM'); showAssetsSection('main-menu'); });
-            }, 2000);
-        }
+        // --- Firebase Transaction Functions ---
 
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            list.innerHTML = transactions.length ? "" : "<p class='text-center text-gray-500 py-4'>No History</p>";
-            transactions.forEach(t => {
-                list.innerHTML += `<div class="history-item ${t.category === 'Deposit' ? 'hist-deposit' : 'hist-withdraw'}">
-                    <div class="flex justify-between text-xs font-bold"><span>${t.category}</span><span class="${t.category === 'Deposit' ? 'text-green-500' : 'text-red-500'}">$${t.amount}</span></div>
-                    <div class="flex justify-between text-[10px] text-gray-500 mt-1"><span>${t.date}</span><span class="text-yellow-500">${t.status}</span></div>
-                </div>`;
-            });
-            showAssetsSection('history-section');
-        }
+        async function submitDeposit() {
+            const name = document.getElementById('dep_name').value;
+            const txid = document.getElementById('dep_txid').value;
+            const amt = document.getElementById('final_send_amount').value;
+            if(!name || !txid) return Swal.fire('Error', 'Full details required', 'error');
 
-        auth.onAuthStateChanged(user => {
-            const loader = document.getElementById('loadingScreen');
-            if(user) {
-                db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    userData = doc.data();
-                    if(userData) {
-                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
-                        document.getElementById('modalEmail').innerText = user.email;
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                        loader.style.display = 'none';
-                    }
+            Swal.fire({ title: 'Submitting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                await db.collection('transactions').add({
+                    uid: auth.currentUser.uid,
+                    email: auth.currentUser.email,
+                    type: 'Deposit',
+                    amount: amt,
+                    name: name,
+                    txid: txid,
+                    method: currentMode,
+                    status: 'Pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            } else { 
-                document.getElementById('authSection').style.display 
+                Swal.fire('Success', 'Deposit Request Submitted!', 'success').then(() => {
+                    hideM('assetsM');
+                    showAssetsSection('main-menu');
+                });
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        }
+
+        async function submitWithdraw() {
+            const num = document.getElementById('w_p_num').value;
+            const name = document.getElementById('w_p_name').value;
+            const amt = document.getElementById('w_p_amt').value;
+            if(!num || !name || !amt) return Swal.fire('Error', 'Full details required', 'error');
+
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                await db.collection('transactions').add({
+                    uid: auth.currentUser.uid,
+                    email: auth.currentUser.email,
+                    type: 'Withdraw',
+                    amount: amt,
+                    accNum: num,
+                    accName: name,
+                    bank: document.getElementById('w_p_bank').value,
+                    status: 'Pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                Swal.fire('Success', 'Withdrawal Request Sent!', 'su
