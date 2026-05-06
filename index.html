@@ -37,12 +37,12 @@
         <div class="glass-card w-full max-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
-            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Login</button>
         </div>
     </div>
 
@@ -127,8 +127,8 @@
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
-                <input type="number" id="depAmtInput" placeholder="USD Amount" class="auth-input mb-2 text-center" oninput="updatePKR(this.value)">
-                <p class="text-[10px] text-gray-400 font-bold mb-6 uppercase">Total: <span id="pkrCalc" class="text-yellow-500">0</span> PKR</p>
+                <input type="number" id="depUSDInput" placeholder="USD Amount" class="auth-input mb-2 text-center" oninput="calculatePKR(this.value)">
+                <p class="text-[10px] text-gray-400 font-bold mb-6 uppercase">Approx: <span id="pkrLabel" class="text-yellow-500">0</span> PKR</p>
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
@@ -138,7 +138,7 @@
             </div>
             <div id="dStep3" class="hidden space-y-3">
                 <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input" readonly>
+                <input type="number" id="depPKRAmount" placeholder="PKR Amount" class="auth-input" readonly>
                 <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
@@ -180,10 +180,17 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
-        const PKR_RATE = 280;
+        let userData = null, mode = 'login', chartLoaded = false, isResolved = false;
 
-        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
+        const pkrRate = 280;
+
+        function calculatePKR(usd) {
+            const pkr = (parseFloat(usd) || 0) * pkrRate;
+            document.getElementById('pkrLabel').innerText = pkr.toLocaleString();
+            document.getElementById('depPKRAmount').value = pkr;
+        }
+
+        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 3000);
         function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
 
         auth.onAuthStateChanged(user => {
@@ -211,18 +218,11 @@
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-        
-        function updatePKR(val) {
-            const pkr = (parseFloat(val) || 0) * PKR_RATE;
-            document.getElementById('pkrCalc').innerText = pkr.toLocaleString();
-            document.getElementById('depActualAmt').value = pkr;
-        }
-
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
         function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
 
         async function submitFinalDep() {
-            const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
+            const acc = document.getElementById('depAccName').value, amt = document.getElementById('depPKRAmount').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
             hideM('depM'); showFancy("Deposit Request Sent!");
@@ -231,7 +231,7 @@
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getElementById('witAmtPKR').value);
             if(!b || !n || !nm || !amt) return;
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/PKR_RATE)) });
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/pkrRate)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
             hideM('witM'); showFancy("Withdrawal Sent!");
         }
@@ -271,4 +271,4 @@
                 } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { alert(err.message); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTa
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className 
