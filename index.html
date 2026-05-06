@@ -60,7 +60,7 @@
 
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="FOREX MAJORS">
+                <optgroup label="FOREX MAJOR">
                     <option value="FX:EURUSD">EUR/USD (98%)</option>
                     <option value="FX:GBPUSD">GBP/USD (95%)</option>
                     <option value="FX:USDJPY">USD/JPY (92%)</option>
@@ -72,39 +72,32 @@
                     <option value="FX:EURJPY">EUR/JPY (84%)</option>
                     <option value="FX:GBPJPY">GBP/JPY (80%)</option>
                     <option value="FX:AUDJPY">AUD/JPY (78%)</option>
-                    <option value="FX:EURCAD">EUR/CAD (75%)</option>
-                    <option value="FX:AUDCAD">AUD/CAD (75%)</option>
-                    <option value="FX:EURAUD">EUR/AUD (75%)</option>
-                    <option value="FX:GBPAUD">GBP/AUD (75%)</option>
                 </optgroup>
-                <optgroup label="CRYPTO CURRENCIES">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (98%)</option>
-                    <option value="BINANCE:ETHUSDT">ETH/USDT (95%)</option>
-                    <option value="BINANCE:BNBUSDT">BNB/USDT (90%)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (88%)</option>
-                    <option value="BINANCE:XRPUSDT">XRP/USDT (85%)</option>
-                    <option value="BINANCE:ADAUSDT">ADA/USDT (80%)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (80%)</option>
-                    <option value="BINANCE:DOTUSDT">DOT/USDT (75%)</option>
-                    <option value="BINANCE:MATICUSDT">MATIC/USDT (75%)</option>
-                    <option value="BINANCE:LTCUSDT">LTC/USDT (70%)</option>
-                    <option value="BINANCE:TRXUSDT">TRX/USDT (70%)</option>
-                    <option value="BINANCE:LINKUSDT">LINK/USDT (70%)</option>
-                    <option value="BINANCE:AVAXUSDT">AVAX/USDT (70%)</option>
+                <optgroup label="CRYPTO">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                    <option value="BINANCE:ADAUSDT">ADA/USDT (OTC)</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option>
+                    <option value="BINANCE:MATICUSDT">MATIC/USDT (OTC)</option>
+                    <option value="BINANCE:LTCUSDT">LTC/USDT (OTC)</option>
+                    <option value="BINANCE:DOTUSDT">DOT/USDT (OTC)</option>
+                    <option value="BINANCE:AVAXUSDT">AVAX/USDT (OTC)</option>
                 </optgroup>
-                <optgroup label="COMMODITIES & INDICES">
-                    <option value="OANDA:XAUUSD">GOLD / XAUUSD (98%)</option>
-                    <option value="OANDA:XAGUSD">SILVER / XAGUSD (85%)</option>
-                    <option value="OANDA:UK100GBP">UK 100 (80%)</option>
-                    <option value="OANDA:US30USD">US 30 (90%)</option>
-                    <option value="OANDA:NAS100USD">NAS 100 (92%)</option>
-                    <option value="OANDA:US2000USD">US 2000 (80%)</option>
-                    <option value="OANDA:WTIUSD">CRUDE OIL (85%)</option>
-                    <option value="OANDA:BCOUSD">BRENT OIL (82%)</option>
-                    <option value="OANDA:NATGASUSD">NAT GAS (75%)</option>
-                    <option value="OANDA:DE30EUR">GERMANY 30 (80%)</option>
-                    <option value="OANDA:HK33HKD">HONG KONG 33 (70%)</option>
-                    <option value="OANDA:JP225USD">JAPAN 225 (75%)</option>
+                <optgroup label="COMMODITIES & STOCKS">
+                    <option value="OANDA:XAUUSD">GOLD (98%)</option>
+                    <option value="OANDA:XAGUSD">SILVER (90%)</option>
+                    <option value="OANDA:BCOUSD">BRENT CRUDE (88%)</option>
+                    <option value="OANDA:NAS100USD">NAS100 (92%)</option>
+                    <option value="OANDA:US30USD">US30 (90%)</option>
+                    <option value="NASDAQ:AAPL">APPLE (85%)</option>
+                    <option value="NASDAQ:TSLA">TESLA (85%)</option>
+                    <option value="NASDAQ:NVDA">NVIDIA (88%)</option>
+                    <option value="NASDAQ:MSFT">MICROSOFT (82%)</option>
+                    <option value="NASDAQ:AMZN">AMAZON (84%)</option>
+                    <option value="NASDAQ:META">META (80%)</option>
                 </optgroup>
             </select>
         </div>
@@ -211,11 +204,14 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
 
-        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
-        function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
+        function hideLoading() { 
+            const ls = document.getElementById('loadingScreen'); 
+            ls.style.opacity = '0'; 
+            setTimeout(() => ls.style.display = 'none', 500); 
+        }
 
         auth.onAuthStateChanged(user => {
-            isResolved = true; clearTimeout(forceClear); hideLoading();
+            isResolved = true;
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -228,14 +224,21 @@
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                        if(!chartLoaded) { 
+                            setTimeout(() => { loadChart('FX:EURUSD'); chartLoaded = true; }, 500);
+                        }
+                        hideLoading();
                     }
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
+                hideLoading();
             }
         });
+
+        // Fail-safe for loading screen
+        setTimeout(() => { if (!isResolved) hideLoading(); }, 5000);
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
@@ -268,4 +271,12 @@
                 document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
                 if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
                 l--;
-            }, 1000
+            }, 1000);
+        }
+
+        function showRes(amt) {
+            const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === 'loss' ? false : Math.random() > 0.5;
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) { 
+                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-gree
