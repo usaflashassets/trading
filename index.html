@@ -58,27 +58,36 @@
             </div>
         </header>
 
-        <div class="mb-2 px-1">
-            <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option>
-                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
-                    <option value="FX:USDJPY">USD/JPY (92%)</option>
-                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
-                    <option value="FX:USDCAD">USD/CAD (88%)</option>
-                    <option value="FX:USDCHF">USD/CHF (85%)</option>
-                    <option value="FX:NZDUSD">NZD/USD (85%)</option>
-                </optgroup>
-                <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
-                    <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
-                    <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
-                </optgroup>
-            </select>
-        </div>
+        <div class="mb-2">
+    <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-yellow-500 font-bold text-xs outline-none cursor-pointer">
+        
+        <!-- FOREX CURRENCY PAIRS -->
+        <optgroup label="FOREX MAJOR (80-92% Payout)">
+            <option value="FX:EURUSD">EUR/USD — Euro / US Dollar</option>
+            <option value="FX:GBPUSD">GBP/USD — British Pound / US Dollar</option>
+            <option value="FX:USDJPY">USD/JPY — US Dollar / Japanese Yen</option>
+            <option value="FX:AUDUSD">AUD/USD — Australian Dollar / US Dollar</option>
+            <option value="FX:USDCAD">USD/CAD — US Dollar / Canadian Dollar</option>
+            <option value="FX:USDCHF">USD/CHF — US Dollar / Swiss Franc</option>
+        </optgroup>
 
+        <!-- CRYPTOCURRENCY -->
+        <optgroup label="CRYPTO ASSETS">
+            <option value="BINANCE:BTCUSDT">BTC/USDT — Bitcoin</option>
+            <option value="BINANCE:ETHUSDT">ETH/USDT — Ethereum</option>
+            <option value="BINANCE:SOLUSDT">SOL/USDT — Solana</option>
+            <option value="BINANCE:BNBUSDT">BNB/USDT — Binance Coin</option>
+        </optgroup>
+
+        <!-- METALS & STOCKS -->
+        <optgroup label="COMMODITIES & STOCKS">
+            <option value="OANDA:XAUUSD">GOLD — XAU/USD</option>
+            <option value="NASDAQ:TSLA">TESLA — Tesla Inc.</option>
+            <option value="NASDAQ:NVDA">NVIDIA — Nvidia Corp.</option>
+        </optgroup>
+        
+    </select>
+</div>
         <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5 shadow-2xl">
             <div id="tv_chart" class="h-full w-full"></div>
             <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
@@ -90,15 +99,17 @@
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Amount ($)</span>
                     <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
                 </div>
-                <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Duration</span>
-                    <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option>
-                        <option value="15">15 Sec</option>
-                        <option value="300">5 Min</option>
-                        <option value="900">15 Min</option>
-                    </select>
-                </div>
+                <div class="bg-black/40 p-2 rounded-xl border border-white/5">
+    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Trade Duration</span>
+    <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none cursor-pointer">
+        <option value="10">10 Seconds</option>
+        <option value="15">15 Seconds</option>
+        <option value="30">30 Seconds</option>
+        <option value="60">1 Minute</option>
+        <option value="120">2 Minutes</option>
+        <option value="300">5 Minutes</option>
+    </select>
+</div>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Call</button>
@@ -262,7 +273,3 @@
                 } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { alert(err.message); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
