@@ -34,7 +34,7 @@
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
                 <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
@@ -60,57 +60,57 @@
 
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-    <optgroup label="FOREX MAJORS">
-        <option value="FX:EURUSD">EUR/USD (98%)</option>
-        <option value="FX:GBPUSD">GBP/USD (95%)</option>
-        <option value="FX:USDJPY">USD/JPY (92%)</option>
-        <option value="FX:AUDUSD">AUD/USD (90%)</option>
-        <option value="FX:USDCAD">USD/CAD (89%)</option>
-        <option value="FX:USDCHF">USD/CHF (88%)</option>
-        <option value="FX:NZDUSD">NZD/USD (87%)</option>
-    </optgroup>
-    <optgroup label="FOREX MINORS">
-        <option value="FX:EURGBP">EUR/GBP (85%)</option>
-        <option value="FX:EURJPY">EUR/JPY (84%)</option>
-        <option value="FX:GBPJPY">GBP/JPY (84%)</option>
-        <option value="FX:AUDJPY">AUD/JPY (82%)</option>
-        <option value="FX:CADJPY">CAD/JPY (82%)</option>
-        <option value="FX:CHFJPY">CHF/JPY (81%)</option>
-        <option value="FX:EURAUD">EUR/AUD (80%)</option>
-        <option value="FX:EURNZD">EUR/NZD (80%)</option>
-        <option value="FX:GBPAUD">GBP/AUD (79%)</option>
-        <option value="FX:GBPCAD">GBP/CAD (79%)</option>
-        <option value="FX:AUDCAD">AUD/CAD (78%)</option>
-        <option value="FX:AUDNZD">AUD/NZD (77%)</option>
-        <option value="FX:NZDJPY">NZD/JPY (77%)</option>
-        <option value="FX:GBPNZD">GBP/NZD (76%)</option>
-    </optgroup>
-    <optgroup label="CRYPTO (OTC)">
-        <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-        <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-        <option value="BINANCE:SOLUSDT">SOL/USDT</option>
-        <option value="BINANCE:BNBUSDT">BNB/USDT</option>
-        <option value="BINANCE:XRPUSDT">XRP/USDT</option>
-        <option value="BINANCE:ADAUSDT">ADA/USDT</option>
-        <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
-        <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
-        <option value="BINANCE:DOTUSDT">DOT/USDT</option>
-        <option value="BINANCE:LTCUSDT">LTC/USDT</option>
-    </optgroup>
-    <optgroup label="COMMODITIES / METALS">
-        <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
-        <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
-        <option value="TVC:USOIL">CRUDE OIL (WTI)</option>
-        <option value="TVC:UKOIL">BRENT OIL (UK)</option>
-        <option value="TVC:NGAS">NATURAL GAS</option>
-    </optgroup>
-    <optgroup label="INDICES">
-        <option value="CURRENCYCOM:US30">DOW JONES (US30)</option>
-        <option value="CURRENCYCOM:US100">NASDAQ (US100)</option>
-        <option value="CURRENCYCOM:US500">S&P 500 (US500)</option>
-        <option value="CURRENCYCOM:DE40">GERMANY 40 (DAX)</option>
-    </optgroup>
-</select>
+                <optgroup label="FOREX MAJORS">
+                    <option value="FX:EURUSD">EUR/USD (98%)</option>
+                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option>
+                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (89%)</option>
+                    <option value="FX:USDCHF">USD/CHF (88%)</option>
+                    <option value="FX:NZDUSD">NZD/USD (87%)</option>
+                </optgroup>
+                <optgroup label="FOREX MINORS">
+                    <option value="FX:EURGBP">EUR/GBP (85%)</option>
+                    <option value="FX:EURJPY">EUR/JPY (84%)</option>
+                    <option value="FX:GBPJPY">GBP/JPY (84%)</option>
+                    <option value="FX:AUDJPY">AUD/JPY (82%)</option>
+                    <option value="FX:CADJPY">CAD/JPY (82%)</option>
+                    <option value="FX:CHFJPY">CHF/JPY (81%)</option>
+                    <option value="FX:EURAUD">EUR/AUD (80%)</option>
+                    <option value="FX:EURNZD">EUR/NZD (80%)</option>
+                    <option value="FX:GBPAUD">GBP/AUD (79%)</option>
+                    <option value="FX:GBPCAD">GBP/CAD (79%)</option>
+                    <option value="FX:AUDCAD">AUD/CAD (78%)</option>
+                    <option value="FX:AUDNZD">AUD/NZD (77%)</option>
+                    <option value="FX:NZDJPY">NZD/JPY (77%)</option>
+                    <option value="FX:GBPNZD">GBP/NZD (76%)</option>
+                </optgroup>
+                <optgroup label="CRYPTO (OTC)">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT</option>
+                    <option value="BINANCE:ADAUSDT">ADA/USDT</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
+                    <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
+                    <option value="BINANCE:DOTUSDT">DOT/USDT</option>
+                    <option value="BINANCE:LTCUSDT">LTC/USDT</option>
+                </optgroup>
+                <optgroup label="COMMODITIES / METALS">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
+                    <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
+                    <option value="TVC:USOIL">CRUDE OIL (WTI)</option>
+                    <option value="TVC:UKOIL">BRENT OIL (UK)</option>
+                    <option value="TVC:NGAS">NATURAL GAS</option>
+                </optgroup>
+                <optgroup label="INDICES">
+                    <option value="CURRENCYCOM:US30">DOW JONES (US30)</option>
+                    <option value="CURRENCYCOM:US100">NASDAQ (US100)</option>
+                    <option value="CURRENCYCOM:US500">S&P 500 (US500)</option>
+                    <option value="CURRENCYCOM:DE40">GERMANY 40 (DAX)</option>
+                </optgroup>
+            </select>
         </div>
 
         <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5 shadow-2xl">
@@ -141,14 +141,13 @@
         </footer>
     </div>
 
+    <!-- Modals (Settings, Deposit, Withdraw, etc.) - Code same as before but ensured ID consistency -->
     <div id="settingsM" class="modal">
-        <div class="profile-card p-8 w-full max-w-[360px] relative">
+        <div class="profile-card p-8 w-full max-w-[360px] relative text-center">
             <button onclick="hideM('settingsM')" class="absolute top-6 right-6 text-white text-2xl">&times;</button>
-            <div class="text-center mt-4 mb-8">
-                <h2 class="text-left text-sm font-black text-yellow-500 uppercase tracking-widest mb-10">User Profile</h2>
-                <div id="modalInitial" class="w-28 h-28 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-5xl font-black text-black mb-6 shadow-2xl shadow-yellow-500/10">?</div>
-                <p id="modalEmailLabel" class="text-white font-extrabold italic text-xl mb-8">Loading...</p>
-            </div>
+            <h2 class="text-left text-sm font-black text-yellow-500 uppercase tracking-widest mb-10">User Profile</h2>
+            <div id="modalInitial" class="w-28 h-28 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-5xl font-black text-black mb-6 shadow-2xl shadow-yellow-500/10">?</div>
+            <p id="modalEmailLabel" class="text-white font-extrabold italic text-xl mb-8">Loading...</p>
             <div class="space-y-4 mb-10">
                 <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Account Status</span><span class="text-[11px] font-black text-green-500 uppercase italic">Verified Elite</span></div>
                 <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Email Box</span><span id="modalEmail" class="text-[10px] font-black text-white uppercase italic">Loading...</span></div>
@@ -204,6 +203,7 @@
 
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
+    <!-- SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -213,13 +213,15 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
+        let userData = null, mode = 'reg', chartLoaded = false;
 
-        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
-        function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
+        function hideLoading() { 
+            const ls = document.getElementById('loadingScreen');
+            ls.style.opacity = '0';
+            setTimeout(() => ls.style.display = 'none', 500);
+        }
 
         auth.onAuthStateChanged(user => {
-            isResolved = true; clearTimeout(forceClear); hideLoading();
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -230,14 +232,17 @@
                         document.getElementById('modalInitial').innerText = init;
                         document.getElementById('modalEmailLabel').innerText = user.email;
                         document.getElementById('modalEmail').innerText = user.email;
+                        
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                        hideLoading();
                     }
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
+                hideLoading();
             }
         });
 
@@ -263,7 +268,7 @@
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
+            if(!userData || amt > userData.balance || amt <= 0) return alert("Low Balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -273,12 +278,4 @@
                 if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
                 l--;
             }, 1000);
-        }
-
-        function showRes(amt) {
-            const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === 'loss' ? false : Math.random() > 0.5;
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text
+  
