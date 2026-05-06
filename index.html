@@ -25,7 +25,6 @@
         .profile-field { background: #1a1f2e; border: 1px solid #2d3748; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
         .logout-btn { background: linear-gradient(to right, #ef4444, #991b1b); }
     </style>
-<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
 
@@ -61,7 +60,6 @@
 
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-
                 <optgroup label="FOREX MAJOR">
                     <option value="FX:EURUSD">EUR/USD (98%)</option>
                     <option value="FX:GBPUSD">GBP/USD (95%)</option>
@@ -71,7 +69,6 @@
                     <option value="FX:USDCHF">USD/CHF (85%)</option>
                     <option value="FX:NZDUSD">NZD/USD (85%)</option>
                 </optgroup>
-
                 <optgroup label="FOREX MINOR">
                     <option value="FX:EURGBP">EUR/GBP (87%)</option>
                     <option value="FX:EURJPY">EUR/JPY (86%)</option>
@@ -94,7 +91,6 @@
                     <option value="FX:NZDCHF">NZD/CHF (73%)</option>
                     <option value="FX:GBPNZD">GBP/NZD (73%)</option>
                 </optgroup>
-
                 <optgroup label="CRYPTO">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
                     <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
@@ -102,7 +98,6 @@
                     <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
                     <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
                 </optgroup>
-
             </select>
         </div>
 
@@ -274,4 +269,5 @@
             if(win) { 
                 db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
                 box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="t
+            } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
+            box.innerHTML += `<button onclick="hideM(
