@@ -15,6 +15,11 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
+        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+        .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         .success-circle { width: 70px; height: 70px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 30px rgba(34, 197, 94, 0.3); }
         .profile-card { background: #0f131d; border: 1px solid #1e293b; border-radius: 40px; }
         .profile-field { background: #1a1f2e; border: 1px solid #2d3748; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -23,12 +28,17 @@
 </head>
 <body>
 
-    <div id="authSection" class="h-full flex items-center justify-center p-4">
+    <div id="loadingScreen">
+        <div class="loader-spin"></div>
+        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Securing Connection...</p>
+    </div>
+
+    <div id="authSection" class="h-full flex items-center justify-center p-4" style="display:none;">
         <div class="glass-card w-full max-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">Dubai Live Trade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold text-gray-400">Registration</button>
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
@@ -54,7 +64,6 @@
                     <option value="FX:EURUSD">EUR/USD (98%)</option>
                     <option value="FX:GBPUSD">GBP/USD (95%)</option>
                     <option value="FX:USDJPY">USD/JPY (92%)</option>
-                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
@@ -80,7 +89,6 @@
                         <option value="5">5 Sec</option>
                         <option value="15">15 Sec</option>
                         <option value="300">5 Min</option>
-                        <option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -95,8 +103,8 @@
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
-                <input type="number" id="depUSDInput" placeholder="Enter USD Amount" class="auth-input mb-2 text-center" oninput="calculatePKR(this.value)">
-                <p class="text-[10px] text-gray-400 font-bold mb-6 uppercase">Amount in PKR: <span id="pkrLabel" class="text-yellow-500">0</span></p>
+                <input type="number" id="depUSDInput" placeholder="Enter USD Amount" class="auth-input mb-2 text-center" oninput="updatePKR(this.value)">
+                <p class="text-[10px] text-gray-400 font-bold mb-6 uppercase">Total in PKR: <span id="pkrDisp" class="text-yellow-500">0</span></p>
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
@@ -104,59 +112,15 @@
                 <p class="text-white font-black mb-6 italic uppercase">Dubai Live Trade</p>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
-            <div id="dStep3" class="hidden space-y-3 text-left">
-                <label class="text-[9px] text-gray-500 font-bold ml-1 uppercase">Account Name</label>
+            <div id="dStep3" class="hidden space-y-3">
                 <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <label class="text-[9px] text-gray-500 font-bold ml-1 uppercase">Amount to Send (PKR)</label>
-                <input type="number" id="depActualPKR" placeholder="PKR Amount" class="auth-input" readonly>
-                <label class="text-[9px] text-gray-500 font-bold ml-1 uppercase">Transaction ID (TXID)</label>
+                <input type="number" id="depPKRAmount" placeholder="PKR Amount" class="auth-input" readonly>
                 <input type="text" id="depTx" placeholder="TXID" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase mt-2">Submit Request</button>
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
             <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
         </div>
     </div>
-
-    <div id="settingsM" class="modal">
-        <div class="profile-card p-8 w-full max-w-[360px] relative">
-            <button onclick="hideM('settingsM')" class="absolute top-6 right-6 text-white text-2xl">&times;</button>
-            <div class="text-center mt-4 mb-8">
-                <h2 class="text-left text-sm font-black text-yellow-500 uppercase tracking-widest mb-10">User Profile</h2>
-                <div id="modalInitial" class="w-28 h-28 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-5xl font-black text-black mb-6">?</div>
-                <p id="modalEmailLabel" class="text-white font-extrabold italic text-xl mb-8">Loading...</p>
-            </div>
-            <div class="space-y-4 mb-10">
-                <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Account Status</span><span class="text-[11px] font-black text-green-500 uppercase italic">Verified Elite</span></div>
-                <div class="profile-field"><span class="text-[10px] font-bold text-gray-500 uppercase">Email</span><span id="modalEmail" class="text-[10px] font-black text-white uppercase italic">...</span></div>
-            </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-5 logout-btn text-white font-black rounded-[20px] uppercase text-xs">Logout</button>
-        </div>
-    </div>
-
-    <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
-            <div class="space-y-3 text-left">
-                <select id="witBank" class="auth-input text-sm"><option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option></select>
-                <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
-                <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="witAmtPKR" placeholder="Amount (PKR)" class="auth-input">
-                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
-            </div>
-            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
-        </div>
-    </div>
-
-    <div id="fancyResponseM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
-            <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-            <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
-            <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase">Submitted.</p>
-            <button onclick="hideM('fancyResponseM')" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Excellent</button>
-        </div>
-    </div>
-
-    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -170,80 +134,44 @@
         let userData = null, mode = 'login', chartLoaded = false;
         const PKR_RATE = 280;
 
+        function updatePKR(usd) {
+            const pkr = (parseFloat(usd) || 0) * PKR_RATE;
+            document.getElementById('pkrDisp').innerText = pkr.toLocaleString();
+            document.getElementById('depPKRAmount').value = pkr;
+        }
+
         auth.onAuthStateChanged(user => {
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const init = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = init;
-                        document.getElementById('modalInitial').innerText = init;
-                        document.getElementById('modalEmailLabel').innerText = user.email;
-                        document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
+                        document.getElementById('loadingScreen').style.display = 'none';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                     }
                 });
             } else {
+                document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
             }
         });
 
-        function calculatePKR(usd) {
-            const pkr = (parseFloat(usd) || 0) * PKR_RATE;
-            document.getElementById('pkrLabel').innerText = pkr.toLocaleString();
-            document.getElementById('depActualPKR').value = pkr;
-        }
-
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
-        function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
 
         async function submitFinalDep() {
-            const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualPKR').value, tx = document.getElementById('depTx').value;
+            const acc = document.getElementById('depAccName').value, amt = document.getElementById('depPKRAmount').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
             await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); showFancy("Deposit Request Sent!");
-        }
-
-        async function submitWit() {
-            const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amt) return;
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/PKR_RATE)) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
-            hideM('witM'); showFancy("Withdrawal Sent!");
-        }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        function showRes(amt) {
-            const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === 'loss' ? false : Math.random() > 0.5;
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-[10px]">Continue</button>`;
-            showM('resultM');
+            hideM('depM'); alert("Request Sent!");
         }
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
             try {
@@ -253,7 +181,13 @@
                 } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { alert(err.message); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white' : 'flex-1 py-3 text-sm font-bold text-gray-400'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white' : 'flex-1 py-3 text-sm font-bold text-gray-400'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+
+        function switchAuth(t) { 
+            mode = t; 
+            document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; 
+        }
     </script>
 </body>
 </html>
