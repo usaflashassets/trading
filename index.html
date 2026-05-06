@@ -66,11 +66,8 @@
                     <option value="FX:USDJPY">USD/JPY (92%)</option>
                     <option value="FX:AUDUSD">AUD/USD (90%)</option>
                     <option value="FX:USDCAD">USD/CAD (88%)</option>
-                    <option value="FX:USDCHF">USD/CHF (86%)</option>
-                    <option value="FX:NZDUSD">NZD/USD (84%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (82%)</option>
-                    <option value="FX:EURJPY">EUR/JPY (80%)</option>
-                    <option value="FX:GBPJPY">GBP/JPY (78%)</option>
+                    <option value="FX:USDCHF">USD/CHF (85%)</option>
+                    <option value="FX:NZDUSD">NZD/USD (85%)</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
@@ -78,9 +75,6 @@
                     <option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
                     <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
                     <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
-                    <option value="BINANCE:ADAUSDT">ADA/USDT (OTC)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option>
-                    <option value="BINANCE:TRXUSDT">TRX/USDT (OTC)</option>
                 </optgroup>
             </select>
         </div>
@@ -100,12 +94,9 @@
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
                         <option value="5">5 Sec</option>
-                        <option value="10">10 Sec</option>
-                        <option value="30">30 Sec</option>
-                        <option value="60">1 Min</option>
-                        <option value="600">10 Min</option>
-                        <option value="1200">20 Min</option>
-                        <option value="1800">30 Min</option>
+                        <option value="15">15 Sec</option>
+                        <option value="300">5 Min</option>
+                        <option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -133,7 +124,7 @@
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
                 <input type="number" id="depAmtInput" placeholder="PKR Amount" class="auth-input mb-6 text-center">
@@ -155,7 +146,7 @@
     </div>
 
     <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
             <div class="space-y-3 text-left">
                 <select id="witBank" class="auth-input text-sm"><option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option></select>
@@ -169,7 +160,7 @@
     </div>
 
     <div id="fancyResponseM" class="modal">
-        <div class="glass-card p-8 rounded-[40px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
             <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
             <h2 class="text-2xl font-black text-white mb-2 uppercase italic">Success!</h2>
             <p id="fancyMsg" class="text-gray-400 text-xs font-bold mb-8 uppercase tracking-widest">Submitted successfully.</p>
@@ -269,4 +260,9 @@
                     const r = await auth.createUserWithEmailAndPassword(e, p); 
                     await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
                 } else { await auth.signInWithEmailAndPassword(e, p); }
-         
+            } catch(err) { alert(err.message); }
+        }
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
+    </script>
+</body>
+</html>
