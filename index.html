@@ -64,10 +64,22 @@
                     <option value="FX:EURUSD">EUR/USD (98%)</option>
                     <option value="FX:GBPUSD">GBP/USD (95%)</option>
                     <option value="FX:USDJPY">USD/JPY (92%)</option>
+                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (89%)</option>
+                    <option value="FX:USDCHF">USD/CHF (88%)</option>
+                    <option value="FX:NZDUSD">NZD/USD (87%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (86%)</option>
+                    <option value="FX:EURJPY">EUR/JPY (85%)</option>
+                    <option value="FX:GBPJPY">GBP/JPY (84%)</option>
                 </optgroup>
-                <optgroup label="CRYPTO">
+                <optgroup label="CRYPTO & METALS">
                     <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
                     <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                    <option value="OANDA:XAUUSD">GOLD/USD (95%)</option>
+                    <option value="OANDA:XAGUSD">SILVER/USD (90%)</option>
                 </optgroup>
             </select>
         </div>
@@ -88,7 +100,12 @@
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
                         <option value="5">5 Sec</option>
                         <option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option>
+                        <option value="60">1 Min</option>
+                        <option value="120">2 Min</option>
                         <option value="300">5 Min</option>
+                        <option value="600">10 Min</option>
+                        <option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
@@ -175,7 +192,6 @@
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
         const PKR_RATE = 280;
 
-        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); } }, 3000);
         function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
 
         function calculatePKR(usd) {
@@ -248,21 +264,14 @@
                 db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
                 box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
             } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick=\"hideM('resultM')\" class=\"w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-[10px]\">Continue</button>`;
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-[10px]">Continue</button>`;
             showM('resultM');
         }
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
             try {
                 if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
-                } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) { alert(err.message); }
-        }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+                    const r = aw
