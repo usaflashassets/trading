@@ -184,10 +184,10 @@
         let userData = null, mode = 'reg', chartLoaded = false;
 
         auth.onAuthStateChanged(user => {
-            document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
+                    document.getElementById('loadingScreen').style.display = 'none'; 
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         const initial = user.email[0].toUpperCase();
@@ -201,6 +201,7 @@
                     }
                 });
             } else {
+                document.getElementById('loadingScreen').style.display = 'none'; 
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('authSection').style.alignItems = 'center';
                 document.getElementById('authSection').style.justifyContent = 'center';
@@ -270,4 +271,4 @@
                 await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
             } else { await auth.signInWithEmailAndPassword(e, p); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 t
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 te
