@@ -1,269 +1,346 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ProTrade Global | Elite Terminal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
-        .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
-        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
-        .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
-        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
-        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Profile Fancy Items */
-        .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
-    </style>
-</head>
-<body>
+import React, { useState, useEffect, useRef } from 'react';
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  doc, 
+  onSnapshot, 
+  setDoc, 
+  addDoc, 
+  collection, 
+  updateDoc, 
+  increment 
+} from 'firebase/firestore';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  CheckCircle2, 
+  Wallet, 
+  ArrowUpRight, 
+  ArrowDownRight, 
+  User, 
+  LogOut, 
+  Timer,
+  X
+} from 'lucide-react';
 
-    <div id="loadingScreen">
-        <div class="loader-spin"></div>
-        <p class="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest">Verifying Session...</p>
-    </div>
+// Firebase configuration
+const firebaseConfig = { 
+  apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", 
+  authDomain: "waqas-47f30.firebaseapp.com", 
+  projectId: "waqas-47f30", 
+  storageBucket: "waqas-47f30.appspot.com", 
+  messagingSenderId: "374104279093", 
+  appId: "1:374104279093:web:6e1844b60456c700940364" 
+};
 
-    <div id="authSection" class="h-full items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
-            <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
-            <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
-            </div>
-            <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
-            <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
-            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
-        </div>
-    </div>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    <div id="appTerminal">
-        <header class="flex justify-between items-center mb-2 px-1">
-            <div class="flex items-center gap-2">
-                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
-                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
-            </div>
-            <div class="flex gap-1.5">
-                <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">Deposit</button>
-                <button onclick="showM('witM')" class="bg-white/5 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-white/10">Withdraw</button>
-            </div>
-        </header>
+type TradeType = 'UP' | 'DOWN';
+type AuthMode = 'login' | 'reg';
 
-        <div class="mb-2 px-1">
-            <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
-                    <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
-                    <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
-                </optgroup>
-                <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
-                </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
-                    <option value="NASDAQ:MSFT">MICROSOFT</option>
-                </optgroup>
-            </select>
-        </div>
+export default function App() {
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [authMode, setAuthMode] = useState<AuthMode>('reg');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  const [showDepModal, setShowDepModal] = useState(false);
+  const [showWitModal, setShowWitModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [showFancySuccess, setShowFancySuccess] = useState(false);
+  
+  const [depStep, setDepStep] = useState(1);
+  const [depAmt, setDepAmt] = useState(''); // USD Input
+  const [depAccName, setDepAccName] = useState('');
+  const [depTx, setDepTx] = useState('');
 
-        <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5 shadow-2xl">
-            <div id="tv_chart" class="h-full w-full"></div>
-            <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
-        </main>
+  const PKR_RATE = 280;
+  const pkrAmount = depAmt ? (parseFloat(depAmt) * PKR_RATE).toFixed(0) : '0';
 
-        <footer class="glass-card p-4 rounded-[32px]">
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Amount ($)</span>
-                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
-                </div>
-                <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
-                    <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
-                        <option value="30">30 Sec</option><option value="60">1 Min</option>
-                        <option value="120">2 Min</option><option value="300">5 Min</option>
-                        <option value="600">10 Min</option><option value="900">15 Min</option>
-                    </select>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Call</button>
-                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Put</button>
-            </div>
-        </footer>
-    </div>
+  const [witBank, setWitBank] = useState('');
+  const [witAccNum, setWitAccNum] = useState('');
+  const [witAccName, setWitAccName] = useState('');
+  const [witAmtPKR, setWitAmtPKR] = useState('');
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
-                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
-            </div>
-            <div class="text-center mb-6">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
-                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
-            </div>
-            <div class="space-y-3 mb-8">
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
-                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
-                </div>
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
-                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
-                </div>
-            </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
-        </div>
-    </div>
+  const [asset, setAsset] = useState('FX:EURUSD');
+  const [tradeAmt, setTradeAmt] = useState('10');
+  const [duration, setDuration] = useState('5');
+  const [trading, setTrading] = useState(false);
+  const [timerText, setTimerText] = useState('00:00');
+  const [tradeResult, setTradeResult] = useState<{ type: 'win' | 'loss', amount: number } | null>(null);
 
-    <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div id="dStep1">
-                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Funds</h2>
-                <input type="number" id="depAmtInput" placeholder="Enter PKR Amount" class="auth-input mb-6 text-center text-lg">
-                <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
-            </div>
-            <div id="dStep2" class="hidden">
-                <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 p-2 bg-white rounded-xl w-48 h-48 object-contain">
-                <p class="text-white font-black mb-6 italic uppercase">Dubai Live Trade</p>
-                <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
-            </div>
-            <div id="dStep3" class="hidden space-y-3">
-                <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input">
-                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
-                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
-            </div>
-            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
-        </div>
-    </div>
+  const tvWidgetRef = useRef<any>(null);
 
-    <div id="witM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
-            <div class="space-y-3 text-left">
-                <select id="witBank" class="auth-input text-sm">
-                    <option value="" disabled selected>Choose Bank</option>
-                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
-                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
-                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
-                </select>
-                <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
-                <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="witAmtPKR" placeholder="Amount (PKR)" class="auth-input">
-                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
-            </div>
-            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
-        </div>
-    </div>
-
-    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
-
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false;
-
-        auth.onAuthStateChanged(user => {
-            document.getElementById('loadingScreen').style.display = 'none'; 
-            if(user) {
-                db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    userData = doc.data();
-                    if(userData) {
-                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
-                        document.getElementById('modalEmail').innerText = user.email;
-                        document.getElementById('modalEmailBox').innerText = user.email;
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                    }
-                });
-            } else {
-                document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('authSection').style.alignItems = 'center';
-                document.getElementById('authSection').style.justifyContent = 'center';
-                document.getElementById('appTerminal').style.display = 'none';
-            }
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+      if (u) {
+        const userRef = doc(db, 'users', u.uid);
+        const unsubData = onSnapshot(userRef, (snap) => {
+          if (snap.exists()) setUserData(snap.data());
         });
+        return () => unsubData();
+      }
+    });
+    return () => unsub();
+  }, []);
 
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-        function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
+  useEffect(() => {
+    if (user && !loading) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/tv.js';
+      script.async = true;
+      script.onload = () => initChart(asset);
+      document.head.appendChild(script);
+      return () => { if (script.parentNode) script.parentNode.removeChild(script); };
+    }
+  }, [user, loading]);
 
-        async function submitFinalDep() {
-            const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
-            if(!acc || !amt || !tx) return alert("Fill all fields");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, accountName: acc, amount: parseFloat(amt), txid: tx, time: Date.now() });
-            hideM('depM'); alert("Request Sent!");
-        }
+  const initChart = (symbol: string) => {
+    // @ts-ignore
+    if (window.TradingView) {
+      // @ts-ignore
+      tvWidgetRef.current = new window.TradingView.widget({
+        "autosize": true,
+        "symbol": symbol,
+        "interval": "1",
+        "theme": "dark",
+        "container_id": "tv_chart",
+        "hide_top_toolbar": true,
+        "hide_side_toolbar": true,
+        "style": "1",
+        "locale": "en",
+        "enable_publishing": false,
+        "allow_symbol_change": true,
+      });
+    }
+  };
 
-        async function submitWit() {
-            const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amtPkr) return alert("Fill all fields");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
-            hideM('witM'); alert("Withdrawal submitted.");
-        }
+  useEffect(() => { if (tvWidgetRef.current) initChart(asset); }, [asset]);
 
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Check balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
+  const handleAuth = async () => {
+    try {
+      if (authMode === 'reg') {
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, 'users', res.user.uid), { email, balance: 0, tradeMode: 'normal' });
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+    } catch (err: any) { alert(err.message); }
+  };
 
-        function showRes(amt) {
-            const tradeMode = userData.tradeMode || 'normal';
-            let win;
-            if(tradeMode === 'profit') { win = true; }
-            else if(tradeMode === 'loss') { win = false; }
-            else { win = Math.random() > 0.5; }
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue</button>`;
-            showM('resultM');
-        }
+  const submitDeposit = async () => {
+    if (!depAccName || !pkrAmount || !depTx) return alert("Fill all fields");
+    try {
+      await addDoc(collection(db, 'requests'), {
+        uid: user.uid,
+        email: user.email,
+        accountName: depAccName,
+        amountUSD: parseFloat(depAmt),
+        amountPKR: parseFloat(pkrAmount),
+        txid: depTx,
+        time: Date.now()
+      });
+      setShowDepModal(false);
+      setShowFancySuccess(true);
+      setDepStep(1);
+      setDepAccName(''); setDepAmt(''); setDepTx('');
+    } catch (err: any) { alert(err.message); }
+  };
 
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-        async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(mode==='reg') { 
-                const r = await auth.createUserWithEmailAndPassword(e, p); 
-                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
-            } else { await auth.signInWithEmailAndPassword(e, p); }
-        }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+  const submitWithdrawal = async () => {
+    if (!witBank || !witAccNum || !witAccName || !witAmtPKR) return alert("Fill all fields");
+    const amountInUSD = parseFloat(witAmtPKR) / 280;
+    if (amountInUSD > userData.balance) return alert("Insufficient balance");
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { balance: increment(-amountInUSD) });
+      await addDoc(collection(db, 'withdrawals'), {
+        uid: user.uid, email: user.email, bankName: witBank, 
+        accountNumber: witAccNum, accountName: witAccName, 
+        amount: parseFloat(witAmtPKR), time: Date.now()
+      });
+      setShowWitModal(false);
+      alert("Withdrawal submitted.");
+    } catch (err: any) { alert(err.message); }
+  };
+
+  const startTrade = async (type: TradeType) => {
+    const amt = parseFloat(tradeAmt);
+    const dur = parseInt(duration);
+    if (!userData || amt > userData.balance || amt <= 0) return alert("Check balance");
+    setTrading(true);
+    await updateDoc(doc(db, 'users', user.uid), { balance: increment(-amt) });
+    let remaining = dur;
+    const interval = setInterval(() => {
+      const m = Math.floor(remaining / 60); const s = remaining % 60;
+      setTimerText(`${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`);
+      if (remaining <= 0) { clearInterval(interval); setTrading(false); processTradeResult(amt); }
+      remaining--;
+    }, 1000);
+  };
+
+  const processTradeResult = async (amt: number) => {
+    const mode = userData?.tradeMode || 'normal';
+    let win = mode === 'profit' ? true : mode === 'loss' ? false : Math.random() > 0.5;
+    const profit = amt * 1.82;
+    if (win) {
+      await updateDoc(doc(db, 'users', user.uid), { balance: increment(profit) });
+      setTradeResult({ type: 'win', amount: profit });
+    } else {
+      setTradeResult({ type: 'loss', amount: amt });
+    }
+    setShowResultModal(true);
+  };
+
+  if (loading) return (
+    <div className="fixed inset-0 bg-[#05070a] flex flex-col items-center justify-center z-[9999]">
+      <div className="loader-spin"></div>
+      <p className="mt-3 text-[9px] font-bold text-yellow-500 uppercase tracking-widest animate-pulse">Verifying Session...</p>
+    </div>
+  );
+
+  if (!user) return (
+    <div className="h-screen flex items-center justify-center p-4 bg-[#05070a]">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card w-full max-w-sm p-8 rounded-[32px] shadow-2xl">
+        <h1 className="text-3xl font-black text-center mb-8 uppercase italic tracking-tighter text-white">ProTrade<span className="text-yellow-500">.</span></h1>
+        <div className="flex bg-black/40 p-1.5 rounded-2xl mb-8">
+          <button onClick={() => setAuthMode('login')} className={`flex-1 py-3 text-sm font-bold transition-all ${authMode === 'login' ? 'bg-[#2d3748] rounded-xl text-white shadow-lg' : 'text-gray-500'}`}>Login</button>
+          <button onClick={() => setAuthMode('reg')} className={`flex-1 py-3 text-sm font-bold transition-all ${authMode === 'reg' ? 'bg-[#2d3748] rounded-xl text-white shadow-lg' : 'text-gray-500'}`}>Registration</button>
+        </div>
+        <input type="email" placeholder="Email Address" className="auth-input mb-4" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="password" placeholder="Secure Password" className="auth-input mb-6" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button onClick={handleAuth} className="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-black rounded-2xl uppercase tracking-widest transition-all">
+          {authMode === 'reg' ? 'Create Account' : 'Welcome Back'}
+        </button>
+      </motion.div>
+    </div>
+  );
+
+  return (
+    <div className="h-screen flex flex-col p-2 bg-[#05070a]">
+      <AnimatePresence>
+        {showFancySuccess && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+            <motion.div initial={{ scale: 0.8, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: 30 }} className="glass-card p-10 rounded-[40px] w-full max-w-sm text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 via-green-500 to-yellow-500 animate-pulse" />
+              <div className="flex justify-center mb-6">
+                <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }} className="bg-green-500/20 p-5 rounded-full relative">
+                  <CheckCircle2 className="w-16 h-16 text-green-500" />
+                  <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }} transition={{ repeat: Infinity, duration: 2 }} className="absolute inset-0 bg-green-500/10 rounded-full blur-xl" />
+                </motion.div>
+              </div>
+              <h2 className="text-3xl font-black text-white mb-3 uppercase italic tracking-wider">Submitted!</h2>
+              <p className="text-gray-400 text-sm font-medium mb-8 leading-relaxed max-w-[250px] mx-auto">Your deposit request has been sent for verification. Funds will be added shortly.</p>
+              <button onClick={() => setShowFancySuccess(false)} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-black rounded-2xl uppercase tracking-widest transition-all shadow-lg shadow-green-600/20">Close Terminal</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <header className="flex justify-between items-center mb-2 px-1">
+        <div className="flex items-center gap-3">
+          <div onClick={() => setShowProfileModal(true)} className="w-11 h-11 rounded-full bg-yellow-500 ring-2 ring-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-xl shadow-yellow-500/10">{user?.email?.[0].toUpperCase() || '?'}</div>
+          <div><p className="text-[7px] text-gray-500 font-bold uppercase tracking-widest mb-0.5">Available Balance</p><h1 className="text-xl font-black text-white italic tracking-tight">${(userData?.balance || 0).toFixed(2)}</h1></div>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => setShowDepModal(true)} className="bg-yellow-500 text-black px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/10">Deposit</button>
+          <button onClick={() => setShowWitModal(true)} className="bg-white/5 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase border border-white/10 tracking-wider hover:bg-white/10 transition-all">Withdraw</button>
+        </div>
+      </header>
+
+      <div className="mb-2 px-1">
+        <select value={asset} onChange={(e) => setAsset(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-yellow-500 font-bold text-[11px] outline-none appearance-none cursor-pointer">
+          <optgroup label="FOREX MAJOR"><option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option></optgroup>
+          <optgroup label="CRYPTO"><option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option></optgroup>
+        </select>
+      </div>
+
+      <main className="relative flex-grow rounded-[32px] overflow-hidden bg-black mb-2 border border-white/5 shadow-inner">
+        <div id="tv_chart" className="h-full w-full" />
+        {trading && <div className="timer-badge absolute bottom-4 right-4 flex items-center gap-2 animate-pulse shadow-lg"><Timer size={14} /><span>{timerText}</span></div>}
+      </main>
+
+      <footer className="glass-card p-5 rounded-[40px] shadow-2xl">
+        <div className="grid grid-cols-2 gap-4 mb-5">
+          <div className="bg-black/40 p-3 rounded-2xl border border-white/5"><span className="text-[8px] text-gray-500 font-bold uppercase block ml-1 mb-1">Amount ($)</span><input type="number" value={tradeAmt} onChange={(e) => setTradeAmt(e.target.value)} className="bg-transparent outline-none font-black text-white text-lg w-full px-1" /></div>
+          <div className="bg-black/40 p-3 rounded-2xl border border-white/5"><span className="text-[8px] text-gray-500 font-bold uppercase block ml-1 mb-1">Duration</span><select value={duration} onChange={(e) => setDuration(e.target.value)} className="bg-transparent font-black text-white text-lg w-full outline-none appearance-none cursor-pointer"><option value="5">5 Sec</option><option value="15">15 Sec</option><option value="60">1 Min</option></select></div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <button disabled={trading} onClick={() => startTrade('UP')} className="btn-grad-green h-16 rounded-2xl font-black text-white uppercase text-sm tracking-[.2em] shadow-lg shadow-green-500/20 active:scale-95 flex items-center justify-center gap-2"><ArrowUpRight size={20} />Call</button>
+          <button disabled={trading} onClick={() => startTrade('DOWN')} className="btn-grad-red h-16 rounded-2xl font-black text-white uppercase text-sm tracking-[.2em] shadow-lg shadow-red-500/20 active:scale-95 flex items-center justify-center gap-2"><ArrowDownRight size={20} />Put</button>
+        </div>
+      </footer>
+
+      {/* Profile & Modals */}
+      <AnimatePresence>
+        {showProfileModal && (
+          <Modal close={() => setShowProfileModal(false)}>
+            <div className="text-center mb-8">
+              <div className="w-24 h-24 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-4xl font-black text-black mb-4 shadow-xl shadow-yellow-500/20">{user?.email[0].toUpperCase()}</div>
+              <h3 className="text-white font-black italic text-lg">{user?.email}</h3>
+            </div>
+            <button onClick={() => { signOut(auth); setShowProfileModal(false); }} className="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px] tracking-[.3em] flex items-center justify-center gap-2"><LogOut size={14} />Terminate Session</button>
+          </Modal>
+        )}
+
+        {showDepModal && (
+          <Modal close={() => setShowDepModal(false)} title="Deposit Portal">
+            {depStep === 1 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4">
+                <div className="flex items-center gap-2 mb-6 justify-center text-yellow-500"><Wallet size={24} /><span className="font-black italic uppercase tracking-wider">Deposit USD</span></div>
+                <div className="relative mb-2"><input type="number" placeholder="Amount in USD ($)" className="auth-input text-center text-xl font-bold border-yellow-500/30" value={depAmt} onChange={(e) => setDepAmt(e.target.value)} /><div className="absolute right-4 top-1/2 -translate-y-1/2 text-yellow-500 font-bold">$</div></div>
+                <div className="bg-white/5 rounded-xl p-3 mb-6 border border-white/5 flex justify-between items-center"><span className="text-[10px] text-gray-500 font-bold uppercase">Estimated PKR</span><span className="text-sm font-black text-white">Rs. {pkrAmount}</span></div>
+                <button onClick={() => setDepStep(2)} className="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase tracking-widest transition-all">Continue Strategy</button>
+              </div>
+            )}
+            {depStep === 2 && (
+              <div className="animate-in fade-in scale-in-95">
+                <div className="bg-white p-3 rounded-3xl mb-6 mx-auto w-fit"><img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" className="w-52 h-52 object-contain rounded-2xl" /></div>
+                <p className="text-white font-black mb-8 italic uppercase tracking-wider text-sm">Transfer Rs. {pkrAmount} to Dubai Live Trade</p>
+                <div className="flex gap-2">
+                   <button onClick={() => setDepStep(1)} className="flex-1 py-4 bg-white/5 border border-white/10 text-white font-black rounded-2xl uppercase text-xs">Back</button>
+                   <button onClick={() => setDepStep(3)} className="flex-[2] py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase text-xs tracking-widest">I Have Paid</button>
+                </div>
+              </div>
+            )}
+            {depStep === 3 && (
+              <div className="animate-in fade-in slide-in-from-right-4 space-y-4 text-left">
+                <div><label className="text-[9px] text-gray-500 font-bold uppercase ml-2 mb-1 block">Account Name</label><input placeholder="Sender Account Title" className="auth-input" value={depAccName} onChange={(e) => setDepAccName(e.target.value)} /></div>
+                <div><label className="text-[9px] text-gray-500 font-bold uppercase ml-2 mb-1 block">Sent Amount (PKR)</label><input type="number" className="auth-input bg-black/50 border-gray-700 text-gray-400 cursor-not-allowed" value={pkrAmount} readOnly /></div>
+                <div><label className="text-[9px] text-gray-500 font-bold uppercase ml-2 mb-1 block">Transaction ID</label><input placeholder="TXID" className="auth-input" value={depTx} onChange={(e) => setDepTx(e.target.value)} /></div>
+                <button onClick={submitDeposit} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl uppercase tracking-[.2em]">Finalize Deposit</button>
+              </div>
+            )}
+          </Modal>
+        )}
+
+        {showWitModal && (
+          <Modal close={() => setShowWitModal(false)} title="Withdrawal Vault">
+            <div className="space-y-4">
+              <select className="auth-input text-sm italic font-bold" value={witBank} onChange={(e) => setWitBank(e.target.value)}>
+                <option value="" disabled>Select Bank</option><option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
+              </select>
+              <input placeholder="Account Number" className="auth-input font-mono" value={witAccNum} onChange={(e) => setWitAccNum(e.target.value)} />
+              <input placeholder="Account Name" className="auth-input" value={witAccName} onChange={(e) => setWitAccName(e.target.value)} />
+              <input type="number" placeholder="Amount (PKR)" className="auth-input text-xl text-yellow-500 font-black" value={witAmtPKR} onChange={(e) => setWitAmtPKR(e.target.value)} />
+              <button onClick={submitWithdrawal} className="w-full py-5 bg-white text-black font-black rounded-2xl uppercase tracking-widest mt-4">Confirm Withdrawal</button>
+            </div>
+          </Modal>
+        )}
+
+        {showResultModal && tradeResult && (
+          <Modal close={() => setShowResultModal(false)}>
+            <div className={`p-10 rounded-[40px] text-center w-full ${tradeResult.type === 'win' ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+    
