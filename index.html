@@ -60,55 +60,57 @@
 
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
-                <optgroup label="FOREX MAJORS">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option>
-                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
-                    <option value="FX:USDJPY">USD/JPY (92%)</option>
-                    <option value="FX:AUDUSD">AUD/USD (90%)</option>
-                    <option value="FX:USDCAD">USD/CAD (89%)</option>
-                    <option value="FX:USDCHF">USD/CHF (88%)</option>
-                    <option value="FX:NZDUSD">NZD/USD (87%)</option>
-                </optgroup>
-                <optgroup label="FOREX MINORS">
-                    <option value="FX:EURGBP">EUR/GBP (85%)</option>
-                    <option value="FX:EURJPY">EUR/JPY (84%)</option>
-                    <option value="FX:GBPJPY">GBP/JPY (84%)</option>
-                    <option value="FX:AUDJPY">AUD/JPY (82%)</option>
-                    <option value="FX:CADJPY">CAD/JPY (82%)</option>
-                    <option value="FX:CHFJPY">CHF/JPY (81%)</option>
-                    <option value="FX:EURAUD">EUR/AUD (80%)</option>
-                    <option value="FX:EURNZD">EUR/NZD (80%)</option>
-                    <option value="FX:GBPAUD">GBP/AUD (79%)</option>
-                    <option value="FX:GBPCAD">GBP/CAD (79%)</option>
-                    <option value="FX:AUDCAD">AUD/CAD (78%)</option>
-                </optgroup>
-                <optgroup label="CRYPTO (OTC)">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
-                    <option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                    <option value="BINANCE:XRPUSDT">XRP/USDT</option>
-                    <option value="BINANCE:ADAUSDT">ADA/USDT</option>
-                    <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
-                    <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
-                    <option value="BINANCE:DOTUSDT">DOT/USDT</option>
-                    <option value="BINANCE:LTCUSDT">LTC/USDT</option>
-                </optgroup>
-                <optgroup label="COMMODITIES / METALS">
-                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
-                    <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
-                    <option value="TVC:USOIL">CRUDE OIL (WTI)</option>
-                    <option value="TVC:UKOIL">BRENT OIL (UK)</option>
-                    <option value="TVC:NGAS">NATURAL GAS</option>
-                </optgroup>
-                <optgroup label="INDICES">
-                    <option value="CURRENCYCOM:US30">DOW JONES (US30)</option>
-                    <option value="CURRENCYCOM:US100">NASDAQ (US100)</option>
-                    <option value="CURRENCYCOM:US500">S&P 500 (US500)</option>
-                    <option value="CURRENCYCOM:DE40">GERMANY 40 (DAX)</option>
-                    <option value="CURRENCYCOM:UK100">UK 100 (FTSE)</option>
-                </optgroup>
-            </select>
+    <optgroup label="FOREX MAJORS">
+        <option value="FX:EURUSD">EUR/USD (98%)</option>
+        <option value="FX:GBPUSD">GBP/USD (95%)</option>
+        <option value="FX:USDJPY">USD/JPY (92%)</option>
+        <option value="FX:AUDUSD">AUD/USD (90%)</option>
+        <option value="FX:USDCAD">USD/CAD (89%)</option>
+        <option value="FX:USDCHF">USD/CHF (88%)</option>
+        <option value="FX:NZDUSD">NZD/USD (87%)</option>
+    </optgroup>
+    <optgroup label="FOREX MINORS">
+        <option value="FX:EURGBP">EUR/GBP (85%)</option>
+        <option value="FX:EURJPY">EUR/JPY (84%)</option>
+        <option value="FX:GBPJPY">GBP/JPY (84%)</option>
+        <option value="FX:AUDJPY">AUD/JPY (82%)</option>
+        <option value="FX:CADJPY">CAD/JPY (82%)</option>
+        <option value="FX:CHFJPY">CHF/JPY (81%)</option>
+        <option value="FX:EURAUD">EUR/AUD (80%)</option>
+        <option value="FX:EURNZD">EUR/NZD (80%)</option>
+        <option value="FX:GBPAUD">GBP/AUD (79%)</option>
+        <option value="FX:GBPCAD">GBP/CAD (79%)</option>
+        <option value="FX:AUDCAD">AUD/CAD (78%)</option>
+        <option value="FX:AUDNZD">AUD/NZD (77%)</option>
+        <option value="FX:NZDJPY">NZD/JPY (77%)</option>
+        <option value="FX:GBPNZD">GBP/NZD (76%)</option>
+    </optgroup>
+    <optgroup label="CRYPTO (OTC)">
+        <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+        <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+        <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+        <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+        <option value="BINANCE:XRPUSDT">XRP/USDT</option>
+        <option value="BINANCE:ADAUSDT">ADA/USDT</option>
+        <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
+        <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
+        <option value="BINANCE:DOTUSDT">DOT/USDT</option>
+        <option value="BINANCE:LTCUSDT">LTC/USDT</option>
+    </optgroup>
+    <optgroup label="COMMODITIES / METALS">
+        <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
+        <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
+        <option value="TVC:USOIL">CRUDE OIL (WTI)</option>
+        <option value="TVC:UKOIL">BRENT OIL (UK)</option>
+        <option value="TVC:NGAS">NATURAL GAS</option>
+    </optgroup>
+    <optgroup label="INDICES">
+        <option value="CURRENCYCOM:US30">DOW JONES (US30)</option>
+        <option value="CURRENCYCOM:US100">NASDAQ (US100)</option>
+        <option value="CURRENCYCOM:US500">S&P 500 (US500)</option>
+        <option value="CURRENCYCOM:DE40">GERMANY 40 (DAX)</option>
+    </optgroup>
+</select>
         </div>
 
         <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5 shadow-2xl">
@@ -274,4 +276,9 @@
         }
 
         function showRes(amt) {
-            const win = userData.tradeMode === 'profit' 
+            const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === 'loss' ? false : Math.random() > 0.5;
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) { 
+                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
+            } else { box.innerHTML = `<h2 class="text
