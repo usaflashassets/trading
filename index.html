@@ -21,8 +21,6 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Profile Fancy Items */
         .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
     </style>
@@ -35,7 +33,7 @@
     </div>
 
     <div id="authSection" class="h-full items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
                 <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
@@ -119,14 +117,8 @@
                 <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
             </div>
             <div class="space-y-3 mb-8">
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
-                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
-                </div>
-                <div class="profile-item">
-                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
-                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
-                </div>
+                <div class="profile-item"><span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span><span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span></div>
+                <div class="profile-item"><span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span><span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span></div>
             </div>
             <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
         </div>
@@ -180,18 +172,16 @@
     <script>
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         
-        // Root level safe initialization
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        // Anti-Stuck Fix
+        let appInitialized = false;
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false;
 
         auth.onAuthStateChanged(user => {
             document.getElementById('loadingScreen').style.display = 'none'; 
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    userData = doc.data();
+                    let userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
                         const initial = user.email[0].toUpperCase();
@@ -201,26 +191,20 @@
                         document.getElementById('modalEmailBox').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
+                        if(!appInitialized) { loadChart('FX:EURUSD'); appInitialized = true; }
                     }
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('authSection').style.alignItems = 'center';
-                document.getElementById('authSection').style.justifyContent = 'center';
                 document.getElementById('appTerminal').style.display = 'none';
             }
         });
 
-        function updatePKR(usd) {
-            const rate = 280;
-            const pkr = (usd * rate).toFixed(2);
-            document.getElementById('pkrValue').innerText = usd ? pkr : "0.00";
-        }
-
+        function updatePKR(usd) { document.getElementById('pkrValue').innerText = usd ? (usd * 280).toFixed(2) : "0.00"; }
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
 
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualAmt').value, tx = document.getElementById('depTx').value;
@@ -230,48 +214,22 @@
         }
 
         async function submitWit() {
-            const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amtPkr) return alert("Fill all fields");
+            const amtPkr = parseFloat(document.getElementById('witAmtPKR').value);
+            if(!amtPkr) return alert("Fill amount");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amtPkr/280)) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amtPkr, time: Date.now() });
             hideM('witM'); alert("Withdrawal submitted.");
         }
 
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Check balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        function showRes(amt) {
-            const tradeMode = userData.tradeMode || 'normal';
-            let win;
-            if(tradeMode === 'profit') { win = true; }
-            else if(tradeMode === 'loss') { win = false; }
-            else { win = Math.random() > 0.5; }
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<h2 class="text-green-500 font-black tracking-widest">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black tracking-widest">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-xs">Continue</button>`;
-            showM('resultM');
-        }
-
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(mode==='reg') { 
-                const r = await auth.createUserWithEmailAndPassword(e, p); 
-                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
-            } else { await auth.signInWithEmailAndPassword(e, p); }
+            try { await (document.getElementById('authBtn').innerText === 'Login' ? auth.signInWithEmailAndPassword(e, p) : auth.createUserWithEmailAndPassword(e, p)); } catch(err) { alert(err.message); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex
+
+        function switchAuth(t) { 
+            document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; 
+            document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; 
+        }
+    </script>
+</body>
+</html>
