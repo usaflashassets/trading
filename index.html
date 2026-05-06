@@ -181,9 +181,10 @@
 
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase via unpkg CDN -->
+    <script src="https://unpkg.com/firebase@9.22.1/compat/app/dist/index.js"></script>
+    <script src="https://unpkg.com/firebase@9.22.1/compat/auth/dist/index.js"></script>
+    <script src="https://unpkg.com/firebase@9.22.1/compat/firestore/dist/index.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
     <script>
@@ -262,7 +263,7 @@
         function showRes(amt) {
             const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === 'loss' ? false : Math.random() > 0.5;
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
+            if(win) {
                 db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
                 box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
             } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
@@ -270,4 +271,4 @@
             showM('resultM');
         }
 
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": t
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide
