@@ -127,7 +127,8 @@
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit</h2>
-                <input type="number" id="depAmtInput" placeholder="PKR Amount" class="auth-input mb-6 text-center">
+                <input type="number" id="depAmtInput" placeholder="USD Amount" class="auth-input mb-2 text-center" oninput="updatePKR(this.value)">
+                <p class="text-[10px] text-gray-400 font-bold mb-6 uppercase">Total: <span id="pkrCalc" class="text-yellow-500">0</span> PKR</p>
                 <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
             </div>
             <div id="dStep2" class="hidden">
@@ -137,7 +138,7 @@
             </div>
             <div id="dStep3" class="hidden space-y-3">
                 <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
-                <input type="number" id="depActualAmt" placeholder="Sent Amount" class="auth-input">
+                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input" readonly>
                 <input type="text" id="depTx" placeholder="TXID" class="auth-input">
                 <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
             </div>
@@ -180,6 +181,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
+        const PKR_RATE = 280;
 
         const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); document.getElementById('authSection').style.display = 'flex'; } }, 4000);
         function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
@@ -209,6 +211,13 @@
 
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
+        
+        function updatePKR(val) {
+            const pkr = (parseFloat(val) || 0) * PKR_RATE;
+            document.getElementById('pkrCalc').innerText = pkr.toLocaleString();
+            document.getElementById('depActualAmt').value = pkr;
+        }
+
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
         function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
 
@@ -222,7 +231,7 @@
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getElementById('witAmtPKR').value);
             if(!b || !n || !nm || !amt) return;
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/280)) });
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/PKR_RATE)) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
             hideM('witM'); showFancy("Withdrawal Sent!");
         }
@@ -262,7 +271,4 @@
                 } else { await auth.signInWithEmailAndPassword(e, p); }
             } catch(err) { alert(err.message); }
         }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+        function switchAuth(t) { mode = t; document.getElementById('loginTa
