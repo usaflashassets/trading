@@ -183,14 +183,37 @@
 
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
-        firebase.initializeApp(firebaseConfig);
+        function loadFirebase() {
+            return new Promise((resolve, reject) => {
+                const scripts = [
+                    'https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js',
+                    'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js',
+                    'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js'
+                ];
+                let loaded = 0;
+                scripts.forEach(src => {
+                    const s = document.createElement('script');
+                    s.src = src;
+                    s.onload = () => { loaded++; if (loaded === scripts.length) resolve(); };
+                    s.onerror = () => reject(new Error('Firebase script failed: ' + src));
+                    document.head.appendChild(s);
+                });
+            });
+        }
+
+        loadFirebase().then(() => {
+            const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
+            firebase.initializeApp(firebaseConfig);
+            initApp();
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('loadingScreen').innerHTML = '<p style="color:#ef4444;font-weight:900;text-align:center;padding:20px;">Network Error.<br>Please refresh.</p>';
+        });
+
+        function initApp() {
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
         const PKR_RATE = 280;
@@ -262,14 +285,4 @@
         }
 
         function showRes(amt) {
-            const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === 'loss' ? false : Math.random() > 0.5;
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick=\"hideM('resultM')\" class=\"w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-[10px]\">Continue</button>`;
-            showM('resultM');
-        }
-
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_si
+            const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === '
