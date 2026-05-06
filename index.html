@@ -34,11 +34,11 @@
     </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4" style="display:none;">
-        <div class="glass-card w-full max-sm p-8 rounded-[32px]">
-            <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
+        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
+            <h1 class="text-3xl font-black text-center mb-8 uppercase italic text-white">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold text-gray-400">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
@@ -68,18 +68,44 @@
                     <option value="FX:USDCAD">USD/CAD (89%)</option>
                     <option value="FX:USDCHF">USD/CHF (88%)</option>
                     <option value="FX:NZDUSD">NZD/USD (87%)</option>
-                    <option value="FX:EURGBP">EUR/GBP (86%)</option>
+                </optgroup>
+                <optgroup label="FOREX CROSSES">
+                    <option value="FX:EURGBP">EUR/GBP (85%)</option>
                     <option value="FX:EURJPY">EUR/JPY (85%)</option>
                     <option value="FX:GBPJPY">GBP/JPY (84%)</option>
+                    <option value="FX:EURAUD">EUR/AUD (82%)</option>
+                    <option value="FX:EURCAD">EUR/CAD (81%)</option>
+                    <option value="FX:EURCHF">EUR/CHF (80%)</option>
+                    <option value="FX:EURNZD">EUR/NZD (79%)</option>
+                    <option value="FX:GBPAUD">GBP/AUD (78%)</option>
+                    <option value="FX:GBPCAD">GBP/CAD (77%)</option>
+                    <option value="FX:GBPCHF">GBP/CHF (76%)</option>
+                    <option value="FX:GBPNZD">GBP/NZD (75%)</option>
+                    <option value="FX:AUDJPY">AUD/JPY (74%)</option>
+                    <option value="FX:AUDCAD">AUD/CAD (73%)</option>
+                    <option value="FX:AUDCHF">AUD/CHF (72%)</option>
+                    <option value="FX:AUDNZD">AUD/NZD (71%)</option>
+                    <option value="FX:CADJPY">CAD/JPY (70%)</option>
+                    <option value="FX:CADCHF">CAD/CHF (69%)</option>
+                    <option value="FX:CHFJPY">CHF/JPY (68%)</option>
+                    <option value="FX:NZDJPY">NZD/JPY (67%)</option>
+                    <option value="FX:NZDCAD">NZD/CAD (66%)</option>
+                    <option value="FX:NZDCHF">NZD/CHF (65%)</option>
                 </optgroup>
-                <optgroup label="CRYPTO & METALS">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option>
-                    <option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
-                    <option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option>
-                    <option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
-                    <option value="OANDA:XAUUSD">GOLD/USD (95%)</option>
-                    <option value="OANDA:XAGUSD">SILVER/USD (90%)</option>
+                <optgroup label="CRYPTO ASSETS">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (99%)</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT (98%)</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT (95%)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (92%)</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT (90%)</option>
+                    <option value="BINANCE:ADAUSDT">ADA/USDT (88%)</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (85%)</option>
+                    <option value="BINANCE:DOTUSDT">DOT/USDT (82%)</option>
+                    <option value="BINANCE:MATICUSDT">MATIC/USDT (80%)</option>
+                    <option value="BINANCE:TRXUSDT">TRX/USDT (78%)</option>
+                    <option value="BINANCE:AVAXUSDT">AVAX/USDT (75%)</option>
+                    <option value="BINANCE:LINKUSDT">LINK/USDT (72%)</option>
+                    <option value="BINANCE:SHIBUSDT">SHIB/USDT (70%)</option>
                 </optgroup>
             </select>
         </div>
@@ -106,6 +132,7 @@
                         <option value="300">5 Min</option>
                         <option value="600">10 Min</option>
                         <option value="900">15 Min</option>
+                        <option value="1800">30 Min</option>
                     </select>
                 </div>
             </div>
@@ -116,6 +143,7 @@
         </footer>
     </div>
 
+    <!-- User Profile Modal -->
     <div id="settingsM" class="modal">
         <div class="profile-card p-8 w-full max-w-[360px] relative">
             <button onclick="hideM('settingsM')" class="absolute top-6 right-6 text-white text-2xl">&times;</button>
@@ -132,6 +160,7 @@
         </div>
     </div>
 
+    <!-- Deposit Modal -->
     <div id="depM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
@@ -155,6 +184,7 @@
         </div>
     </div>
 
+    <!-- Withdraw Modal -->
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
@@ -169,6 +199,7 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
     <div id="fancyResponseM" class="modal">
         <div class="glass-card p-8 rounded-[40px] w-full max-w-sm text-center">
             <div class="success-circle"><svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
@@ -178,8 +209,10 @@
         </div>
     </div>
 
+    <!-- Trade Result Modal -->
     <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80 shadow-2xl"></div></div>
 
+    <!-- Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -192,7 +225,16 @@
         let userData = null, mode = 'reg', chartLoaded = false, isResolved = false;
         const PKR_RATE = 280;
 
-        function hideLoading() { const ls = document.getElementById('loadingScreen'); ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 500); }
+        // Force hide loading screen if session doesn't resolve in 3s
+        const forceClear = setTimeout(() => { if (!isResolved) { hideLoading(); } }, 3000);
+        
+        function hideLoading() { 
+            const ls = document.getElementById('loadingScreen'); 
+            if(ls) {
+                ls.style.opacity = '0'; 
+                setTimeout(() => ls.style.display = 'none', 500); 
+            }
+        }
 
         function calculatePKR(usd) {
             const pkr = (parseFloat(usd) || 0) * PKR_RATE;
@@ -200,14 +242,16 @@
             document.getElementById('depActualPKR').value = pkr;
         }
 
+        // Session State Monitoring
         auth.onAuthStateChanged(user => {
-            isResolved = true; hideLoading();
+            isResolved = true; 
+            hideLoading();
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
                         document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const init = user.email[0].toUpperCase();
+                        const init = user.email ? user.email[0].toUpperCase() : "?";
                         document.getElementById('userInitial').innerText = init;
                         document.getElementById('modalInitial').innerText = init;
                         document.getElementById('modalEmailLabel').innerText = user.email;
@@ -216,6 +260,9 @@
                         document.getElementById('appTerminal').style.display = 'flex';
                         if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
                     }
+                }, error => {
+                    console.error("Firestore Listen Error:", error);
+                    document.getElementById('authSection').style.display = 'flex';
                 });
             } else {
                 document.getElementById('authSection').style.display = 'flex';
@@ -223,11 +270,13 @@
             }
         });
 
+        // UI Management
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
         function toDStep(s) { ['dStep1','dStep2','dStep3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('dStep'+s).classList.remove('hidden'); }
         function showFancy(msg) { document.getElementById('fancyMsg').innerText = msg; showM('fancyResponseM'); }
 
+        // Operations
         async function submitFinalDep() {
             const acc = document.getElementById('depAccName').value, amt = document.getElementById('depActualPKR').value, tx = document.getElementById('depTx').value;
             if(!acc || !amt || !tx) return;
@@ -237,41 +286,4 @@
 
         async function submitWit() {
             const b = document.getElementById('witBank').value, n = document.getElementById('witAccNum').value, nm = document.getElementById('witAccName').value, amt = parseFloat(document.getElementById('witAmtPKR').value);
-            if(!b || !n || !nm || !amt) return;
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-(amt/PKR_RATE)) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, bankName: b, accountNumber: n, accountName: nm, amount: amt, time: Date.now() });
-            hideM('witM'); showFancy("Withdrawal Sent!");
-        }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        function showRes(amt) {
-            const win = userData.tradeMode === 'profit' ? true : userData.tradeMode === 'loss' ? false : Math.random() > 0.5;
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 font-bold uppercase text-[10px]">Continue</button>`;
-            showM('resultM');
-        }
-
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-        
-        async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            try {
-                if(mode==='reg') { 
-                    const r = aw
+            if(!b |
