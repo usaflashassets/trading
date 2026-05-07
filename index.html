@@ -14,8 +14,8 @@
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
-        #appTerminal, #authSection { display: none; }
-        #loadingState { display: flex; position: fixed; inset: 0; background: #05070a; z-index: 9999; align-items: center; justify-content: center; flex-direction: column; }
+        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
+        #authSection { display: none; }
         .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
@@ -24,13 +24,8 @@
 </head>
 <body>
 
-    <div id="loadingState">
-        <div class="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-xs font-black uppercase tracking-[3px] text-yellow-500">Loading Terminal...</p>
-    </div>
-
     <div id="assetPopup">
-        <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 400px; font-family: 'Plus Jakarta Sans', sans-serif;">
+        <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 400px; font-family: 'Poppins', sans-serif;">
             <div style="background: #3b82f6; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             </div>
@@ -76,10 +71,7 @@
                     <option value="BINANCE:ETHUSDT">ETH/USDT</option>
                     <option value="BINANCE:SOLUSDT">SOL/USDT</option>
                     <option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                    <option value="BINANCE:XRPUSDT">XRP/USDT</option>
-                    <option value="BINANCE:ADAUSDT">ADA/USDT</option>
                     <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
-                    <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
                 </optgroup>
                 <optgroup label="Forex" class="bg-[#05070a]">
                     <option value="FX:EURUSD">EUR/USD</option>
@@ -87,27 +79,13 @@
                     <option value="FX:USDJPY">USD/JPY</option>
                     <option value="FX:AUDUSD">AUD/USD</option>
                     <option value="FX:USDCAD">USD/CAD</option>
-                    <option value="FX:USDCHF">USD/CHF</option>
-                    <option value="FX:NZDUSD">NZD/USD</option>
                     <option value="FX:EURGBP">EUR/GBP</option>
-                    <option value="FX:EURJPY">EUR/JPY</option>
-                    <option value="FX:GBPJPY">GBP/JPY</option>
-                    <option value="FX:AUDJPY">AUD/JPY</option>
-                    <option value="FX:EURAUD">EUR/AUD</option>
-                    <option value="FX:GBPCHF">GBP/CHF</option>
                 </optgroup>
-                <optgroup label="Commodities & Stocks" class="bg-[#05070a]">
+                <optgroup label="Commodities" class="bg-[#05070a]">
                     <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
-                    <option value="OANDA:XAGUSD">SILVER</option>
-                    <option value="TVC:USOIL">CRUDE OIL</option>
-                    <option value="NASDAQ:AAPL">APPLE</option>
-                    <option value="NASDAQ:TSLA">TESLA</option>
-                    <option value="NASDAQ:NVDA">NVIDIA</option>
-                    <option value="NASDAQ:AMZN">AMAZON</option>
-                    <option value="NASDAQ:MSFT">MICROSOFT</option>
-                    <option value="NASDAQ:GOOGL">GOOGLE</option>
-                    <option value="NASDAQ:NFLX">NETFLIX</option>
-                    <option value="NASDAQ:META">META</option>
+                    <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
+                    <option value="OANDA:UK100GBP">UK 100</option>
+                    <option value="BINANCE:LINKUSDT">LINK/USDT</option>
                 </optgroup>
             </select>
         </div>
@@ -123,15 +101,13 @@
                 <div class="bg-black/40 p-3 rounded-2xl"><span class="text-[9px] text-gray-500 font-bold uppercase">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-lg w-full outline-none">
                         <option value="5">5 Sec</option>
-                        <option value="10">10 Sec</option>
                         <option value="15">15 Sec</option>
                         <option value="30">30 Sec</option>
                         <option value="60">1 Min</option>
                         <option value="120">2 Min</option>
+                        <option value="180">3 Min</option>
+                        <option value="240">4 Min</option>
                         <option value="300">5 Min</option>
-                        <option value="600">10 Min</option>
-                        <option value="900">15 Min</option>
-                        <option value="1800">30 Min</option>
                     </select>
                 </div>
             </div>
@@ -201,7 +177,6 @@
         let userData = null, mode = 'reg';
 
         function openTradingSite() { window.open("https://traderwaqas.online/", "_blank"); document.getElementById('assetPopup').style.display = 'none'; }
-        
         function switchAuth(t) {
             mode = t;
             document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
@@ -223,32 +198,25 @@
         auth.onAuthStateChanged(user => {
             const authSec = document.getElementById('authSection');
             const terminal = document.getElementById('appTerminal');
-            const loader = document.getElementById('loadingState');
-
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    if(doc.exists) {
-                        userData = doc.data();
-                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const init = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = init;
-                        document.getElementById('profileCircle').innerText = init;
-                        document.getElementById('sEmailDisp').innerText = user.email;
-                        
-                        loader.style.display = 'none';
-                        authSec.style.display = 'none';
-                        terminal.style.display = 'flex';
-                        if(!window.tvWidget) loadChart('BINANCE:BTCUSDT');
-                    }
+                    userData = doc.data();
+                    document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
+                    const init = user.email[0].toUpperCase();
+                    document.getElementById('userInitial').innerText = init;
+                    document.getElementById('profileCircle').innerText = init;
+                    document.getElementById('sEmailDisp').innerText = user.email;
+                    authSec.style.display = 'none';
+                    terminal.style.display = 'flex';
+                    loadChart(document.getElementById('assetSelect').value);
                 });
             } else {
-                loader.style.display = 'none';
                 authSec.style.display = 'flex';
                 terminal.style.display = 'none';
             }
         });
 
-        function loadChart(s) { window.tvWidget = new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
+        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
         function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
         async function submitFinalDep() {
             const amt = parseFloat(document.getElementById('depAmtInput').value), email = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
@@ -267,4 +235,32 @@
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
             if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            document.getElementById('tradeTimer').style.display = 'block';
+            let l = dur;
+            let iv = setInterval(() => {
+                let mins = Math.floor(l / 60);
+                let secs = l % 60;
+                document.getElementById('timerText').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
+                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
+                l--;
+            }, 1000);
+        }
+        async function showRes(amt) {
+            const mode = userData.tradeMode || 'normal';
+            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
+            const p = amt * 1.82, box = document.getElementById('resultBox');
+            if(win) {
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-green-500 font-black text-2xl uppercase">Profit</h2><h1 class="text-5xl text-white">+$${p.toFixed(2)}</h1>`;
+            } else {
+                box.innerHTML = `<h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2><h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>`;
+            }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
+            showM('resultM');
+        }
+        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
+    </script>
+</body>
+</html>
