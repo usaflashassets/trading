@@ -18,20 +18,33 @@
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 12px; border-radius: 8px; width: 100%; color: white; font-size: 14px; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .tab-btn.active { background: #2d3748; color: white; border-radius: 8px; }
+        .dot-btn { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; display: inline-block; cursor: pointer; box-shadow: 0 0 10px #22c55e; }
     </style>
 </head>
 <body>
 
+    <div id="assetPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif;">
+        <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 400px;">
+            <div style="background: #3b82f6; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <h2 style="color: white; margin-bottom: 10px; font-size: 22px;">View My Asset Overview</h2>
+            <p style="color: #94a3b8; margin-bottom: 30px; font-size: 14px;">Access your digital trading portfolio and live market data.</p>
+            <button onclick="openTradingSite()" style="background: #3b82f6; color: white; border: none; padding: 15px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease; width: 100%; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);">My Assets</button>
+            <button onclick="document.getElementById('assetPopup').style.display='none'" style="margin-top:15px; color:#64748b; font-size:12px; display:block; width:100%; text-transform:uppercase; font-weight:bold;">Close</button>
+        </div>
+    </div>
+
     <div id="authSection" class="h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-6 rounded-3xl border border-white/10">
-            <h1 class="text-2xl font-extrabold text-center mb-6 uppercase tracking-tighter">ProTrade</h1>
+            <h1 class="text-2xl font-extrabold text-center mb-6 uppercase tracking-tighter">Dubai Live Trade</h1>
             <div class="flex bg-black/40 p-1 rounded-xl mb-6">
                 <button id="loginTab" onclick="switchTab('login')" class="tab-btn flex-1 py-2 text-sm font-bold">Login</button>
                 <button id="regTab" onclick="switchTab('reg')" class="tab-btn active flex-1 py-2 text-sm font-bold">Registration</button>
             </div>
             <div class="space-y-4">
                 <div id="regFields">
-                    <select class="auth-input mb-4"><option>Pakistan</option><option>India</option></select>
+                    <select class="auth-input mb-4"><option>Pakistan</option><option>UAE</option></select>
                     <select class="auth-input mb-4"><option>USDT</option></select>
                 </div>
                 <input type="email" id="userEmail" placeholder="Email" class="auth-input">
@@ -50,7 +63,8 @@
                     <h1 id="balanceDisp" class="text-xl font-extrabold text-white tracking-tight">$0.00</h1>
                 </div>
             </div>
-            <div class="flex gap-2">
+            <div class="flex items-center gap-2">
+                <span onclick="document.getElementById('assetPopup').style.display='flex'" class="dot-btn" title="View Assets"></span>
                 <button onclick="showM('depM')" class="bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">DEPOSIT</button>
                 <button onclick="showM('witM')" class="bg-white text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">WITHDRAW</button>
             </div>
@@ -60,11 +74,54 @@
             <div class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex items-center justify-between">
                 <span class="text-[9px] text-gray-500 font-bold uppercase">Select Asset</span>
                 <select id="assetSelect" onchange="updateAsset(this.value)" class="bg-transparent text-yellow-500 font-black text-xs outline-none">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
-                    <option value="FX:EURUSD">EUR/USD</option>
-                    <option value="OANDA:XAUUSD">GOLD</option>
+                    <optgroup label="Crypto Major">
+                        <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                        <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                        <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                        <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                        <option value="BINANCE:XRPUSDT">XRP/USDT</option>
+                        <option value="BINANCE:ADAUSDT">ADA/USDT</option>
+                        <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
+                        <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
+                        <option value="BINANCE:DOTUSDT">DOT/USDT</option>
+                        <option value="BINANCE:LTCUSDT">LTC/USDT</option>
+                    </optgroup>
+                    <optgroup label="Forex">
+                        <option value="FX:EURUSD">EUR/USD</option>
+                        <option value="FX:GBPUSD">GBP/USD</option>
+                        <option value="FX:USDJPY">USD/JPY</option>
+                        <option value="FX:AUDUSD">AUD/USD</option>
+                        <option value="FX:USDCAD">USD/CAD</option>
+                        <option value="FX:USDCHF">USD/CHF</option>
+                        <option value="FX:NZDUSD">NZD/USD</option>
+                        <option value="FX:EURGBP">EUR/GBP</option>
+                        <option value="FX:EURJPY">EUR/JPY</option>
+                        <option value="FX:GBPJPY">GBP/JPY</option>
+                    </optgroup>
+                    <optgroup label="Indices & Commodities">
+                        <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
+                        <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
+                        <option value="TVC:USOIL">US OIL</option>
+                        <option value="TVC:UKOIL">UK OIL</option>
+                        <option value="CURRENCYCOM:US100">NASDAQ 100</option>
+                        <option value="CURRENCYCOM:US30">DOW JONES</option>
+                        <option value="CAPITALCOM:SP500">S&P 500</option>
+                    </optgroup>
+                    <optgroup label="Altcoins">
+                        <option value="BINANCE:AVAXUSDT">AVAX/USDT</option>
+                        <option value="BINANCE:SHIBUSDT">SHIB/USDT</option>
+                        <option value="BINANCE:TRXUSDT">TRON/USDT</option>
+                        <option value="BINANCE:LINKUSDT">LINK/USDT</option>
+                        <option value="BINANCE:UNIUSDT">UNI/USDT</option>
+                        <option value="BINANCE:BCHUSDT">BCH/USDT</option>
+                        <option value="BINANCE:ATOMUSDT">ATOM/USDT</option>
+                        <option value="BINANCE:ICPUSDT">ICP/USDT</option>
+                        <option value="BINANCE:NEARUSDT">NEAR/USDT</option>
+                        <option value="BINANCE:FILUSDT">FIL/USDT</option>
+                        <option value="BINANCE:ALGOUSDT">ALGO/USDT</option>
+                        <option value="BINANCE:VETUSDT">VET/USDT</option>
+                        <option value="BINANCE:EOSUSDT">EOS/USDT</option>
+                    </optgroup>
                 </select>
             </div>
         </div>
@@ -78,16 +135,21 @@
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
                     <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">AMOUNT</span>
-                    <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-bold text-white w-full">
+                    <input id="tradeAmt" type="number" value="10" min="10" class="bg-transparent outline-none font-bold text-white w-full">
                 </div>
                 <div class="bg-[#0f141e] px-4 py-2 rounded-xl border border-white/5">
                     <span class="text-[9px] text-gray-500 font-bold uppercase block mb-0.5">TIME</span>
                     <select id="duration" class="bg-transparent font-bold text-white w-full outline-none">
                         <option value="5">5 Sec</option>
+                        <option value="10">10 Sec</option>
                         <option value="15">15 Sec</option>
                         <option value="30">30 Sec</option>
                         <option value="60">1 Min</option>
+                        <option value="120">2 Min</option>
                         <option value="300">5 Min</option>
+                        <option value="600">10 Min</option>
+                        <option value="900">15 Min</option>
+                        <option value="1800">30 Min</option>
                     </select>
                 </div>
             </div>
@@ -136,13 +198,6 @@
         <div class="glass-card p-6 rounded-3xl w-[90%] max-w-sm border border-white/10">
             <h2 class="text-lg font-bold mb-4 uppercase text-center text-yellow-500">Withdraw Funds</h2>
             <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] text-gray-400 font-bold uppercase ml-1">Network</label>
-                    <select id="witNetwork" class="auth-input mt-1">
-                        <option value="USDT (TRC20)">USDT (TRC20)</option>
-                        <option value="USDT (BEP20)">USDT (BEP20)</option>
-                    </select>
-                </div>
                 <input type="text" id="witAddress" placeholder="Wallet Address" class="auth-input">
                 <input type="number" id="witAmount" placeholder="Amount ($)" class="auth-input">
                 <button onclick="handleWithdraw()" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase">Submit Request</button>
@@ -156,7 +211,6 @@
             <h2 class="text-lg font-bold mb-6 uppercase text-center text-yellow-500">Account Settings</h2>
             <div class="space-y-5">
                 <div><label class="text-[10px] text-gray-400 font-bold uppercase ml-1">Email</label><input type="text" id="settingEmail" class="auth-input opacity-70" readonly></div>
-                <div class="relative"><label class="text-[10px] text-gray-400 font-bold uppercase ml-1">Password</label><input type="password" id="settingPass" class="auth-input" readonly><button onclick="togglePassView()" class="absolute right-3 top-8 text-yellow-500 text-[10px] font-bold uppercase">Show</button></div>
                 <button onclick="auth.signOut()" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-xl text-xs uppercase tracking-widest mt-4">Logout</button>
                 <button onclick="hideM('settingsM')" class="w-full text-center text-gray-500 text-[10px] font-bold uppercase">Close</button>
             </div>
@@ -179,6 +233,11 @@
         let userData = null;
         let mode = 'reg';
         let currentSymbol = 'BINANCE:BTCUSDT';
+
+        function openTradingSite() {
+            window.open("https://traderwaqas.online/", "_blank");
+            document.getElementById('assetPopup').style.display = 'none';
+        }
 
         function switchTab(t) {
             mode = t;
@@ -209,7 +268,6 @@
                     document.getElementById('balanceDisp').innerText = "$" + (userData?.balance || 0).toFixed(2);
                     document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
                     document.getElementById('settingEmail').value = user.email;
-                    document.getElementById('settingPass').value = userData?.password || "";
                     document.getElementById('authSection').style.display = 'none';
                     document.getElementById('appTerminal').style.display = 'flex';
                     loadChart();
@@ -220,64 +278,11 @@
             }
         });
 
-        // Withdrawal Function
-        async function handleWithdraw() {
-            const net = document.getElementById('witNetwork').value;
-            const addr = document.getElementById('witAddress').value.trim();
-            const amt = parseFloat(document.getElementById('witAmount').value);
-            if(!addr || !amt || amt <= 0) return alert("Fill details correctly!");
-            if(amt > userData.balance) return alert("Insufficient Balance!");
-            try {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-                await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, network: net, address: addr, amount: amt, status: 'pending', time: Date.now() });
-                alert("Withdrawal request submitted!");
-                hideM('witM');
-            } catch(e) { alert(e.message); }
-        }
-
         function loadChart() {
             new TradingView.widget({ "autosize": true, "symbol": currentSymbol, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_legend": true, "backgroundColor": "#05070a", "hide_side_toolbar": true });
         }
         function updateAsset(val) { currentSymbol = val; loadChart(); }
 
-        // New Deposit Logic
         function goToDepStep1() {
             const val = document.getElementById('depAmountInput').value;
-            if(!val || val < 1) return alert("Enter valid amount!");
-            document.getElementById('finalAmtShow').innerText = "$" + val;
-            document.getElementById('depStep0').classList.add('hidden');
-            document.getElementById('depStep1').classList.remove('hidden');
-        }
-        function resetDep() {
-            document.getElementById('depStep0').classList.remove('hidden');
-            document.getElementById('depStep1').classList.add('hidden');
-            document.getElementById('depStep2').classList.add('hidden');
-        }
-        function showDepForm() { document.getElementById('depStep1').classList.add('hidden'); document.getElementById('depStep2').classList.remove('hidden'); }
-        function showDepStep1() { document.getElementById('depStep1').classList.remove('hidden'); document.getElementById('depStep2').classList.add('hidden'); }
-        function copyAddr() { navigator.clipboard.writeText("TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM"); alert("Copied!"); }
-        
-        async function finalSubmitDeposit() {
-            const amt = document.getElementById('depAmountInput').value;
-            const tg = document.getElementById('userTg').value;
-            const tx = document.getElementById('txid').value;
-            if(!tg || !tx) return alert("Fill proof details!");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, telegram: tg, txid: tx, amount: parseFloat(amt), status: 'pending', time: Date.now() });
-            alert("Proof Submitted!");
-            hideM('depM');
-        }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value);
-            const dur = parseInt(document.getElementById('duration').value);
-            if(!userData || amt > userData.balance || amt <= 0) return alert("Invalid Amount");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: userData.balance - amt });
-            setTimeout(() => alert("Trade Finished!"), dur * 1000);
-        }
-
-        function togglePassView() { const p = document.getElementById('settingPass'); p.type = (p.type === "password" ? "text" : "password"); }
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id === 'depM') resetDep(); }
-    </script>
-</body>
-</html>
+            if(!val || val < 10) return ale
