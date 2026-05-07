@@ -12,39 +12,46 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
+        .auth-input { background: #0f172a; border: 1px solid #1e293b; padding: 10px; border-radius: 10px; width: 100%; color: white; outline: none; font-size: 16px; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
-        .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
-        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
-        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        /* Member Hub Styles */
+        /* Member Hub Integrated Styles from attach.html */
         .hub-modal { display: none; position: fixed; inset: 0; background: #020408; z-index: 2000; overflow-y: auto; }
-        .glass-hub { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
         #fancyToast { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; padding: 15px 25px; border-radius: 20px; text-align: center; border: 1px solid; animation: slideDown 0.5s ease forwards; width: 80%; max-width: 300px; }
         @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
         .history-card { background: #0a0f1d; border-radius: 12px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center; }
         .status-badge { padding: 2px 8px; border-radius: 50px; font-size: 8px; font-weight: 800; text-transform: uppercase; }
         .pending { background: rgba(234, 179, 8, 0.1); color: #eab308; }
         .success { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+        .failed { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
         .option-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
-        .btn-small { padding: 12px; border-radius: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; }
+        .btn-small { padding: 12px; border-radius: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; }
+        .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
+        .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
     </style>
 </head>
 <body>
 
+    <div id="fancyToast" class="glass">
+        <div id="toastIcon" class="text-2xl mb-1"></div>
+        <div id="toastMsg" class="text-xs font-black uppercase tracking-widest text-white"></div>
+    </div>
+
     <div id="authSection" class="h-full flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
-            <h1 class="text-3xl font-black text-center mb-8 uppercase italic tracking-tighter">ProTrade</h1>
-            <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl shadow-lg">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold">Registration</button>
+        <div class="glass-card w-full max-w-xs p-8 rounded-[32px] text-center">
+            <h1 class="text-xl font-black text-white italic uppercase mb-6 tracking-tighter">Dubai Live Trade</h1>
+            <div class="flex bg-black/40 p-1.5 rounded-2xl mb-6">
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-2 text-[10px] font-bold bg-[#2d3748] rounded-xl">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-2 text-[10px] font-bold">Register</button>
             </div>
-            <div class="space-y-4">
-                <input type="email" id="userEmail" placeholder="Email" class="auth-input">
+            <div class="space-y-3">
+                <input type="email" id="userEmail" placeholder="Email Address" class="auth-input">
                 <input type="password" id="userPass" placeholder="Password" class="auth-input">
-                <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl text-sm uppercase">Login</button>
+                <button onclick="handleAuth()" id="authBtn" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl uppercase text-[10px]">Login Account</button>
             </div>
         </div>
     </div>
@@ -52,7 +59,7 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-3 px-1">
             <div class="flex items-center gap-3">
-                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer border-2 border-yellow-500/20 shadow-lg">?</div>
+                <div onclick="openAssetsHub()" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer border-2 border-yellow-500/20 shadow-lg">?</div>
                 <div>
                     <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Real Balance</p>
                     <h1 id="balanceDisp" class="text-2xl font-black text-white">$0.00</h1>
@@ -96,54 +103,100 @@
     </div>
 
     <div id="assetsHub" class="hub-modal">
-        <div id="fancyToast" class="glass-hub">
-            <div id="toastIcon" class="text-2xl mb-1"></div>
-            <div id="toastMsg" class="text-xs font-black uppercase tracking-widest text-white"></div>
-        </div>
-
-        <div id="dashboardHub" class="max-w-[450px] mx-auto p-4">
+        <div id="dashboard" class="p-4 max-w-[450px] mx-auto">
             <header class="flex justify-between items-center py-4 mb-8">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center text-xl shadow-lg">👤</div>
+                    <div onclick="showM('profileM')" class="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center text-xl cursor-pointer shadow-lg">👤</div>
                     <div>
                         <p class="text-[8px] text-gray-500 font-bold uppercase leading-none mb-1">Total Balance</p>
                         <h2 id="hubBalanceDisp" class="text-xl font-black text-white leading-none tracking-tight">$0.00</h2>
                     </div>
                 </div>
-                <button onclick="closeAssetsHub()" class="text-gray-500 font-bold text-[10px] uppercase">Close</button>
+                <div class="text-right">
+                    <div class="flex items-center gap-1 justify-end">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                        <p class="text-[9px] font-black text-white uppercase italic opacity-40">Live</p>
+                    </div>
+                    <button onclick="closeAssetsHub()" class="text-[8px] text-gray-600 font-bold uppercase mt-2">Back to Trade</button>
+                </div>
             </header>
 
             <div class="grid grid-cols-2 gap-3 mb-3">
-                <button onclick="showM('depM')" class="btn-small bg-white text-black">Deposit</button>
-                <button onclick="showM('witM')" class="btn-small bg-red-600 text-white">Withdraw</button>
+                <button onclick="openDep()" class="btn-small bg-white text-black">Deposit</button>
+                <button onclick="openWit()" class="btn-small bg-red-600 text-white">Withdraw</button>
             </div>
-            <button onclick="showM('histM'); loadHistory('requests');" class="btn-small border border-white/10 bg-white/5 text-gray-400">Transaction History</button>
+            <button onclick="showM('histM')" class="w-full btn-small border border-white/10 bg-white/5 text-gray-400">Transaction History</button>
         </div>
     </div>
 
     <div id="histM" class="modal">
-        <div class="glass-card p-6 rounded-[32px] w-full max-w-sm">
-            <h2 class="text-xs font-black text-center mb-4 uppercase text-yellow-500">History</h2>
-            <div id="historyList" class="max-h-60 overflow-y-auto mb-4"></div>
-            <button onclick="hideM('histM')" class="w-full py-3 bg-white/5 text-gray-500 font-bold rounded-xl">Back</button>
+        <div class="glass p-5 rounded-[25px] w-full max-w-sm h-[70vh] flex flex-col">
+            <h2 class="text-[10px] font-black text-center mb-4 uppercase italic text-gray-400">Activity Logs</h2>
+            <div class="flex gap-2 mb-4">
+                <button onclick="loadHistory('requests')" class="flex-1 py-2 bg-green-500/10 text-green-500 rounded-lg text-[8px] font-black uppercase">Deposits</button>
+                <button onclick="loadHistory('withdrawals')" class="flex-1 py-2 bg-red-500/10 text-red-500 rounded-lg text-[8px] font-black uppercase">Withdraws</button>
+            </div>
+            <div id="historyList" class="flex-grow overflow-y-auto pr-1 text-[9px]"></div>
+            <button onclick="hideM('histM')" class="w-full mt-4 py-3 border border-white/10 text-[9px] font-bold text-gray-500 uppercase rounded-xl">Back</button>
         </div>
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-6 rounded-[32px] w-full max-w-xs text-center">
-            <h2 class="mb-4 font-black uppercase text-xs">Deposit Money</h2>
-            <p class="text-[10px] text-gray-400 mb-4">Send amount to: <br><span class="text-yellow-500 font-bold">0x76ecfe8a3bd89297189e16cdcd275d743fb71a62</span></p>
-            <input type="text" id="dTxid" placeholder="Transaction ID" class="auth-input mb-4">
-            <button onclick="submitDep()" class="w-full py-3 bg-green-600 text-white font-bold rounded-xl">I Have Paid</button>
-            <button onclick="hideM('depM')" class="mt-4 text-[10px] uppercase text-gray-500 font-bold">Cancel</button>
+        <div class="glass p-6 rounded-[25px] w-full max-w-xs">
+            <div id="d0" class="space-y-2">
+                <h2 class="text-[10px] font-black text-center mb-4 uppercase italic">Select Method</h2>
+                <div onclick="selectDepMethod('crypto')" class="option-card text-center"><p class="text-white text-[11px] font-bold">Crypto (BEP20)</p></div>
+                <div onclick="selectDepMethod('pkr')" class="option-card text-center"><p class="text-white text-[11px] font-bold">PKR (Local Bank)</p></div>
+            </div>
+            <div id="d1" class="hidden">
+                <input type="number" id="dAmount" oninput="calcUsdDep()" placeholder="Enter Amount" class="auth-input mb-2 text-center">
+                <p id="usdConvertDep" class="text-center text-[9px] text-yellow-500 font-bold mb-4 hidden"></p>
+                <button onclick="toStepDep(2)" class="w-full btn-small bg-yellow-500 text-black">Next Step</button>
+            </div>
+            <div id="d2" class="hidden text-center">
+                <img id="depQR" src="" class="mx-auto mb-3 rounded-lg w-36 h-36 object-contain bg-white p-2">
+                <p id="cryptoAddr" class="text-[8px] text-gray-500 break-all mb-4 px-2 hidden">0x76ecfe8a3bd89297189e16cdcd275d743fb71a62</p>
+                <button onclick="toStepDep(3)" class="w-full btn-small bg-yellow-500 text-black">I Have Paid</button>
+            </div>
+            <div id="d3" class="hidden space-y-3">
+                <input type="text" id="dName" placeholder="Account Name" class="auth-input">
+                <input type="number" id="dSent" placeholder="Amount Sent" class="auth-input">
+                <input type="text" id="dTxid" placeholder="Transaction ID" class="auth-input">
+                <button onclick="submitDep()" class="w-full btn-small bg-green-600 text-white">Submit Request</button>
+            </div>
+            <button onclick="closeModal('depM')" class="w-full mt-4 text-[9px] font-bold text-gray-600 uppercase text-center">Cancel</button>
         </div>
     </div>
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <p id="sEmailDisp" class="text-xs text-gray-400 mb-6"></p>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/20 text-red-500 font-black rounded-2xl uppercase">Logout</button>
-            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Back</button>
+    <div id="witM" class="modal">
+        <div class="glass p-6 rounded-[25px] w-full max-w-xs">
+            <div id="w0" class="space-y-2">
+                <h2 class="text-[10px] font-black text-center mb-4 uppercase italic">Withdraw Method</h2>
+                <div onclick="selectWitMethod('crypto')" class="option-card text-center"><p class="text-white text-[11px] font-bold">Crypto Wallet</p></div>
+                <div onclick="selectWitMethod('pkr')" class="option-card text-center"><p class="text-white text-[11px] font-bold">PKR Bank/JazzCash</p></div>
+            </div>
+            <div id="wC" class="hidden space-y-3">
+                <select id="wcNet" class="auth-input"><option>USDT (BEP20)</option><option>USDT (TRC20)</option></select>
+                <input type="text" id="wcWallet" placeholder="Wallet Address" class="auth-input">
+                <input type="number" id="wcAmt" placeholder="Amount ($)" class="auth-input">
+                <button onclick="submitWitCrypto()" class="w-full btn-small bg-white text-black">Confirm Withdrawal</button>
+            </div>
+            <div id="wP" class="hidden space-y-3">
+                <select id="wBank" class="auth-input"><option>JazzCash</option><option>EasyPaisa</option><option>Bank Transfer</option></select>
+                <input type="text" id="wAccNum" placeholder="Account Number" class="auth-input">
+                <input type="text" id="wAccName" placeholder="Account Name" class="auth-input">
+                <input type="number" id="wAmt" placeholder="Amount (PKR)" class="auth-input">
+                <button onclick="submitWitPkr()" class="w-full btn-small bg-white text-black">Confirm Withdrawal</button>
+            </div>
+            <button onclick="closeModal('witM')" class="w-full mt-4 text-[9px] font-bold text-gray-600 uppercase text-center">Cancel</button>
+        </div>
+    </div>
+
+    <div id="profileM" class="modal">
+        <div class="glass p-6 rounded-[25px] w-full max-w-xs text-center">
+            <p id="uEmail" class="text-white font-bold text-[10px] mb-4 opacity-70"></p>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-3 bg-red-600/10 text-red-600 rounded-xl font-black uppercase text-[9px]">Logout</button>
+            <button onclick="hideM('profileM')" class="mt-4 text-[9px] text-gray-600 font-bold uppercase">Close</button>
         </div>
     </div>
 
@@ -154,36 +207,43 @@
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'login', userBalance = 0;
+        let userBalance = 0, mode = 'login', currentDepMethod = '';
+
+        function showToast(msg, icon, color) { 
+            const t = document.getElementById('fancyToast'); 
+            document.getElementById('toastMsg').innerText = msg; 
+            document.getElementById('toastIcon').innerText = icon; 
+            t.style.borderColor = color; t.style.display = 'block'; 
+            setTimeout(() => t.style.display = 'none', 3000); 
+        }
 
         function switchAuth(t) {
             mode = t;
-            document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
-            document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
-            document.getElementById('authBtn').innerText = t==='login' ? 'Login' : 'Registration';
+            document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-2 text-[10px] font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-2 text-[10px] font-bold';
+            document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-2 text-[10px] font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-2 text-[10px] font-bold';
+            document.getElementById('authBtn').innerText = t==='login' ? 'Login Account' : 'Register Account';
         }
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(!e || !p) return alert("Fill all fields");
+            if(!e || !p) return showToast("Fill Details", "⚠️", "#eab308");
             try {
                 if(mode==='reg') {
                     const r = await auth.createUserWithEmailAndPassword(e, p);
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, status: 'active', time: Date.now() });
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, time: Date.now() });
                 } else { await auth.signInWithEmailAndPassword(e, p); }
-            } catch(err) { alert(err.message); }
+            } catch(err) { showToast(err.message, "❌", "#ef4444"); }
         }
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 document.getElementById('authSection').style.display = 'none';
                 document.getElementById('appTerminal').style.display = 'flex';
-                document.getElementById('sEmailDisp').innerText = user.email;
+                document.getElementById('uEmail').innerText = user.email;
                 document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    if(doc.exists) {
-                        userData = doc.data();
-                        userBalance = userData.balance || 0;
+                    if(doc.exists) { 
+                        userBalance = doc.data().balance || 0; 
                         document.getElementById('balanceDisp').innerText = "$" + userBalance.toFixed(2);
                         document.getElementById('hubBalanceDisp').innerText = "$" + userBalance.toFixed(2);
                     }
@@ -192,64 +252,31 @@
             } else {
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appTerminal').style.display = 'none';
+                document.getElementById('assetsHub').style.display = 'none';
             }
         });
 
+        // Hub Logic
         function openAssetsHub() { document.getElementById('assetsHub').style.display = 'block'; }
         function closeAssetsHub() { document.getElementById('assetsHub').style.display = 'none'; }
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModal(id) { const modal = document.getElementById(id); modal.querySelectorAll('input').forEach(i => i.value = ''); hideM(id); }
 
-        async function submitDep() {
-            const tx = document.getElementById('dTxid').value;
-            if(!tx) return alert("Enter TxID");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, txid: tx, status: 'Pending', time: Date.now() });
-            alert("Deposit Request Submitted!");
-            hideM('depM');
-        }
-
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userBalance || amt <= 0) return alert("Low Balance!");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l / 60); let s = l % 60;
-                document.getElementById('timerText').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; finishTrade(amt); }
-                l--;
-            }, 1000);
-        }
-
-        async function finishTrade(amt) {
-            const win = Math.random() > 0.5, p = amt * 1.8;
-            const box = document.getElementById('resultBox');
-            if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h1 class="text-green-500 text-4xl font-black">WIN</h1><p class="text-white">+$${p.toFixed(2)}</p>`;
-            } else {
-                box.innerHTML = `<h1 class="text-red-500 text-4xl font-black">LOSS</h1><p class="text-white">-$${amt.toFixed(2)}</p>`;
+        function openDep() { showM('depM'); toStepDep(0); }
+        function toStepDep(s) { 
+            if(s === 2) {
+                const amt = parseFloat(document.getElementById('dAmount').value);
+                if(currentDepMethod === 'pkr' && (isNaN(amt) || amt < 2800)) return showToast("Min 2800 PKR", "⚠️", "#ef4444");
+                if(currentDepMethod === 'crypto' && (isNaN(amt) || amt < 10)) return showToast("Min $10 USD", "⚠️", "#ef4444");
             }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="mt-6 w-full py-3 bg-white/10 rounded-xl">Continue</button>`;
-            showM('resultM');
+            ['d0','d1','d2','d3'].forEach(d => document.getElementById(d).classList.add('hidden')); 
+            document.getElementById('d'+s).classList.remove('hidden'); 
         }
 
-        async function loadHistory(coll) {
-            const list = document.getElementById('historyList');
-            list.innerHTML = '<p class="text-center text-[10px] opacity-30">Loading...</p>';
-            db.collection(coll).where('uid', '==', auth.currentUser.uid).get().then(snap => {
-                let h = '';
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    h += `<div class="bg-white/5 p-3 rounded-xl mb-2 flex justify-between items-center text-[10px]">
-                        <span>${new Date(d.time).toLocaleDateString()}</span>
-                        <span class="text-yellow-500 font-bold">${d.status}</span>
-                    </div>`;
-                });
-                list.innerHTML = h || '<p class="text-center text-[10px] opacity-20">No History</p>';
-            });
-        }
-    </script>
-</body>
-</html>
+        function selectDepMethod(m) {
+            currentDepMethod = m;
+            document.getElementById('depQR').src = m === 'crypto' ? "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=0x76ecfe8a3bd89297189e16cdcd275d743fb71a62" : "https://i.postimg.cc/HLPQpW92/Screenshot-20260504-033311.jpg";
+            m === 'crypto' ? document.getElementById('cryptoAddr').classList.remove('hidden') : document.getElementById('cryptoAddr').classList.add('hidden');
+            document.getElementById('dAmount').placeholder = m === 'crypto' ? "Amount (USD)" : "Amount (PKR)";
+           
