@@ -15,14 +15,10 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
-        
-        /* Fixed Auth Flash: Default display none */
         #authSection { display: none; }
-        
         .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
         #assetPopup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -70,10 +66,27 @@
 
         <div class="mb-3">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-yellow-500 font-black text-xs outline-none">
-                <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-                <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-                <option value="FX:EURUSD">EUR/USD</option>
-                <option value="OANDA:XAUUSD">GOLD</option>
+                <optgroup label="Crypto" class="bg-[#05070a]">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
+                </optgroup>
+                <optgroup label="Forex" class="bg-[#05070a]">
+                    <option value="FX:EURUSD">EUR/USD</option>
+                    <option value="FX:GBPUSD">GBP/USD</option>
+                    <option value="FX:USDJPY">USD/JPY</option>
+                    <option value="FX:AUDUSD">AUD/USD</option>
+                    <option value="FX:USDCAD">USD/CAD</option>
+                    <option value="FX:EURGBP">EUR/GBP</option>
+                </optgroup>
+                <optgroup label="Commodities" class="bg-[#05070a]">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
+                    <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
+                    <option value="OANDA:UK100GBP">UK 100</option>
+                    <option value="BINANCE:LINKUSDT">LINK/USDT</option>
+                </optgroup>
             </select>
         </div>
 
@@ -87,7 +100,14 @@
                 <div class="bg-black/40 p-3 rounded-2xl"><span class="text-[9px] text-gray-500 font-bold uppercase">Amount</span><input id="tradeAmt" type="number" value="100" class="bg-transparent outline-none font-black text-white text-lg w-full"></div>
                 <div class="bg-black/40 p-3 rounded-2xl"><span class="text-[9px] text-gray-500 font-bold uppercase">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-lg w-full outline-none">
-                        <option value="5">5 Sec</option><option value="15">15 Sec</option><option value="30">30 Sec</option><option value="60">1 Min</option>
+                        <option value="5">5 Sec</option>
+                        <option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option>
+                        <option value="60">1 Min</option>
+                        <option value="120">2 Min</option>
+                        <option value="180">3 Min</option>
+                        <option value="240">4 Min</option>
+                        <option value="300">5 Min</option>
                     </select>
                 </div>
             </div>
@@ -188,7 +208,7 @@
                     document.getElementById('sEmailDisp').innerText = user.email;
                     authSec.style.display = 'none';
                     terminal.style.display = 'flex';
-                    loadChart('BINANCE:BTCUSDT');
+                    loadChart(document.getElementById('assetSelect').value);
                 });
             } else {
                 authSec.style.display = 'flex';
@@ -219,7 +239,9 @@
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
             let iv = setInterval(() => {
-                document.getElementById('timerText').innerText = `00:${l < 10 ? '0'+l : l}`;
+                let mins = Math.floor(l / 60);
+                let secs = l % 60;
+                document.getElementById('timerText').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
                 if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
                 l--;
             }, 1000);
