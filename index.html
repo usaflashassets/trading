@@ -10,7 +10,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
+        
+        /* Zoom kam karne ke liye scale apply kiya gaya hai */
+        body { 
+            background: #05070a; 
+            color: #e2e8f0; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            overflow: hidden; 
+            height: 100dvh; 
+            margin: 0;
+            zoom: 0.9; /* Desktop zoom level control */
+            -moz-transform: scale(0.9); /* Firefox support */
+            -moz-transform-origin: 0 0;
+        }
+
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
@@ -20,6 +33,9 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         #assetPopup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; }
+        
+        /* Up/Down buttons ka size adjust karne ke liye custom class */
+        .trade-btn { height: 50px !important; font-size: 14px !important; border-radius: 16px !important; }
     </style>
 </head>
 <body>
@@ -112,8 +128,8 @@
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="initTrade('UP')" class="btn-grad-green h-16 rounded-[24px] font-black text-white uppercase">Call</button>
-                <button onclick="initTrade('DOWN')" class="btn-grad-red h-16 rounded-[24px] font-black text-white uppercase">Put</button>
+                <button onclick="initTrade('UP')" class="btn-grad-green trade-btn font-black text-white uppercase">Call</button>
+                <button onclick="initTrade('DOWN')" class="btn-grad-red trade-btn font-black text-white uppercase">Put</button>
             </div>
         </footer>
     </div>
@@ -256,11 +272,4 @@
             } else {
                 box.innerHTML = `<h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2><h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>`;
             }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
-            showM('resultM');
-        }
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-    </script>
-</body>
-</html>
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/
