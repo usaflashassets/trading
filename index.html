@@ -14,8 +14,8 @@
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
-        #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
-        #authSection { display: none; }
+        #appTerminal, #authSection { display: none; }
+        #loadingState { display: flex; position: fixed; inset: 0; background: #05070a; z-index: 9999; align-items: center; justify-content: center; flex-direction: column; }
         .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
@@ -24,8 +24,13 @@
 </head>
 <body>
 
+    <div id="loadingState">
+        <div class="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-xs font-black uppercase tracking-[3px] text-yellow-500">Loading Terminal...</p>
+    </div>
+
     <div id="assetPopup">
-        <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 400px; font-family: 'Poppins', sans-serif;">
+        <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 400px; font-family: 'Plus Jakarta Sans', sans-serif;">
             <div style="background: #3b82f6; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             </div>
@@ -138,7 +143,7 @@
     </div>
 
     <div id="depM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-sm text-center">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
             <div id="dStep1">
                 <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Amount</h2>
                 <input type="number" id="depAmtInput" placeholder="Enter Amount ($)" class="auth-input mb-6 text-center text-lg">
@@ -218,6 +223,8 @@
         auth.onAuthStateChanged(user => {
             const authSec = document.getElementById('authSection');
             const terminal = document.getElementById('appTerminal');
+            const loader = document.getElementById('loadingState');
+
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     if(doc.exists) {
@@ -227,12 +234,15 @@
                         document.getElementById('userInitial').innerText = init;
                         document.getElementById('profileCircle').innerText = init;
                         document.getElementById('sEmailDisp').innerText = user.email;
+                        
+                        loader.style.display = 'none';
                         authSec.style.display = 'none';
                         terminal.style.display = 'flex';
                         if(!window.tvWidget) loadChart('BINANCE:BTCUSDT');
                     }
                 });
             } else {
+                loader.style.display = 'none';
                 authSec.style.display = 'flex';
                 terminal.style.display = 'none';
             }
@@ -257,15 +267,4 @@
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
             if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l / 60), s = l % 60;
-                document.getElementById('timerText').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-        async function showRes(amt) {
-            const mode = user
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt
