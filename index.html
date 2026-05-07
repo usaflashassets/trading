@@ -19,14 +19,18 @@
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        select option { background: #1a1f29; color: white; }
-
-        .success-checkmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .error-xmark { width: 60px; height: 60px; margin: 0 auto; border: 3px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        
+        /* Assets Page Styles */
+        #assetsPanel { display: none; position: fixed; inset: 0; background: #020408; z-index: 500; overflow-y: auto; padding: 16px; }
+        .status-badge { padding: 2px 8px; border-radius: 50px; font-size: 8px; font-weight: 800; text-transform: uppercase; }
+        .pending { background: rgba(234, 179, 8, 0.1); color: #eab308; }
+        .success { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+        .failed { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .history-card { background: #0a0f1d; border-radius: 12px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center; }
+        .option-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -55,18 +59,18 @@
                 <div onclick="showM('settingsM')" id="userInitial" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer text-xs">?</div>
                 <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
+            <div class="flex gap-1.5">
+                <button onclick="openAssets()" class="bg-yellow-500 text-black px-4 py-1.5 rounded-lg text-[9px] font-black uppercase shadow-lg shadow-yellow-500/20">My Assets</button>
+            </div>
         </header>
 
         <div class="mb-2">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option><option value="FX:USDCAD">USD/CAD</option><option value="FX:USDCHF">USD/CHF</option>
+                    <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option><option value="FX:USDJPY">USD/JPY</option>
                 </optgroup>
                 <optgroup label="CRYPTO">
-                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option><option value="BINANCE:SOLUSDT">SOL/USDT</option><option value="BINANCE:BNBUSDT">BNB/USDT</option>
-                </optgroup>
-                <optgroup label="STOCKS & METALS">
-                    <option value="OANDA:XAUUSD">GOLD</option><option value="NASDAQ:TSLA">TESLA</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option><option value="BINANCE:ETHUSDT">ETH/USDT</option>
                 </optgroup>
             </select>
         </div>
@@ -85,7 +89,7 @@
                 <div class="bg-black/40 p-2 rounded-xl border border-white/5">
                     <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5s</option><option value="15">15s</option><option value="30">30s</option><option value="60">1m</option><option value="120">2m</option><option value="300">5m</option>
+                        <option value="5">5s</option><option value="60">1m</option><option value="300">5m</option>
                     </select>
                 </div>
             </div>
@@ -96,59 +100,101 @@
         </footer>
     </div>
 
-    <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Details</h2>
-                <button onclick="hideM('settingsM')" class="text-gray-500 text-2xl font-light">&times;</button>
+    <div id="assetsPanel">
+        <header class="flex justify-between items-center py-4 mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center text-xl">👤</div>
+                <div>
+                    <p class="text-[8px] text-gray-500 font-bold uppercase mb-1">Asset Balance</p>
+                    <h2 id="assetBalanceDisp" class="text-xl font-black text-white">$0.00</h2>
+                </div>
             </div>
-            <div class="mb-8">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-4">?</div>
-                <h2 id="modalEmail" class="text-white font-bold text-sm mb-1 break-all italic">Loading...</h2>
-                <span class="text-[8px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold uppercase border border-green-500/20">Elite Verified</span>
+            <button onclick="closeAssets()" class="text-gray-500 font-bold text-xs uppercase">Close</button>
+        </header>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <button onclick="showM('depM')" class="py-3 bg-white text-black font-black rounded-xl text-[10px] uppercase">Deposit</button>
+            <button onclick="showM('witM')" class="py-3 bg-red-600 text-white font-black rounded-xl text-[10px] uppercase">Withdraw</button>
+        </div>
+        <button onclick="showM('histM')" class="w-full py-3 border border-white/10 bg-white/5 text-gray-400 font-black rounded-xl text-[10px] uppercase mb-4">Transaction History</button>
+    </div>
+
+    <div id="depM" class="modal">
+        <div class="glass-card p-6 rounded-[25px] w-full max-w-xs">
+            <div id="d0" class="space-y-2">
+                <h2 class="text-[10px] font-black text-center mb-4 uppercase italic">Select Method</h2>
+                <div onclick="selectDepMethod('crypto')" class="option-card text-center"><p class="text-white text-[11px] font-bold">Crypto (BEP20)</p></div>
+                <div onclick="selectDepMethod('pkr')" class="option-card text-center"><p class="text-white text-[11px] font-bold">PKR (Local Bank)</p></div>
             </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px] tracking-widest">Secure Logout</button>
+            <div id="d1" class="hidden">
+                <input type="number" id="dAmount" placeholder="Enter Amount" class="auth-input mb-4 text-center">
+                <button onclick="toStepDep(2)" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl uppercase text-[10px]">Next Step</button>
+            </div>
+            <div id="d2" class="hidden text-center">
+                <img id="depQR" src="" class="mx-auto mb-3 rounded-lg w-36 h-36 bg-white p-2">
+                <p id="cryptoAddr" class="text-[8px] text-gray-500 break-all mb-4 px-2">0x76ecfe8a3bd89297189e16cdcd275d743fb71a62</p>
+                <button onclick="toStepDep(3)" class="w-full py-3 bg-yellow-500 text-black font-black rounded-xl uppercase text-[10px]">I Have Paid</button>
+            </div>
+            <div id="d3" class="hidden space-y-3">
+                <input type="text" id="dTxid" placeholder="Transaction ID" class="auth-input">
+                <button onclick="submitDep()" class="w-full py-3 bg-green-600 text-white font-black rounded-xl uppercase text-[10px]">Submit</button>
+            </div>
+            <button onclick="hideM('depM')" class="w-full mt-4 text-[9px] font-bold text-gray-600 uppercase text-center">Cancel</button>
         </div>
     </div>
 
-    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
+    <div id="witM" class="modal">
+        <div class="glass-card p-6 rounded-[25px] w-full max-w-xs">
+            <h2 class="text-[10px] font-black text-center mb-4 uppercase italic">Withdraw</h2>
+            <input type="text" id="witAddr" placeholder="Wallet/Account Address" class="auth-input mb-3">
+            <input type="number" id="witAmtInput" placeholder="Amount" class="auth-input mb-4">
+            <button onclick="submitWit()" class="w-full py-3 bg-white text-black font-black rounded-xl uppercase text-[10px]">Submit Request</button>
+            <button onclick="hideM('witM')" class="w-full mt-4 text-[9px] font-bold text-gray-600 uppercase text-center">Cancel</button>
+        </div>
+    </div>
+
+    <div id="histM" class="modal">
+        <div class="glass-card p-5 rounded-[25px] w-full max-w-sm h-[70vh] flex flex-col">
+            <h2 class="text-[10px] font-black text-center mb-4 uppercase text-gray-400">Activity Logs</h2>
+            <div id="historyList" class="flex-grow overflow-y-auto pr-1">
+                <p class="text-center py-10 opacity-30 text-[8px] font-bold">LOADING HISTORY...</p>
+            </div>
+            <button onclick="hideM('histM')" class="w-full mt-4 py-3 border border-white/10 text-[9px] font-bold text-gray-500 uppercase rounded-xl">Back</button>
+        </div>
+    </div>
+
+    <div id="settingsM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <h2 id="modalEmail" class="text-white font-bold text-sm mb-4">Loading...</h2>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600/10 text-red-500 border border-red-600/20 font-black rounded-2xl uppercase text-[10px]">Logout</button>
+            <button onclick="hideM('settingsM')" class="mt-4 text-gray-500 uppercase text-[10px]">Close</button>
+        </div>
+    </div>
+
+    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center w-80"></div></div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'reg', chartLoaded = false;
+        let userData = null, mode = 'reg', chartLoaded = false, currentDepMethod = '';
 
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
+        function showM(id) { document.getElementById(id).style.display = 'flex'; if(id==='histM') loadHistory(); }
         function hideM(id) { document.getElementById(id).style.display = 'none'; }
+        function openAssets() { document.getElementById('assetsPanel').style.display = 'block'; }
+        function closeAssets() { document.getElementById('assetsPanel').style.display = 'none'; }
 
-        function showSuccess(title, msg) {
-            const box = document.getElementById('resultBox');
-            box.innerHTML = `<div class="mb-4"><div class="success-checkmark"><span class="text-green-500 text-3xl">✓</span></div></div>
-            <h2 class="text-green-500 font-black text-xl mb-2">${title}</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
-            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Dismiss</button>`;
-            showM('resultM');
-        }
-
-        function showError(msg) {
-            const box = document.getElementById('resultBox');
-            box.innerHTML = `<div class="mb-4"><div class="error-xmark"><span class="text-red-500 text-3xl">!</span></div></div>
-            <h2 class="text-red-500 font-black text-xl mb-2">Failed</h2><p class="text-gray-400 text-[10px] font-bold mb-6">${msg}</p>
-            <button onclick="hideM('resultM')" class="w-full bg-white/5 py-3 rounded-xl uppercase font-black text-xs">Close</button>`;
-            showM('resultM');
-        }
-
+        // Auth Logic
         auth.onAuthStateChanged(user => {
             const loader = document.getElementById('loadingScreen');
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     if(userData) {
-                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
+                        const bal = (userData.balance || 0).toFixed(2);
+                        document.getElementById('balanceDisp').innerText = "$" + bal;
+                        document.getElementById('assetBalanceDisp').innerText = "$" + bal;
                         document.getElementById('modalEmail').innerText = user.email;
                         document.getElementById('authSection').style.display = 'none';
                         document.getElementById('appTerminal').style.display = 'flex';
@@ -156,33 +202,31 @@
                         loader.style.display = 'none';
                     }
                 });
-            } else { 
-                document.getElementById('authSection').style.display = 'flex'; 
-                document.getElementById('appTerminal').style.display = 'none'; 
-                loader.style.display = 'none'; 
+            } else {
+                document.getElementById('authSection').style.display = 'flex';
+                document.getElementById('appTerminal').style.display = 'none';
+                loader.style.display = 'none';
             }
         });
 
         async function handleAuth() {
             const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(!e || !p) return showError("Email & Password required.");
+            if(!e || !p) return;
             document.getElementById('loadingScreen').style.display = 'flex';
-            try { 
-                if(mode==='reg') { 
-                    const r = await auth.createUserWithEmailAndPassword(e, p); 
-                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' }); 
-                } else { await auth.signInWithEmailAndPassword(e, p); } 
-            } catch(err) { 
-                document.getElementById('loadingScreen').style.display = 'none';
-                showError(err.message); 
-            }
+            try {
+                if(mode==='reg') {
+                    const r = await auth.createUserWithEmailAndPassword(e, p);
+                    await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
+                } else { await auth.signInWithEmailAndPassword(e, p); }
+            } catch(err) { alert(err.message); document.getElementById('loadingScreen').style.display = 'none'; }
         }
 
+        // Trading Logic
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
 
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return showError("Low balance");
+            if(amt > userData.balance || amt <= 0) return;
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             document.getElementById('tradeTimer').style.display = 'block';
             let l = dur;
@@ -194,17 +238,53 @@
             }, 1000);
         }
 
-        async function showRes(amt) {
+        function showRes(amt) {
             const m = userData.tradeMode || 'normal';
             let win = m === 'profit' ? true : (m === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl">+$${p.toFixed(2)}</h1>`; }
-            else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm">Continue</button>`;
+            if(win) { 
+                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
+                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-white text-4xl">+$${p.toFixed(2)}</h1>`;
+            } else {
+                box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-white text-4xl">-$${amt.toFixed(2)}</h1>`;
+            }
+            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold text-sm text-white">Continue</button>`;
             showM('resultM');
         }
 
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+        // Asset Actions
+        function toStepDep(s) { ['d0','d1','d2','d3'].forEach(d => document.getElementById(d).classList.add('hidden')); document.getElementById('d'+s).classList.remove('hidden'); }
+        function selectDepMethod(m) {
+            currentDepMethod = m;
+            document.getElementById('depQR').src = m === 'crypto' ? "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=0x76ecfe8a3bd89297189e16cdcd275d743fb71a62" : "https://i.postimg.cc/HLPQpW92/Screenshot-20260504-033311.jpg";
+            toStepDep(1);
+        }
+
+        async function submitDep() {
+            const tx = document.getElementById('dTxid').value, amt = document.getElementById('dAmount').value;
+            if(!tx || !amt) return;
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email: auth.currentUser.email, amount: parseFloat(amt), txid: tx, status: 'Pending', time: Date.now() });
+            hideM('depM'); alert("Deposit Submitted!");
+        }
+
+        async function submitWit() {
+            const amt = parseFloat(document.getElementById('witAmtInput').value);
+            if(amt > userData.balance || amt < 10) return alert("Invalid Amount");
+            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, amount: amt, status: 'Pending', time: Date.now() });
+            hideM('witM'); alert("Withdrawal Requested");
+        }
+
+        async function loadHistory() {
+            const list = document.getElementById('historyList');
+            db.collection('requests').where('uid', '==', auth.currentUser.uid).limit(10).get().then(snap => {
+                let html = '';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<div class="history-card"><div><p class="text-white text-[9px] font-black">DEPOSIT</p></div><div class="text-right"><p class="text-green-500 font-bold">$${d.amount}</p><span class="status-badge pending">${d.status}</span></div></div>`;
+                });
+                list.innerHTML = html || '<p class="text-center py-10 opacity-20 text-[8px]">NO DATA</p>';
+            });
+        }
+
+        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2
