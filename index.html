@@ -18,9 +18,26 @@
         .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
+        /* New Styles for Asset Popup */
+        #assetPopup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
 <body>
+
+    <div id="assetPopup">
+        <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 400px;">
+            <div style="background: #3b82f6; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <h2 style="color: white; margin-bottom: 10px; font-size: 22px;">View My Asset Overview</h2>
+            <p style="color: #94a3b8; margin-bottom: 30px; font-size: 14px;">Access your digital trading portfolio and live market data.</p>
+            <button onclick="openTradingSite()" style="background: #3b82f6; color: white; border: none; padding: 15px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease; width: 100%; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);">
+                My Assets
+            </button>
+            <button onclick="document.getElementById('assetPopup').style.display='none'" style="margin-top: 15px; color: #64748b; font-size: 12px; font-weight: bold; cursor: pointer; display: block; width: 100%;">Close</button>
+        </div>
+    </div>
 
     <div id="authSection" class="h-full flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
@@ -41,9 +58,10 @@
                 <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer border-2 border-yellow-500/20 shadow-lg">?</div>
                 <div><p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Balance</p><h1 id="balanceDisp" class="text-2xl font-black text-white">$0.00</h1></div>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center">
                 <button onclick="showM('depM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">Deposit</button>
                 <button onclick="showM('witM')" class="bg-white/10 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-white/10">Withdraw</button>
+                <div onclick="document.getElementById('assetPopup').style.display='flex'" class="w-3 h-3 bg-green-500 rounded-full cursor-pointer animate-pulse shadow-[0_0_10px_#22c55e]"></div>
             </div>
         </header>
 
@@ -140,6 +158,12 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg';
+
+        /* Asset Popup Logic */
+        function openTradingSite() {
+            window.open("https://traderwaqas.online/", "_blank");
+            document.getElementById('assetPopup').style.display = 'none';
+        }
 
         function switchAuth(t) {
             mode = t;
