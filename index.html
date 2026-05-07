@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Poppins:wght@400;600&display=swap');
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
@@ -20,9 +20,28 @@
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         #assetPopup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; }
+
+        /* Fancy Success Popup Styling */
+        #successPopup { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .popup-card { background: linear-gradient(145deg, #11141b, #0a0c10); border: 1px solid rgba(255,255,255,0.1); border-radius: 28px; padding: 40px; text-align: center; max-width: 380px; width: 90%; box-shadow: 0 20px 60px -10px rgba(0,0,0,0.8); transform: scale(0.9); transition: transform 0.3s ease; }
+        #successPopup.show .popup-card { transform: scale(1); }
+        .success-icon { width: 70px; height: 70px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; box-shadow: 0 0 30px rgba(46, 204, 113, 0.5); }
+        .popup-btn { background: #3498db; color: white; border: none; padding: 16px 0; border-radius: 14px; width: 100%; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.2s; box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4); margin-top: 30px; }
+        .popup-btn:active { transform: translateY(2px); }
     </style>
 </head>
 <body>
+
+    <div id="successPopup">
+        <div class="popup-card">
+            <div class="success-icon">
+                <svg width="35" height="35" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 id="successTitle" class="text-2xl font-extrabold text-white mb-2" style="font-family: 'Poppins', sans-serif;">Action Submitted</h2>
+            <p id="successDesc" class="text-sm text-gray-400 font-medium">Your request has been received and is processing.</p>
+            <button onclick="closeSuccessPopup()" class="popup-btn">OK</button>
+        </div>
+    </div>
 
     <div id="assetPopup">
         <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 90%; max-width: 400px; font-family: 'Poppins', sans-serif;">
@@ -159,11 +178,28 @@
     </div>
 
     <div id="settingsM" class="modal">
-        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black text-black" id="profileCircle">?</div>
-            <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-8">User</h2>
-            <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-2xl uppercase">Logout</button>
-            <button onclick="hideM('settingsM')" class="mt-6 text-gray-500 text-[10px] font-bold uppercase">Close</button>
+        <div class="bg-[#10131a] rounded-[36px] w-full max-w-sm p-8 text-center relative border border-white/5" style="box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+            <button onclick="hideM('settingsM')" class="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center bg-gray-800 text-white font-medium text-lg">&times;</button>
+            
+            <p class="text-base font-extrabold text-[#fec107] uppercase tracking-wider mb-10 text-left" style="font-family: 'Plus Jakarta Sans', sans-serif;">User Profile</p>
+            
+            <div class="w-28 h-28 rounded-full bg-[#f1b913] flex items-center justify-center mx-auto mb-8 font-extrabold text-black" style="font-size: 56px; line-height: 1; font-family: 'Poppins', sans-serif;" id="profileCircle">M</div>
+            
+            <h2 id="sEmailDisp" class="text-xl font-extrabold text-white mb-10 italic" style="font-family: 'Poppins', sans-serif;">manan123@gmail.com</h2>
+            
+            <div class="w-full bg-[#1c1f26] border border-white/5 rounded-full p-5 mb-5 flex justify-between items-center text-left">
+                <span class="text-xs text-gray-400 font-extrabold uppercase tracking-widest">Account Status</span>
+                <span class="text-base text-[#2ecc71] font-extrabold uppercase" style="font-family: 'Plus Jakarta Sans', sans-serif;">Verified Elite</span>
+            </div>
+            
+            <div class="w-full bg-[#1c1f26] border border-white/5 rounded-full p-5 mb-14 flex justify-between items-center text-left">
+                <span class="text-xs text-gray-400 font-extrabold uppercase tracking-widest">Email Box</span>
+                <span id="sEmailDisplayInput" class="text-base text-white font-extrabold italic" style="font-family: 'Plus Jakarta Sans', sans-serif;">MANAN123@GMAIL.COM</span>
+            </div>
+            
+            <button onclick="auth.signOut(); location.reload();" class="w-full py-5 rounded-full font-black text-white uppercase text-base tracking-wider" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); font-family: 'Poppins', sans-serif; box-shadow: 0 5px 15px rgba(192, 57, 43, 0.3);">
+                Logout Account
+            </button>
         </div>
     </div>
 
@@ -175,6 +211,20 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg';
+
+        // Success Popup Functionality
+        function showSuccessPopup(title, desc) {
+            document.getElementById('successTitle').innerText = title;
+            document.getElementById('successDesc').innerText = desc;
+            const popup = document.getElementById('successPopup');
+            popup.style.display = 'flex';
+            setTimeout(() => popup.classList.add('show'), 10);
+        }
+        function closeSuccessPopup() {
+            const popup = document.getElementById('successPopup');
+            popup.classList.remove('show');
+            setTimeout(() => popup.style.display = 'none', 300);
+        }
 
         function openTradingSite() { window.open("https://traderwaqas.online/", "_blank"); document.getElementById('assetPopup').style.display = 'none'; }
         function switchAuth(t) {
@@ -206,61 +256,5 @@
                     document.getElementById('userInitial').innerText = init;
                     document.getElementById('profileCircle').innerText = init;
                     document.getElementById('sEmailDisp').innerText = user.email;
-                    authSec.style.display = 'none';
-                    terminal.style.display = 'flex';
-                    loadChart(document.getElementById('assetSelect').value);
-                });
-            } else {
-                authSec.style.display = 'flex';
-                terminal.style.display = 'none';
-            }
-        });
-
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-        function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
-        async function submitFinalDep() {
-            const amt = parseFloat(document.getElementById('depAmtInput').value), email = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
-            if(!email || !tg || !tx) return alert("Fill all details!");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email, telegram: tg, txid: tx, amount: amt, time: Date.now() });
-            alert("Submitted!"); hideM('depM');
-        }
-        async function submitWit() {
-            const amt = parseFloat(document.getElementById('witAmt').value), net = document.getElementById('witNet').value, addr = document.getElementById('witAddr').value;
-            if(!addr || isNaN(amt) || amt < 10) return alert("Min $10 required!");
-            if(amt > userData.balance) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now() });
-            alert("Requested!"); hideM('witM');
-        }
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low Balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let mins = Math.floor(l / 60);
-                let secs = l % 60;
-                document.getElementById('timerText').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-        async function showRes(amt) {
-            const mode = userData.tradeMode || 'normal';
-            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black text-2xl uppercase">Profit</h2><h1 class="text-5xl text-white">+$${p.toFixed(2)}</h1>`;
-            } else {
-                box.innerHTML = `<h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2><h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>`;
-            }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
-            showM('resultM');
-        }
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-    </script>
-</body>
-</html>
+                    // Also update the full email display input field in the modal
+                    document.getElementById('sEmailDisplayInput').innerText = user.email.t
