@@ -54,7 +54,11 @@
     <div id="appTerminal">
         <header class="flex justify-between items-center mb-3">
             <div class="flex items-center gap-3">
-                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer border-2 border-yellow-500/20 shadow-lg">?</div>
+                <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-extrabold cursor-pointer border-2 border-yellow-500/20 shadow-lg p-2.5">
+                    <svg viewBox="0 0 24 24" class="w-full h-full text-black fill-current" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10C22 6.477 17.523 2 12 2Zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm-6.75 12.356c.15-2.207 1.956-3.856 4.156-3.856h5.188c2.2 0 4.006 1.649 4.156 3.856A7.96 7.96 0 0 1 12 19.5c-2.478 0-4.731-.892-6.75-2.144Z"/>
+                    </svg>
+                </div>
                 <div><p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Balance</p><h1 id="balanceDisp" class="text-2xl font-black text-white">$0.00</h1></div>
             </div>
             <div class="flex gap-2 items-center">
@@ -160,7 +164,11 @@
 
     <div id="settingsM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
-            <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black text-black" id="profileCircle">?</div>
+            <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 p-5" id="profileCircle">
+                <svg viewBox="0 0 24 24" class="w-full h-full text-black fill-current" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10C22 6.477 17.523 2 12 2Zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm-6.75 12.356c.15-2.207 1.956-3.856 4.156-3.856h5.188c2.2 0 4.006 1.649 4.156 3.856A7.96 7.96 0 0 1 12 19.5c-2.478 0-4.731-.892-6.75-2.144Z"/>
+                </svg>
+            </div>
             <h2 id="sEmailDisp" class="text-sm font-bold text-white mb-8">User</h2>
             <button onclick="auth.signOut(); location.reload();" class="w-full py-4 bg-red-600/20 text-red-500 border border-red-600/30 font-black rounded-2xl uppercase">Logout</button>
             <button onclick="hideM('settingsM')" class="mt-6 text-gray-500 text-[10px] font-bold uppercase">Close</button>
@@ -202,9 +210,10 @@
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
                     document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                    const init = user.email[0].toUpperCase();
-                    document.getElementById('userInitial').innerText = init;
-                    document.getElementById('profileCircle').innerText = init;
+                    
+                    // The script previously set user initials; now it just ensures the professional icon remains.
+                    // (The specific '?' logic in JS was removed as it's static in HTML now, ensuring it never flashes '?')
+
                     document.getElementById('sEmailDisp').innerText = user.email;
                     authSec.style.display = 'none';
                     terminal.style.display = 'flex';
@@ -251,16 +260,4 @@
             let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
             const p = amt * 1.82, box = document.getElementById('resultBox');
             if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black text-2xl uppercase">Profit</h2><h1 class="text-5xl text-white">+$${p.toFixed(2)}</h1>`;
-            } else {
-                box.innerHTML = `<h2 class="text-red-500 font-black text-2xl uppercase">Loss</h2><h1 class="text-5xl text-white">-$${amt.toFixed(2)}</h1>`;
-            }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
-            showM('resultM');
-        }
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
-    </script>
-</body>
-</html>
+                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.
