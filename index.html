@@ -12,6 +12,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { background: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; height: 100dvh; margin: 0; }
         .glass-card { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 8px; }
         .timer-badge { position: absolute; bottom: 10px; right: 10px; background: #eab308; color: black; padding: 5px 15px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; font-size: 12px; }
@@ -20,7 +21,10 @@
         #loadingScreen { position: fixed; inset: 0; background: #05070a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .loader-spin { width: 35px; height: 35px; border: 3px solid #1a1f29; border-top: 3px solid #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        
+        /* Profile Fancy Items */
+        .profile-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .logout-btn { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); transition: transform 0.2s ease; }
     </style>
 </head>
 <body>
@@ -34,12 +38,12 @@
         <div class="glass-card w-full max-w-sm p-8 rounded-[32px]">
             <h1 class="text-3xl font-black text-center mb-8 uppercase italic">ProTrade</h1>
             <div class="flex bg-black/40 p-1.5 rounded-2xl mb-8">
-                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white">Login</button>
-                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold text-gray-400">Registration</button>
+                <button onclick="switchAuth('login')" id="loginTab" class="flex-1 py-3 text-sm font-bold">Login</button>
+                <button onclick="switchAuth('reg')" id="regTab" class="flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl">Registration</button>
             </div>
             <input type="email" id="userEmail" placeholder="Email" class="auth-input mb-4">
             <input type="password" id="userPass" placeholder="Password" class="auth-input mb-6">
-            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Login</button>
+            <button onclick="handleAuth()" id="authBtn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Registration</button>
         </div>
     </div>
 
@@ -47,7 +51,7 @@
         <header class="flex justify-between items-center mb-2 px-1">
             <div class="flex items-center gap-2">
                 <div onclick="showM('settingsM')" id="userInitial" class="w-10 h-10 rounded-full bg-yellow-500 border-2 border-white/10 flex items-center justify-center text-black font-extrabold cursor-pointer text-sm shadow-lg shadow-yellow-500/20">?</div>
-                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Live Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
+                <div><p class="text-[7px] text-gray-500 font-bold uppercase">Balance</p><h1 id="balanceDisp" class="text-lg font-black text-white">$0.00</h1></div>
             </div>
             <div class="flex gap-1.5">
                 <button onclick="showM('assetsM')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">My Assets</button>
@@ -57,13 +61,25 @@
         <div class="mb-2 px-1">
             <select id="assetSelect" onchange="loadChart(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-yellow-500 font-bold text-[11px] outline-none">
                 <optgroup label="FOREX MAJOR">
-                    <option value="FX:EURUSD">EUR/USD (98%)</option>
-                    <option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:EURUSD">EUR/USD (98%)</option><option value="FX:GBPUSD">GBP/USD (95%)</option>
+                    <option value="FX:USDJPY">USD/JPY (92%)</option><option value="FX:AUDUSD">AUD/USD (90%)</option>
+                    <option value="FX:USDCAD">USD/CAD (88%)</option><option value="FX:USDCHF">USD/CHF (85%)</option>
+                    <option value="FX:EURGBP">EUR/GBP (82%)</option><option value="FX:EURJPY">EUR/JPY (80%)</option>
+                </optgroup>
+                <optgroup label="CRYPTO">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT (OTC)</option><option value="BINANCE:ETHUSDT">ETH/USDT (OTC)</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT (OTC)</option><option value="BINANCE:BNBUSDT">BNB/USDT (OTC)</option>
+                    <option value="BINANCE:DOGEUSDT">DOGE/USDT (OTC)</option><option value="BINANCE:XRPUSDT">XRP/USDT (OTC)</option>
+                </optgroup>
+                <optgroup label="STOCKS & METALS">
+                    <option value="OANDA:XAUUSD">GOLD (XAU/USD)</option><option value="NASDAQ:TSLA">TESLA</option>
+                    <option value="NASDAQ:AAPL">APPLE</option><option value="NASDAQ:NVDA">NVIDIA</option>
+                    <option value="NASDAQ:MSFT">MICROSOFT</option>
                 </optgroup>
             </select>
         </div>
 
-        <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5">
+        <main class="relative flex-grow rounded-[28px] overflow-hidden bg-black mb-2 border border-white/5 shadow-2xl">
             <div id="tv_chart" class="h-full w-full"></div>
             <div id="tradeTimer" class="timer-badge">⏱ <span id="timerText">00:00</span></div>
         </main>
@@ -75,110 +91,148 @@
                     <input id="tradeAmt" type="number" value="10" class="bg-transparent outline-none font-black text-white text-base w-full px-1">
                 </div>
                 <div class="bg-black/40 p-2.5 rounded-2xl border border-white/5">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time</span>
+                    <span class="text-[8px] text-gray-500 font-bold uppercase block ml-1">Time Duration</span>
                     <select id="duration" class="bg-transparent font-black text-white text-base w-full outline-none">
-                        <option value="5">5 Sec</option><option value="60">1 Min</option>
+                        <option value="5">5 Sec</option><option value="15">15 Sec</option>
+                        <option value="30">30 Sec</option><option value="60">1 Min</option>
+                        <option value="120">2 Min</option><option value="300">5 Min</option>
+                        <option value="600">10 Min</option><option value="900">15 Min</option>
                     </select>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white uppercase text-sm">Call</button>
-                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm">Put</button>
+                <button onclick="initTrade('UP')" class="btn-grad-green h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Call</button>
+                <button onclick="initTrade('DOWN')" class="btn-grad-red h-14 rounded-2xl font-black text-white uppercase text-sm tracking-widest">Put</button>
             </div>
         </footer>
     </div>
 
-    <div id="assetsM" class="modal">
-        <div class="glass-card p-8 rounded-[35px] w-full max-w-sm text-center">
-            <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">💰</div>
-            <h2 class="text-xl font-black text-white mb-2 uppercase italic">My Assets</h2>
-            <p class="text-xs text-gray-400 leading-relaxed mb-6">Is link pe click kar ke aap apna **Balance** dekh sakte hain aur **Deposit & Withdraw** ka tamam system manage kar sakte hain.</p>
-            <a href="attach.html" class="block w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase text-[11px] tracking-widest">Open Assets Portal</a>
-            <button onclick="hideM('assetsM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Close</button>
-        </div>
-    </div>
-
     <div id="settingsM" class="modal">
         <div class="glass-card p-6 rounded-[35px] w-full max-w-sm relative">
-            <button onclick="hideM('settingsM')" class="absolute top-5 right-5 text-white text-xl">&times;</button>
-            <div class="text-center mb-6 mt-4">
-                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
-                <p id="modalEmail" class="text-white font-bold text-sm">...</p>
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">User Profile</h2>
+                <button onclick="hideM('settingsM')" class="w-8 h-8 rounded-full bg-white/5 text-white border border-white/10 text-xl">&times;</button>
             </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="w-full py-4 bg-red-600 text-white font-black rounded-2xl uppercase text-[10px]">Logout</button>
+            <div class="text-center mb-6">
+                <div id="modalInitial" class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto text-3xl font-black text-black mb-3">?</div>
+                <p id="modalEmail" class="text-white font-bold italic text-sm">Loading...</p>
+            </div>
+            <div class="space-y-3 mb-8">
+                <div class="profile-item">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase">Account Status</span>
+                    <span class="text-xs font-bold text-green-500 uppercase">Verified Elite</span>
+                </div>
+                <div class="profile-item">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase">Email Box</span>
+                    <span id="modalEmailBox" class="text-[10px] font-bold text-white uppercase italic">...</span>
+                </div>
+            </div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn w-full py-4 text-white font-black rounded-2xl uppercase text-[10px]">Logout Account</button>
         </div>
     </div>
 
-    <div id="resultM" class="modal"><div id="resultBox" class="bg-[#1a1f2e] p-10 rounded-[40px] text-center border border-white/10 w-80"></div></div>
+    <div id="depM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <div id="dStep1">
+                <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Deposit Funds</h2>
+                <input type="number" id="depAmtInput" placeholder="Enter PKR Amount" class="auth-input mb-6 text-center text-lg">
+                <button onclick="toDStep(2)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">Next</button>
+            </div>
+            <div id="dStep2" class="hidden">
+                <img src="https://i.postimg.cc/vTdBngYS/Screenshot-20260504-033311.jpg" class="mx-auto mb-4 p-2 bg-white rounded-xl w-48 h-48 object-contain">
+                <p class="text-white font-black mb-6 italic uppercase">Dubai Live Trade</p>
+                <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
+            </div>
+            <div id="dStep3" class="hidden space-y-3">
+                <input type="text" id="depAccName" placeholder="Account Name" class="auth-input">
+                <input type="number" id="depActualAmt" placeholder="Sent Amount (PKR)" class="auth-input">
+                <input type="text" id="depTx" placeholder="TXID" class="auth-input">
+                <button onclick="submitFinalDep()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase">Submit</button>
+            </div>
+            <button onclick="hideM('depM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        </div>
+    </div>
 
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(), db = firebase.firestore();
-        let userData = null, mode = 'login', chartLoaded = false;
+    <div id="witM" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-sm text-center">
+            <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase">Withdraw</h2>
+            <div class="space-y-3 text-left">
+                <select id="witBank" class="auth-input text-sm">
+                    <option value="" disabled selected>Choose Bank</option>
+                    <option value="EasyPaisa">EasyPaisa</option><option value="JazzCash">JazzCash</option>
+                    <option value="HBL">HBL Bank</option><option value="Meezan">Meezan Bank</option>
+                    <option value="UBL">UBL Bank</option><option value="SadaPay">SadaPay</option>
+                </select>
+                <input type="text" id="witAccNum" placeholder="Account Number" class="auth-input">
+                <input type="text" id="witAccName" placeholder="Account Name" class="auth-input">
+                <input type="number" id="witAmtPKR" placeholder="Amount (PKR)" class="auth-input">
+                <button onclick="submitWit()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase mt-4">Confirm</button>
+            </div>
+            <button onclick="hideM('witM')" class="mt-4 text-gray-500 text-[10px] font-bold uppercase">Cancel</button>
+        </div>
+    </div>
 
-        auth.onAuthStateChanged(user => {
-            document.getElementById('loadingScreen').style.display = 'none'; 
-            if(user) {
-                db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    userData = doc.data();
-                    if(userData) {
-                        document.getElementById('balanceDisp').innerText = "$" + (userData.balance || 0).toFixed(2);
-                        const initial = user.email[0].toUpperCase();
-                        document.getElementById('userInitial').innerText = initial;
-                        document.getElementById('modalInitial').innerText = initial;
-                        document.getElementById('modalEmail').innerText = user.email;
-                        document.getElementById('authSection').style.display = 'none';
-                        document.getElementById('appTerminal').style.display = 'flex';
-                        if(!chartLoaded) { loadChart('FX:EURUSD'); chartLoaded = true; }
-                    }
-                });
-            } else {
-                document.getElementById('authSection').style.display = 'flex';
-                document.getElementById('appTerminal').style.display = 'none';
-            }
-        });
+    
+    <!-- MY ASSETS MODAL -->
+    <div id="assetsM" class="modal" style="align-items:flex-start; overflow-y:auto;">
+        <div style="background:#020408; width:100%; max-width:450px; min-height:100vh; padding:0; position:relative;">
+            <div id="assetsFancyToast" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:2001; padding:15px 25px; border-radius:20px; text-align:center; border:1px solid; width:80%; max-width:300px; background:rgba(15,23,42,0.9); backdrop-filter:blur(16px);">
+                <div id="assetsToastIcon" style="font-size:1.5rem; margin-bottom:4px;"></div>
+                <div id="assetsToastMsg" style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:white;"></div>
+            </div>
+            <div style="padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0 32px 0;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:40px; height:40px; border-radius:12px; background:#eab308; display:flex; align-items:center; justify-content:center; font-size:1.3rem; cursor:pointer; box-shadow:0 0 20px rgba(234,179,8,0.2);">&#128100;</div>
+                        <div>
+                            <p style="font-size:8px; color:#6b7280; font-weight:700; text-transform:uppercase; margin:0 0 4px 0;">Total Balance</p>
+                            <h2 id="assetsBalanceDisp" style="font-size:1.3rem; font-weight:900; color:white; margin:0;">$0.00</h2>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="display:flex; align-items:center; gap:4px;">
+                            <span style="width:6px; height:6px; background:#22c55e; border-radius:50%; display:inline-block;"></span>
+                            <p style="font-size:9px; font-weight:900; color:white; text-transform:uppercase; font-style:italic; opacity:0.4; margin:0;">Live</p>
+                        </div>
+                        <button onclick="hideM('assetsM')" style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); font-size:1.2rem; cursor:pointer;">&times;</button>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <button onclick="assetsOpenDep()" style="padding:12px; border-radius:10px; font-size:10px; font-weight:800; text-transform:uppercase; background:white; color:black; border:none; cursor:pointer;">Deposit</button>
+                    <button onclick="assetsOpenWit()" style="padding:12px; border-radius:10px; font-size:10px; font-weight:800; text-transform:uppercase; background:#dc2626; color:white; border:none; cursor:pointer;">Withdraw</button>
+                </div>
+                <button onclick="showM('assetsHistM')" style="width:100%; padding:12px; border-radius:10px; font-size:10px; font-weight:800; text-transform:uppercase; background:rgba(255,255,255,0.05); color:#9ca3af; border:1px solid rgba(255,255,255,0.1); cursor:pointer;">Transaction History</button>
+            </div>
+        </div>
+    </div>
 
-        function showM(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideM(id) { document.getElementById(id).style.display = 'none'; }
+    <!-- ASSETS: History Modal -->
+    <div id="assetsHistM" class="modal" style="z-index:1100;">
+        <div style="background:rgba(15,23,42,0.9); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.05); padding:20px; border-radius:25px; width:100%; max-width:360px; height:70vh; display:flex; flex-direction:column;">
+            <h2 style="font-size:10px; font-weight:900; text-align:center; margin-bottom:16px; text-transform:uppercase; font-style:italic; color:#9ca3af;">Activity Logs</h2>
+            <div style="display:flex; gap:8px; margin-bottom:16px;">
+                <button onclick="assetsLoadHistory('requests')" style="flex:1; padding:8px; background:rgba(34,197,94,0.1); color:#22c55e; border-radius:8px; font-size:8px; font-weight:900; text-transform:uppercase; border:none; cursor:pointer;">Deposits</button>
+                <button onclick="assetsLoadHistory('withdrawals')" style="flex:1; padding:8px; background:rgba(239,68,68,0.1); color:#ef4444; border-radius:8px; font-size:8px; font-weight:900; text-transform:uppercase; border:none; cursor:pointer;">Withdraws</button>
+            </div>
+            <div id="assetsHistoryList" style="flex:1; overflow-y:auto; padding-right:4px; font-size:9px;">
+                <p style="text-align:center; padding:40px 0; opacity:0.3; font-weight:700; text-transform:uppercase; font-size:8px;">Select Category</p>
+            </div>
+            <button onclick="hideM('assetsHistM')" style="width:100%; margin-top:16px; padding:12px; border:1px solid rgba(255,255,255,0.1); font-size:9px; font-weight:700; color:#6b7280; text-transform:uppercase; border-radius:12px; background:transparent; cursor:pointer;">Back</button>
+        </div>
+    </div>
 
-        async function initTrade(type) {
-            const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
-            if(amt > userData.balance || amt <= 0) return alert("Low balance");
-            await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            document.getElementById('tradeTimer').style.display = 'block';
-            let l = dur;
-            let iv = setInterval(() => {
-                let m = Math.floor(l/60), s = l%60;
-                document.getElementById('timerText').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                if(l <= 0) { clearInterval(iv); document.getElementById('tradeTimer').style.display = 'none'; showRes(amt); }
-                l--;
-            }, 1000);
-        }
-
-        function showRes(amt) {
-            const tradeMode = userData.tradeMode || 'normal';
-            let win = tradeMode === 'profit' ? true : (tradeMode === 'loss' ? false : Math.random() > 0.5);
-            const p = amt * 1.82, box = document.getElementById('resultBox');
-            if(win) { 
-                db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(p) }); 
-                box.innerHTML = `<h2 class="text-green-500 font-black">PROFIT</h2><h1 class="text-4xl text-white">+$${p.toFixed(2)}</h1>`;
-            } else { box.innerHTML = `<h2 class="text-red-500 font-black">LOSS</h2><h1 class="text-4xl text-white">-$${amt.toFixed(2)}</h1>`; }
-            box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 text-white text-xs">Continue</button>`;
-            showM('resultM');
-        }
-
-        function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-        
-        async function handleAuth() {
-            const e = document.getElementById('userEmail').value, p = document.getElementById('userPass').value;
-            if(mode==='reg') { 
-                const r = await auth.createUserWithEmailAndPassword(e, p); 
-                await db.collection('users').doc(r.user.uid).set({ email: e, balance: 0, tradeMode: 'normal' });
-            } else { await auth.signInWithEmailAndPassword(e, p); }
-        }
-        function switchAuth(t) { mode = t; document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white' : 'flex-1 py-3 text-sm font-bold text-gray-400'; document.getElementById('regTab').className = t==='reg' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl text-white' : 'flex-1 py-3 text-sm font-bold text-gray-400'; document.getElementById('authBtn').innerText = t==='login'?'Login':'Registration'; }
-    </script>
-</body>
-</html>
+    <!-- ASSETS: Deposit Modal -->
+    <div id="assetsDepM" class="modal" style="z-index:1100;">
+        <div style="background:rgba(15,23,42,0.9); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.05); padding:24px; border-radius:25px; width:100%; max-width:320px;">
+            <div id="ad0">
+                <h2 style="font-size:10px; font-weight:900; text-align:center; margin-bottom:16px; text-transform:uppercase; font-style:italic; color:white;">Select Method</h2>
+                <div onclick="assetsSelectDepMethod('crypto')" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:12px; border-radius:12px; cursor:pointer; margin-bottom:8px; text-align:center;"><p style="color:white; font-size:11px; font-weight:700; margin:0;">Crypto (BEP20)</p></div>
+                <div onclick="assetsSelectDepMethod('pkr')" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:12px; border-radius:12px; cursor:pointer; margin-bottom:8px; text-align:center;"><p style="color:white; font-size:11px; font-weight:700; margin:0;">PKR (Local Bank)</p></div>
+            </div>
+            <div id="ad1" style="display:none;">
+                <input type="number" id="adAmount" oninput="assetsCalcUsd()" placeholder="Enter Amount" style="background:#0f172a; border:1px solid #1e293b; padding:10px; border-radius:10px; width:100%; color:white; outline:none; font-size:16px; box-sizing:border-box; margin-bottom:8px; text-align:center;">
+                <p id="assetsUsdConvert" style="text-align:center; font-size:9px; color:#eab308; font-weight:700; margin-bottom:16px; display:none;"></p>
+                <button onclick="assetsToStepDep(2)" style="width:100%; padding:12px; background:#eab308; color:black; font-weight:900; border-radius:10px; font-size:10px; text-transform:uppercase; border:none; cursor:pointer;">Next Step</button>
+            </div>
+            <div id="ad2" style="display:none; text-align:center;">
+                <img id="assetsDepQR" src="" style="margin:0 auto 12px auto; border-radius:8px; width:144px; height:144px; 
