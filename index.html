@@ -15,11 +15,14 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .auth-input { background: #1a1f29; border: 1px solid #2d3748; padding: 14px; border-radius: 12px; width: 100%; color: white; outline: none; }
         #appTerminal { display: none; height: 100dvh; flex-direction: column; padding: 10px; }
+        
+        /* Fixed Auth Flash: Default display none */
+        #authSection { display: none; }
+        
         .timer-badge { position: absolute; bottom: 20px; right: 20px; background: #eab308; color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; display: none; z-index: 100; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .btn-grad-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
         .btn-grad-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         
-        /* Asset Popup Module Styles */
         #assetPopup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -105,15 +108,13 @@
             <div id="dStep2" class="hidden">
                 <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase">Scan & Pay (TRC20)</h2>
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM" class="mx-auto mb-4 rounded-xl p-2 bg-white">
-                <p class="text-[10px] text-gray-400 mb-2">Network: TRC20</p>
                 <div class="bg-black/40 p-3 rounded-xl mb-4 flex justify-between items-center">
-                    <span class="text-[9px] text-white truncate mr-2" id="walletAddr">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
+                    <span class="text-[9px] text-white truncate mr-2">TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM</span>
                     <button onclick="navigator.clipboard.writeText('TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM'); alert('Address Copied!')" class="text-yellow-500 text-[9px] font-bold">COPY</button>
                 </div>
                 <button onclick="toDStep(3)" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase">I Have Paid</button>
             </div>
-            <div id="dStep3" class="hidden space-y-3 text-left">
-                <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase text-center">Submit Proof</h2>
+            <div id="dStep3" class="hidden space-y-3">
                 <input type="email" id="depEmail" placeholder="Enter Your Email" class="auth-input">
                 <input type="text" id="depTg" placeholder="Enter Telegram ID" class="auth-input">
                 <input type="text" id="depTx" placeholder="Enter TXID" class="auth-input">
@@ -126,13 +127,9 @@
     <div id="witM" class="modal">
         <div class="glass-card p-8 rounded-[32px] w-full max-w-sm">
             <h2 class="text-xl font-black text-yellow-500 mb-6 uppercase text-center">Withdraw</h2>
-            <label class="text-[9px] text-gray-500 font-bold ml-1">SELECT NETWORK</label>
             <select id="witNet" class="auth-input mb-4">
                 <option value="TRC20">USDT (TRC20)</option>
                 <option value="BEP20">USDT (BEP20)</option>
-                <option value="ERC20">USDT (ERC20)</option>
-                <option value="SOLANA">USDT (SOLANA)</option>
-                <option value="POLYGON">USDT (POLYGON)</option>
             </select>
             <input type="text" id="witAddr" placeholder="Enter Wallet Address" class="auth-input mb-4">
             <input type="number" id="witAmt" placeholder="Withdraw Amount ($)" class="auth-input mb-6">
@@ -159,12 +156,7 @@
         const auth = firebase.auth(), db = firebase.firestore();
         let userData = null, mode = 'reg';
 
-        /* Asset Popup Functionality */
-        function openTradingSite() {
-            window.open("https://traderwaqas.online/", "_blank");
-            document.getElementById('assetPopup').style.display = 'none';
-        }
-
+        function openTradingSite() { window.open("https://traderwaqas.online/", "_blank"); document.getElementById('assetPopup').style.display = 'none'; }
         function switchAuth(t) {
             mode = t;
             document.getElementById('loginTab').className = t==='login' ? 'flex-1 py-3 text-sm font-bold bg-[#2d3748] rounded-xl' : 'flex-1 py-3 text-sm font-bold';
@@ -184,6 +176,8 @@
         }
 
         auth.onAuthStateChanged(user => {
+            const authSec = document.getElementById('authSection');
+            const terminal = document.getElementById('appTerminal');
             if(user) {
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     userData = doc.data();
@@ -192,43 +186,32 @@
                     document.getElementById('userInitial').innerText = init;
                     document.getElementById('profileCircle').innerText = init;
                     document.getElementById('sEmailDisp').innerText = user.email;
-                    document.getElementById('authSection').style.display = 'none';
-                    document.getElementById('appTerminal').style.display = 'flex';
+                    authSec.style.display = 'none';
+                    terminal.style.display = 'flex';
                     loadChart('BINANCE:BTCUSDT');
                 });
-            } else { document.getElementById('authSection').style.display = 'flex'; document.getElementById('appTerminal').style.display = 'none'; }
+            } else {
+                authSec.style.display = 'flex';
+                terminal.style.display = 'none';
+            }
         });
 
         function loadChart(s) { new TradingView.widget({ "autosize": true, "symbol": s, "interval": "1", "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true, "hide_side_toolbar": true }); }
-
-        function toDStep(s) {
-            document.getElementById('dStep1').classList.add('hidden');
-            document.getElementById('dStep2').classList.add('hidden');
-            document.getElementById('dStep3').classList.add('hidden');
-            document.getElementById('dStep'+s).classList.remove('hidden');
-        }
-
+        function toDStep(s) { document.getElementById('dStep1').classList.add('hidden'); document.getElementById('dStep2').classList.add('hidden'); document.getElementById('dStep3').classList.add('hidden'); document.getElementById('dStep'+s).classList.remove('hidden'); }
         async function submitFinalDep() {
-            const amt = parseFloat(document.getElementById('depAmtInput').value);
-            const email = document.getElementById('depEmail').value;
-            const tg = document.getElementById('depTg').value;
-            const tx = document.getElementById('depTx').value;
-            if(!email || !tg || !tx) return alert("Please fill all details!");
-            await db.collection('requests').add({ uid: auth.currentUser.uid, email: email, telegram: tg, txid: tx, amount: amt, time: Date.now() });
-            alert("Deposit Proof Submitted Successfully!"); hideM('depM');
+            const amt = parseFloat(document.getElementById('depAmtInput').value), email = document.getElementById('depEmail').value, tg = document.getElementById('depTg').value, tx = document.getElementById('depTx').value;
+            if(!email || !tg || !tx) return alert("Fill all details!");
+            await db.collection('requests').add({ uid: auth.currentUser.uid, email, telegram: tg, txid: tx, amount: amt, time: Date.now() });
+            alert("Submitted!"); hideM('depM');
         }
-
         async function submitWit() {
-            const amt = parseFloat(document.getElementById('witAmt').value);
-            const net = document.getElementById('witNet').value;
-            const addr = document.getElementById('witAddr').value;
-            if(!addr || isNaN(amt)) return alert("Fill all fields!");
-            if(amt > userData.balance || amt < 10) return alert("Insufficient Balance (Min $10)");
+            const amt = parseFloat(document.getElementById('witAmt').value), net = document.getElementById('witNet').value, addr = document.getElementById('witAddr').value;
+            if(!addr || isNaN(amt) || amt < 10) return alert("Min $10 required!");
+            if(amt > userData.balance) return alert("Low Balance");
             await db.collection('users').doc(auth.currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             await db.collection('withdrawals').add({ uid: auth.currentUser.uid, email: userData.email, amount: amt, network: net, address: addr, time: Date.now() });
-            alert("Withdrawal Requested!"); hideM('witM');
+            alert("Requested!"); hideM('witM');
         }
-
         async function initTrade(type) {
             const amt = parseFloat(document.getElementById('tradeAmt').value), dur = parseInt(document.getElementById('duration').value);
             if(amt > userData.balance || amt <= 0) return alert("Low Balance");
@@ -241,7 +224,6 @@
                 l--;
             }, 1000);
         }
-
         async function showRes(amt) {
             const mode = userData.tradeMode || 'normal';
             let win = mode === 'profit' ? true : (mode === 'loss' ? false : Math.random() > 0.5);
@@ -255,7 +237,6 @@
             box.innerHTML += `<button onclick="hideM('resultM')" class="w-full bg-white/10 py-3 rounded-xl mt-6 uppercase font-bold">Continue</button>`;
             showM('resultM');
         }
-
         function showM(id) { document.getElementById(id).style.display = 'flex'; }
         function hideM(id) { document.getElementById(id).style.display = 'none'; if(id==='depM') toDStep(1); }
     </script>
