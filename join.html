@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | ProTrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-[#05070a] text-white flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-sm bg-[#111827] p-8 rounded-[32px] border border-white/5">
+        <h1 class="text-3xl font-black text-center mb-8 text-yellow-500 italic">PROTRADE</h1>
+        <p class="text-center text-gray-400 text-sm mb-6">Create your elite trading account</p>
+        
+        <input type="email" id="email" placeholder="Email Address" class="w-full p-4 mb-4 bg-[#1a1f29] border border-gray-800 rounded-2xl outline-none">
+        <input type="password" id="pass" placeholder="Password" class="w-full p-4 mb-6 bg-[#1a1f29] border border-gray-800 rounded-2xl outline-none">
+        
+        <button onclick="registerUser()" id="regBtn" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase shadow-lg shadow-yellow-500/20">Sign Up</button>
+        
+        <p class="mt-6 text-center text-xs text-gray-500 uppercase font-bold">Already have an account? <a href="website.html" class="text-yellow-500">Login</a></p>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(), db = firebase.firestore();
+
+        async function registerUser() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('pass').value;
+            const btn = document.getElementById('regBtn');
+
+            if(!e || !p) return alert("Fill all fields");
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                const r = await auth.createUserWithEmailAndPassword(e, p);
+                const ref = localStorage.getItem('referredBy');
+
+                // Database mein partner ke sath link karna
+                await db.collection('users').doc(r.user.uid).set({
+                    email: e,
+                    balance: 0,
+                    tradeMode: 'normal',
+                    referredBy: ref || null
+                });
+
+                // Partner Dashboard mein Register count barhana
+                if(ref) {
+                    const snap = await db.collection('affiliates').where('refID', '==', ref).get();
+                    if(!snap.empty) {
+                        await db.collection('affiliates').doc(snap.docs[0].id).update({
+                            totalUsers: firebase.firestore.FieldValue.increment(1)
+                        });
+                    }
+                }
+
+                alert("Account Created! Redirecting to Terminal...");
+                window.location.href = "website.html"; // Aapki original site
+
+            } catch(err) {
+                alert(err.message);
+                btn.innerText = "Sign Up";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
