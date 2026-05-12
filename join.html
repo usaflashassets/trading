@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account | ProTrade</title>
+    <title>Join ProTrade | Elite Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-[#05070a] text-white flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-sm bg-[#111827] p-8 rounded-[32px] border border-white/5">
-        <h1 class="text-3xl font-black text-center mb-8 text-yellow-500 italic">PROTRADE</h1>
-        <p class="text-center text-gray-400 text-sm mb-6">Create your elite trading account</p>
+    <div class="w-full max-w-sm bg-[#111827] p-8 rounded-[35px] border border-white/5 shadow-2xl">
+        <h1 class="text-3xl font-black text-center mb-8 text-yellow-500 italic uppercase">ProTrade</h1>
         
-        <input type="email" id="email" placeholder="Email Address" class="w-full p-4 mb-4 bg-[#1a1f29] border border-gray-800 rounded-2xl outline-none">
-        <input type="password" id="pass" placeholder="Password" class="w-full p-4 mb-6 bg-[#1a1f29] border border-gray-800 rounded-2xl outline-none">
+        <div class="space-y-4">
+            <input type="email" id="email" placeholder="Email Address" class="w-full p-4 bg-[#1a1f29] border border-gray-800 rounded-2xl outline-none focus:border-yellow-500">
+            <input type="password" id="pass" placeholder="Create Password" class="w-full p-4 bg-[#1a1f29] border border-gray-800 rounded-2xl outline-none focus:border-yellow-500">
+            <button onclick="registerUser()" id="regBtn" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase shadow-lg shadow-yellow-500/20 active:scale-95 transition">Start Trading</button>
+        </div>
         
-        <button onclick="registerUser()" id="regBtn" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl uppercase shadow-lg shadow-yellow-500/20">Sign Up</button>
-        
-        <p class="mt-6 text-center text-xs text-gray-500 uppercase font-bold">Already have an account? <a href="website.html" class="text-yellow-500">Login</a></p>
+        <p class="mt-8 text-center text-[10px] text-gray-500 uppercase font-bold tracking-widest">
+            Already a member? <a href="website.html" class="text-yellow-500">Login Here</a>
+        </p>
     </div>
 
     <script>
@@ -28,27 +30,21 @@
         const auth = firebase.auth(), db = firebase.firestore();
 
         async function registerUser() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('pass').value;
-            const btn = document.getElementById('regBtn');
+            const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+            if(!e || !p) return alert("Please fill all fields");
 
-            if(!e || !p) return alert("Fill all fields");
-            btn.innerText = "Processing...";
+            const btn = document.getElementById('regBtn');
+            btn.innerText = "Creating Account...";
             btn.disabled = true;
 
             try {
                 const r = await auth.createUserWithEmailAndPassword(e, p);
                 const ref = localStorage.getItem('referredBy');
 
-                // Database mein partner ke sath link karna
                 await db.collection('users').doc(r.user.uid).set({
-                    email: e,
-                    balance: 0,
-                    tradeMode: 'normal',
-                    referredBy: ref || null
+                    email: e, balance: 0, tradeMode: 'normal', referredBy: ref || null, time: Date.now()
                 });
 
-                // Partner Dashboard mein Register count barhana
                 if(ref) {
                     const snap = await db.collection('affiliates').where('refID', '==', ref).get();
                     if(!snap.empty) {
@@ -58,12 +54,12 @@
                     }
                 }
 
-                alert("Account Created! Redirecting to Terminal...");
-                window.location.href = "website.html"; // Aapki original site
+                alert("Welcome! Redirecting to Terminal...");
+                window.location.href = "website.html"; // Ye aapki original trading file hai
 
             } catch(err) {
                 alert(err.message);
-                btn.innerText = "Sign Up";
+                btn.innerText = "Start Trading";
                 btn.disabled = false;
             }
         }

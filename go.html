@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Redirecting...</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
-<body>
+<body style="background:#05070a; color:white; display:flex; align-items:center; justify-content:center; height:100vh; font-family:sans-serif;">
+    <div style="text-align:center;">
+        <p>Verifying Link...</p>
+    </div>
+
     <script>
         const firebaseConfig = { apiKey: "AIzaSyAySRA1YSpTpmC8WjnKmDhnNMHkEmkeP50", authDomain: "waqas-47f30.firebaseapp.com", projectId: "waqas-47f30", storageBucket: "waqas-47f30.appspot.com", messagingSenderId: "374104279093", appId: "1:374104279093:web:6e1844b60456c700940364" };
         firebase.initializeApp(firebaseConfig);
@@ -23,8 +28,8 @@
                 }
             });
         }
-        // Redirect to Registration Page instead of Main Site
-        setTimeout(() => { window.location.href = "join.html"; }, 800);
+        // Redirecting to the Registration Page (join.html)
+        setTimeout(() => { window.location.href = "join.html"; }, 1000);
     </script>
 </body>
 </html>
