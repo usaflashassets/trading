@@ -1,9 +1,8 @@
 (function() {
-    // 1. Green Dot Element Create Karna
-    const greenDot = document.createElement('div'); // Anchor tag se div kar diya taaki direct link na khule
+    // 1. Green Dot Element
+    const greenDot = document.createElement('div');
     greenDot.id = "custom-waqas-dot";
     
-    // 2. Styling (Wahi alignment aur design jo aapne finalize kiya tha)
     const style = document.createElement('style');
     style.innerHTML = `
         #custom-waqas-dot {
@@ -26,59 +25,64 @@
             50% { transform: scale(1.2); opacity: 1; }
             100% { transform: scale(1); opacity: 0.8; }
         }
-        /* Iframe Popup Overlay */
-        #assets-overlay {
+        /* Full Screen Assets Modal */
+        #assets-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 100000;
-            justify-content: center;
-            align-items: center;
-        }
-        #assets-container {
-            width: 90%;
-            height: 80%;
             background: #020408;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
+            z-index: 1000000;
+            flex-direction: column;
+        }
+        #assets-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0a0f1a;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         #close-assets {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            color: white;
-            font-size: 24px;
+            color: #ef4444;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
             cursor: pointer;
-            z-index: 10;
+        }
+        #assets-frame {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
         }
     `;
     
     document.head.appendChild(style);
     document.body.appendChild(greenDot);
 
-    // 3. Popup Overlay Create Karna
-    const overlay = document.createElement('div');
-    overlay.id = "assets-overlay";
-    overlay.innerHTML = `
-        <div id="assets-container">
-            <span id="close-assets">&times;</span>
-            <iframe src="Assets.html" style="width:100%; height:100%; border:none;"></iframe>
+    // 2. Assets Modal Create Karna
+    const modal = document.createElement('div');
+    modal.id = "assets-modal";
+    modal.innerHTML = `
+        <div id="assets-header">
+            <span style="font-size: 10px; font-weight: 900; color: #eab308; letter-spacing: 1px;">MEMBER ASSETS</span>
+            <span id="close-assets">Close &times;</span>
         </div>
+        <iframe id="assets-frame" src="Assets.html"></iframe>
     `;
-    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
 
-    // 4. Click Event: Assets.html kholne ke liye
+    // 3. Click Events
     greenDot.onclick = function() {
-        document.getElementById('assets-overlay').style.display = 'flex';
+        document.getElementById('assets-modal').style.display = 'flex';
+        // Refresh iframe every time it opens to ensure auto-login syncs
+        document.getElementById('assets-frame').src = "Assets.html";
     };
 
     document.getElementById('close-assets').onclick = function() {
-        document.getElementById('assets-overlay').style.display = 'none';
+        document.getElementById('assets-modal').style.display = 'none';
     };
 
-    // 5. Logic: Dashboard par show aur baki jgah hide
+    // 4. Logic: Dashboard visibility check
     setInterval(() => {
         const terminal = document.getElementById('appTerminal');
         const dot = document.getElementById('custom-waqas-dot');
@@ -87,6 +91,7 @@
                 dot.style.display = 'block';
             } else {
                 dot.style.display = 'none';
+                document.getElementById('assets-modal').style.display = 'none';
             }
         }
     }, 500);
