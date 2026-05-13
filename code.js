@@ -11,7 +11,7 @@
         #custom-waqas-dot {
             position: fixed;
             top: 25px;
-            right: 175px; 
+            right: 215px; /* Pehle 175px tha, ab 215px kar diya hai taaki aur side pe ho jaye */
             width: 12px;
             height: 12px;
             background-color: #22c55e;
