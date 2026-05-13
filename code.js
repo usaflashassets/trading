@@ -5,20 +5,20 @@
     greenDot.target = "_blank";
     greenDot.id = "custom-waqas-dot";
     
-    // 2. Styling (Initial Display: None rakha hai)
+    // 2. Styling (Position aur Appearance)
     const style = document.createElement('style');
     style.innerHTML = `
         #custom-waqas-dot {
             position: fixed;
             top: 25px;
-            right: 250px; 
+            right: 185px; /* Screenshot ke mutabiq Deposit button ke side pe set kar diya hai */
             width: 12px;
             height: 12px;
             background-color: #22c55e;
             border-radius: 50%;
             z-index: 99999;
             cursor: pointer;
-            display: none; /* Login se pehle chhupa rahega */
+            display: none; /* Login se pehle hide rahega */
             box-shadow: 0 0 10px #22c55e, 0 0 20px rgba(34, 197, 94, 0.5);
             border: 2px solid rgba(255, 255, 255, 0.2);
             animation: pulse-waqas 1.5s infinite ease-in-out;
@@ -33,15 +33,16 @@
     document.head.appendChild(style);
     document.body.appendChild(greenDot);
 
-    // 3. Logic: Check karna ke appTerminal visible hai ya nahi
+    // 3. Logic: Sirf Terminal/Dashboard ke andar dot dikhane ke liye
     setInterval(() => {
         const terminal = document.getElementById('appTerminal');
         const dot = document.getElementById('custom-waqas-dot');
         
-        if (terminal && terminal.style.display === 'flex') {
-            dot.style.display = 'block'; // Jab dashboard dikhega tab dot aayega
+        // Agar terminal visible hai toh dot show hoga, warna hide
+        if (terminal && (terminal.style.display === 'flex' || terminal.offsetParent !== null)) {
+            dot.style.display = 'block';
         } else {
-            dot.style.display = 'none'; // Login/Register page par dot chhip jayega
+            dot.style.display = 'none';
         }
-    }, 500); // Har aadhe second baad check karega
+    }, 500);
 })();
