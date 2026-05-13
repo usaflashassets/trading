@@ -1,5 +1,5 @@
 (function() {
-    // 1. Green Dot Element (Aapki perfect alignment aur design ke sath)
+    // 1. Green Dot Create Karna (GitHub link bilkul khatam)
     const greenDot = document.createElement('div');
     greenDot.id = "custom-waqas-dot";
     
@@ -15,7 +15,7 @@
             border-radius: 50%;
             z-index: 999999;
             cursor: pointer;
-            display: none; /* Login se pehle chhupa rahega */
+            display: none; /* Login se pehle hide */
             box-shadow: 0 0 10px #22c55e, 0 0 20px rgba(34, 197, 94, 0.5);
             border: 2px solid rgba(255, 255, 255, 0.2);
             animation: pulse-waqas 1.5s infinite ease-in-out;
@@ -25,8 +25,8 @@
             50% { transform: scale(1.2); opacity: 1; }
             100% { transform: scale(1); opacity: 0.8; }
         }
-        /* Assets Full Screen Modal */
-        #assets-full-screen {
+        /* Assets Full Screen Overlay */
+        #assets-hub-screen {
             display: none;
             position: fixed;
             inset: 0;
@@ -34,25 +34,26 @@
             z-index: 2000000;
             flex-direction: column;
         }
-        #assets-top-nav {
+        #assets-header {
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #0a101f;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        #btn-close-assets {
-            color: #ff4444;
-            font-weight: 800;
-            font-size: 12px;
+        #close-assets-hub {
+            color: #eab308;
+            font-weight: 900;
+            font-size: 11px;
             text-transform: uppercase;
             cursor: pointer;
-            border: 1px solid rgba(255,68,68,0.3);
-            padding: 4px 10px;
-            border-radius: 6px;
+            border: 1px solid #eab308;
+            padding: 5px 12px;
+            border-radius: 8px;
+            letter-spacing: 1px;
         }
-        #assets-frame-box {
+        #assets-frame {
             flex-grow: 1;
             width: 100%;
             height: 100%;
@@ -63,42 +64,42 @@
     document.head.appendChild(style);
     document.body.appendChild(greenDot);
 
-    // 2. Assets Screen Structure
-    const assetsOverlay = document.createElement('div');
-    assetsOverlay.id = "assets-full-screen";
-    assetsOverlay.innerHTML = `
-        <div id="assets-top-nav">
-            <span style="font-size: 10px; font-weight: 900; color: #eab308; letter-spacing: 1px; font-family: sans-serif;">MY ASSETS HUB</span>
-            <div id="btn-close-assets">CLOSE &times;</div>
+    // 2. Assets Overlay Structure
+    const overlay = document.createElement('div');
+    overlay.id = "assets-hub-screen";
+    overlay.innerHTML = `
+        <div id="assets-header">
+            <span style="font-size: 10px; font-weight: 900; color: white; letter-spacing: 1px;">MEMBER HUB</span>
+            <div id="close-assets-hub">BACK TO TRADE</div>
         </div>
-        <iframe id="assets-frame-box" src="Assets.html"></iframe>
+        <iframe id="assets-frame" src="Assets.html"></iframe>
     `;
-    document.body.appendChild(assetsOverlay);
+    document.body.appendChild(overlay);
 
-    // 3. Click Events
+    // 3. Click Events (Ab koi GitHub URL nahi hai)
     greenDot.onclick = function() {
-        document.getElementById('assets-full-screen').style.display = 'flex';
-        // Force refresh iframe to ensure session sync
-        document.getElementById('assets-frame-box').contentWindow.location.reload();
+        document.getElementById('assets-hub-screen').style.display = 'flex';
+        // Assets.html ko load/refresh karna
+        document.getElementById('assets-frame').src = "Assets.html";
     };
 
-    document.getElementById('btn-close-assets').onclick = function() {
-        document.getElementById('assets-full-screen').style.display = 'none';
+    document.getElementById('close-assets-hub').onclick = function() {
+        document.getElementById('assets-hub-screen').style.display = 'none';
     };
 
-    // 4. Logic: Hide on Login/Register and Show on Terminal
+    // 4. Logic: Login/Dashboard Control
     setInterval(() => {
         const terminal = document.getElementById('appTerminal');
         const dot = document.getElementById('custom-waqas-dot');
-        const overlay = document.getElementById('assets-full-screen');
+        const hub = document.getElementById('assets-hub-screen');
 
         if (terminal && (terminal.style.display === 'flex' || terminal.offsetParent !== null)) {
-            // Dashboard par hai toh dot dikhao
+            // Sirf login dashboard par dot dikhao
             if (dot) dot.style.display = 'block';
         } else {
-            // Login/Register page par dot aur assets dono hide kar do
+            // Login/Register page par sab kuch hide rakho
             if (dot) dot.style.display = 'none';
-            if (overlay) overlay.style.display = 'none';
+            if (hub) hub.style.display = 'none';
         }
     }, 500);
 })();
