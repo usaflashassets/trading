@@ -1,8 +1,9 @@
 (function() {
-    // 1. Green Dot Element
+    // 1. Green Dot Element Create Karna
     const greenDot = document.createElement('div');
     greenDot.id = "custom-waqas-dot";
     
+    // 2. Styling (Wahi alignment jo aapko pasand thi)
     const style = document.createElement('style');
     style.innerHTML = `
         #custom-waqas-dot {
@@ -25,8 +26,8 @@
             50% { transform: scale(1.2); opacity: 1; }
             100% { transform: scale(1); opacity: 0.8; }
         }
-        /* Full Screen Assets Modal */
-        #assets-modal {
+        /* Full Screen Assets Overlay */
+        #assets-overlay-screen {
             display: none;
             position: fixed;
             inset: 0;
@@ -34,24 +35,28 @@
             z-index: 1000000;
             flex-direction: column;
         }
-        #assets-header {
-            padding: 15px;
+        #assets-header-bar {
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #0a0f1a;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        #close-assets {
-            color: #ef4444;
+        #back-to-trade {
+            color: #eab308;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
             cursor: pointer;
+            border: 1px solid #eab308;
+            padding: 5px 12px;
+            border-radius: 8px;
         }
-        #assets-frame {
+        #assets-iframe {
             flex-grow: 1;
             width: 100%;
+            height: 100%;
             border: none;
         }
     `;
@@ -59,30 +64,30 @@
     document.head.appendChild(style);
     document.body.appendChild(greenDot);
 
-    // 2. Assets Modal Create Karna
-    const modal = document.createElement('div');
-    modal.id = "assets-modal";
-    modal.innerHTML = `
-        <div id="assets-header">
-            <span style="font-size: 10px; font-weight: 900; color: #eab308; letter-spacing: 1px;">MEMBER ASSETS</span>
-            <span id="close-assets">Close &times;</span>
+    // 3. Assets Screen Structure
+    const overlay = document.createElement('div');
+    overlay.id = "assets-overlay-screen";
+    overlay.innerHTML = `
+        <div id="assets-header-bar">
+            <span style="font-size: 11px; font-weight: 900; color: white; letter-spacing: 1px;">MY ASSETS</span>
+            <div id="back-to-trade">← Back to Trade</div>
         </div>
-        <iframe id="assets-frame" src="Assets.html"></iframe>
+        <iframe id="assets-iframe" src="Assets.html"></iframe>
     `;
-    document.body.appendChild(modal);
+    document.body.appendChild(overlay);
 
-    // 3. Click Events
+    // 4. Click Events
     greenDot.onclick = function() {
-        document.getElementById('assets-modal').style.display = 'flex';
-        // Refresh iframe every time it opens to ensure auto-login syncs
-        document.getElementById('assets-frame').src = "Assets.html";
+        document.getElementById('assets-overlay-screen').style.display = 'flex';
+        // Auto-refresh iframe on click to sync Firebase session
+        document.getElementById('assets-iframe').contentWindow.location.reload();
     };
 
-    document.getElementById('close-assets').onclick = function() {
-        document.getElementById('assets-modal').style.display = 'none';
+    document.getElementById('back-to-trade').onclick = function() {
+        document.getElementById('assets-overlay-screen').style.display = 'none';
     };
 
-    // 4. Logic: Dashboard visibility check
+    // 5. Logic: Dashboard par show aur Login page par hide
     setInterval(() => {
         const terminal = document.getElementById('appTerminal');
         const dot = document.getElementById('custom-waqas-dot');
@@ -91,7 +96,7 @@
                 dot.style.display = 'block';
             } else {
                 dot.style.display = 'none';
-                document.getElementById('assets-modal').style.display = 'none';
+                document.getElementById('assets-overlay-screen').style.display = 'none';
             }
         }
     }, 500);
