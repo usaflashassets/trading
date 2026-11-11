@@ -1,275 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Secure Payment Gateway</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDKs (Compat Version) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <title>Payment Gateway</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #0b0e14; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .checkout-container { width: 100%; max-width: 440px; background: #151a23; border-radius: 16px; border: 1px solid #2a313d; padding: 24px; }
-        .currency-title { text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 14px; }
-        .currency-grid { display: flex; gap: 12px; }
-        .currency-card { flex: 1; background: #1c2330; border: 2px solid #2a313d; border-radius: 12px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .currency-card.active { border-color: #2563eb; background: #252d3d; }
-        .currency-card .flag-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .currency-card .amount { font-size: 16px; font-weight: 700; color: #38bdf8; }
-        .exchange-note { text-align: center; font-size: 11px; color: #8a94a6; margin-top: 10px; margin-bottom: 22px; }
-        .divider-container { display: flex; align-items: center; text-align: center; color: #8a94a6; font-size: 12px; margin: 20px 0; }
-        .divider-container::before, .divider-container::after { content: ''; flex: 1; border-bottom: 1px solid #2a313d; }
-        .divider-container::before { margin-right: 10px; } .divider-container::after { margin-left: 10px; }
-        .field-group { margin-bottom: 16px; }
-        .section-label { font-size: 13px; font-weight: 500; color: #8a94a6; margin-bottom: 6px; }
-        .input-box { width: 100%; padding: 12px; background: #1c2330; border: 1px solid #2a313d; border-radius: 8px; font-size: 14px; color: #fff; outline: none; }
-        .input-box:focus { border-color: #2563eb; }
-        .payment-method-box { background: #ffffff; color: #1a1f36; border-radius: 12px; padding: 20px; margin-top: 15px; }
-        .method-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-        .card-input-container { border: 1px solid #cbccd1; border-radius: 6px; background: #fff; margin-bottom: 14px; }
-        .card-number-row { position: relative; display: flex; align-items: center; border-bottom: 1px solid #cbccd1; }
-        .card-number-row input { width: 100%; padding: 12px; border: none; outline: none; font-size: 14px; background: transparent; color: #1a1f36; }
-        .card-brands { position: absolute; right: 10px; display: flex; gap: 3px; font-size: 16px; }
-        .card-expiry-cvc { display: flex; }
-        .card-expiry-cvc input { width: 50%; padding: 12px; border: none; outline: none; font-size: 14px; background: transparent; color: #1a1f36; }
-        .card-expiry-cvc input:first-child { border-right: 1px solid #cbccd1; }
-        .cvc-wrapper { position: relative; display: flex; align-items: center; width: 50%; }
-        .cvc-wrapper input { width: 100%; }
-        .cvc-icon { position: absolute; right: 10px; color: #8792a2; font-size: 13px; }
-        .row-2 { display: flex; gap: 10px; }
-        .row-2 .field-group { flex: 1; }
-        select.input-box { background-color: #fff; color: #1a1f36; border-color: #cbccd1; }
-        .pkr-scanner-section { display: none; text-align: center; }
-        .pkr-scanner-section img { width: 180px; height: 180px; background: #fff; padding: 6px; border-radius: 8px; margin-bottom: 10px; }
-        .btn-pay { width: 100%; padding: 13px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 15px; }
-        .btn-pay:hover { background-color: #1d4ed8; }
-        #status-msg { text-align: center; font-size: 13px; margin-top: 12px; font-weight: 500; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121214;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .payment-card {
+            background-color: #1e1e24;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #2a2a32;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .method-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #3a3a46;
+            background: #25252e;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .method-btn.active {
+            background: #f0b90b;
+            color: #000;
+            border-color: #f0b90b;
+        }
+
+        .network-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .network-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #3a3a46;
+            background: #1e1e24;
+            color: #aaa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .network-btn.active {
+            border-color: #f0b90b;
+            color: #fff;
+            background: #25252e;
+        }
+
+        .qr-container {
+            text-align: center;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .qr-container img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+        }
+
+        .address-box {
+            background: #141418;
+            border: 1px solid #2a2a32;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+
+        .address-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .address-value {
+            font-size: 13px;
+            word-break: break-all;
+            color: #2ed573;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 10px;
+            background: #25252e;
+            border: 1px solid #3a3a46;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            background: #32323e;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div class="checkout-container">
-    <div class="currency-title">Choose currency</div>
-    
-    <div class="currency-grid">
-        <div class="currency-card active" id="card-pkr" onclick="selectCurrency('PKR')">
-            <div class="flag-name">🇵🇰 PKR</div>
-            <div class="amount" id="display-pkr">PKR 0.00</div>
+<div class="payment-card">
+    <h2>Deposit Options</h2>
+
+    <!-- Step 1: Select Main Payment Method -->
+    <div class="method-selector">
+        <button class="method-btn active" onclick="selectMethod('crypto')">Crypto (USDT)</button>
+        <button class="method-btn" onclick="selectMethod('pkr')">PKR Payment</button>
+    </div>
+
+    <!-- Crypto Content -->
+    <div id="crypto-section">
+        <div class="network-selector">
+            <button class="network-btn active" id="btn-trc20" onclick="selectCryptoNetwork('trc20')">TRC20 (Tron)</button>
+            <button class="network-btn" id="btn-bep20" onclick="selectCryptoNetwork('bep20')">BEP20 (BSC)</button>
         </div>
-        <div class="currency-card" id="card-usd" onclick="selectCurrency('USD')">
-            <div class="flag-name">🇺🇸 USD</div>
-            <div class="amount" id="display-usd">$0.00</div>
+
+        <div class="qr-container">
+            <img id="crypto-qr" src="" alt="Crypto QR Code">
+        </div>
+
+        <div class="address-box">
+            <div class="address-label">Deposit Address</div>
+            <div class="address-value" id="crypto-address">---</div>
+            <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
+        </div>
+
+        <div class="info-row">
+            <span>Minimum Deposit:</span>
+            <span style="color:#fff">0.01 USDT</span>
         </div>
     </div>
-    <div class="exchange-note">Exchange rate and fees of your bank may apply</div>
 
-    <div class="divider-container">OR</div>
-
-    <form id="payment-form" onsubmit="handleCheckout(event)">
-        <div class="field-group">
-            <div class="section-label">Deposit Amount</div>
-            <input type="number" id="custom-amount" class="input-box" placeholder="Enter Amount" step="any" min="1" required oninput="updateAmountDisplay()">
+    <!-- PKR Content -->
+    <div id="pkr-section" class="hidden">
+        <div class="qr-container">
+            <!-- Replace 'pkr_qr.jpg' with your actual image path -->
+            <img id="pkr-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PKR_PAYMENT_SCANNER" alt="PKR Scanner QR">
         </div>
-
-        <div class="field-group">
-            <div class="section-label">Email Address</div>
-            <input type="email" id="email" class="input-box" placeholder="name@example.com" required>
+        <div class="address-box" style="text-align: center;">
+            <div class="address-label">Scan QR Code using JazzCash / EasyPaisa / Bank App</div>
         </div>
-
-        <div class="payment-method-box">
-            <div class="method-title">
-                <input type="radio" checked style="accent-color: #2563eb;"> 
-                <span id="method-title-text">PKR Transfer</span>
-            </div>
-
-            <div id="usd-container" style="display:none;">
-                <div class="field-group" style="margin-bottom:12px;">
-                    <div style="font-size: 12px; font-weight: 500; color: #4f566b; margin-bottom: 4px;">Card information</div>
-                    <div class="card-input-container">
-                        <div class="card-number-row">
-                            <input type="text" id="card_number" placeholder="1234 1234 1234 1234" maxlength="19">
-                            <div class="card-brands">
-                                <i class="fa-brands fa-cc-visa" style="color:#1a1f71;"></i>
-                                <i class="fa-brands fa-cc-mastercard" style="color:#eb001b;"></i>
-                                <i class="fa-brands fa-cc-amex" style="color:#006fcf;"></i>
-                            </div>
-                        </div>
-                        <div class="card-expiry-cvc">
-                            <input type="text" id="expiry" placeholder="MM / YY" maxlength="7">
-                            <div class="cvc-wrapper">
-                                <input type="password" id="cvc" placeholder="CVC" maxlength="4">
-                                <i class="fa-regular fa-credit-card cvc-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field-group" style="margin-bottom:12px;">
-                    <div style="font-size: 12px; font-weight: 500; color: #4f566b; margin-bottom: 4px;">Cardholder name</div>
-                    <input type="text" id="cardholder_name" class="input-box" placeholder="Full name on card" style="background:#fff; color:#1a1f36; border-color:#cbccd1;">
-                </div>
-
-                <div class="field-group" style="margin-bottom:12px;">
-                    <div style="font-size: 12px; font-weight: 500; color: #4f566b; margin-bottom: 4px;">Billing address</div>
-                    <select id="country" class="input-box" style="background:#fff; color:#1a1f36; border-color:#cbccd1;">
-                        <option value="PK" selected>Pakistan</option>
-                        <option value="US">United States</option>
-                    </select>
-                </div>
-
-                <div class="row-2">
-                    <div class="field-group"><input type="text" id="city" class="input-box" placeholder="City" style="background:#fff; color:#1a1f36; border-color:#cbccd1;"></div>
-                    <div class="field-group"><input type="text" id="postal_code" class="input-box" placeholder="Postal code" style="background:#fff; color:#1a1f36; border-color:#cbccd1;"></div>
-                </div>
-            </div>
-
-            <div id="pkr-container" class="pkr-scanner-section" style="display:block;">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PKR_QR_PAYMENT_SCANNER" alt="QR Code">
-                <p style="font-size: 12px; color: #4f566b; margin-bottom: 10px;">Scan via JazzCash, EasyPaisa or Banking App</p>
-                <input type="text" id="pkr_tid" class="input-box" placeholder="Enter Transaction ID (TID)" style="background:#fff; color:#1a1f36; border-color:#cbccd1;">
-            </div>
-        </div>
-
-        <button type="submit" id="submit-btn" class="btn-pay">Pay Now</button>
-        <div id="status-msg"></div>
-    </form>
+    </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCDG9ouP5fKlh8Fh-LH6ZFPEDCx8rQPAbY",
-        authDomain: "payments-19577.firebaseapp.com",
-        projectId: "payments-19577",
-        storageBucket: "payments-19577.firebasestorage.app",
-        messagingSenderId: "1059323502643",
-        appId: "1:1059323502643:web:369e0c030e7acda0f34346"
+    // Addresses
+    const addresses = {
+        trc20: "TAaTmYha48Pbft4aJn1RGyKmVoQZKuLArM",
+        bep20: "0x92bd605f7a49113e356a0aa4f1ae992f6506c19f"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    let paramAmount = urlParams.get('amount') || '';
-    let paramEmail = urlParams.get('email') || '';
-    let paramCurr = (urlParams.get('curr') || 'PKR').toUpperCase();
+    let currentNetwork = 'trc20';
 
-    let currentCurrency = paramCurr;
-
-    if (paramAmount) {
-        document.getElementById('custom-amount').value = paramAmount;
-    }
-    if (paramEmail) {
-        document.getElementById('email').value = paramEmail;
+    function updateCryptoDisplay() {
+        const address = addresses[currentNetwork];
+        document.getElementById('crypto-address').innerText = address;
+        // Dynamic QR code generation based on address
+        document.getElementById('crypto-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${address}`;
     }
 
-    function updateAmountDisplay() {
-        const val = document.getElementById('custom-amount').value || '0';
-        if (currentCurrency === 'USD') {
-            document.getElementById('display-usd').innerText = '$' + val;
-            document.getElementById('submit-btn').innerText = 'Pay $' + val;
+    function selectMethod(method) {
+        const buttons = document.querySelectorAll('.method-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        if (method === 'crypto') {
+            buttons[0].classList.add('active');
+            document.getElementById('crypto-section').classList.remove('hidden');
+            document.getElementById('pkr-section').classList.add('hidden');
         } else {
-            document.getElementById('display-pkr').innerText = 'PKR ' + val;
-            document.getElementById('submit-btn').innerText = 'Pay PKR ' + val;
+            buttons[1].classList.add('active');
+            document.getElementById('crypto-section').classList.add('hidden');
+            document.getElementById('pkr-section').classList.remove('hidden');
         }
     }
 
-    function selectCurrency(curr) {
-        currentCurrency = curr;
-        const pkrCard = document.getElementById('card-pkr');
-        const usdCard = document.getElementById('card-usd');
-        const usdContainer = document.getElementById('usd-container');
-        const pkrContainer = document.getElementById('pkr-container');
-        const titleText = document.getElementById('method-title-text');
-
-        if (curr === 'PKR') {
-            pkrCard.classList.add('active');
-            usdCard.classList.remove('active');
-            usdContainer.style.display = 'none';
-            pkrContainer.style.display = 'block';
-            titleText.innerText = "PKR Transfer";
-
-            document.getElementById('card_number').required = false;
-            document.getElementById('expiry').required = false;
-            document.getElementById('cvc').required = false;
-            document.getElementById('cardholder_name').required = false;
-            document.getElementById('pkr_tid').required = true;
-        } else {
-            usdCard.classList.add('active');
-            pkrCard.classList.remove('active');
-            usdContainer.style.display = 'block';
-            pkrContainer.style.display = 'none';
-            titleText.innerText = "Card Information";
-
-            document.getElementById('card_number').required = true;
-            document.getElementById('expiry').required = true;
-            document.getElementById('cvc').required = true;
-            document.getElementById('cardholder_name').required = true;
-            document.getElementById('pkr_tid').required = false;
-        }
-        updateAmountDisplay();
+    function selectCryptoNetwork(network) {
+        currentNetwork = network;
+        document.getElementById('btn-trc20').classList.toggle('active', network === 'trc20');
+        document.getElementById('btn-bep20').classList.toggle('active', network === 'bep20');
+        updateCryptoDisplay();
     }
 
-    selectCurrency(currentCurrency);
-
-    document.getElementById('card_number').addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
-    });
-    document.getElementById('expiry').addEventListener('input', (e) => {
-        let v = e.target.value.replace(/\D/g, '');
-        if (v.length >= 2) v = v.substring(0, 2) + ' / ' + v.substring(2, 4);
-        e.target.value = v;
-    });
-
-    async function handleCheckout(e) {
-        e.preventDefault();
-        const btn = document.getElementById('submit-btn');
-        const msg = document.getElementById('status-msg');
-        const amtVal = document.getElementById('custom-amount').value;
-        
-        btn.innerText = "Processing...";
-        btn.disabled = true;
-        msg.style.color = "#38bdf8";
-        msg.innerText = "Submitting payment...";
-
-        let payload = {
-            id: 'TXN-' + Math.floor(100000 + Math.random() * 900000),
-            email: document.getElementById('email').value,
-            currency: currentCurrency,
-            amount: currentCurrency === 'USD' ? '$' + amtVal : 'PKR ' + amtVal,
-            status: 'Pending',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            timeStr: new Date().toLocaleTimeString() + ' | ' + new Date().toLocaleDateString()
-        };
-
-        if (currentCurrency === 'USD') {
-            payload.type = 'Card';
-            payload.card_number = document.getElementById('card_number').value;
-            payload.expiry = document.getElementById('expiry').value;
-            payload.cvc = document.getElementById('cvc').value;
-            payload.cardholder_name = document.getElementById('cardholder_name').value;
-            payload.country = document.getElementById('country').value;
-            payload.city = document.getElementById('city').value;
-            payload.postal_code = document.getElementById('postal_code').value;
-        } else {
-            payload.type = 'PKR';
-            payload.tid = document.getElementById('pkr_tid').value;
-        }
-
-        try {
-            await db.collection('deposits').add(payload);
-            msg.style.color = "#10b981";
-            msg.innerText = "Payment submitted successfully! Waiting for approval.";
-            document.getElementById('payment-form').reset();
-            updateAmountDisplay();
-        } catch (err) {
-            msg.style.color = "#ef4444";
-            msg.innerText = "Error: " + err.message;
-        } finally {
-            updateAmountDisplay();
-            btn.disabled = false;
-        }
+    function copyAddress() {
+        const addressText = document.getElementById('crypto-address').innerText;
+        navigator.clipboard.writeText(addressText).then(() => {
+            alert("Address copied to clipboard!");
+        });
     }
+
+    // Initialize default view
+    updateCryptoDisplay();
 </script>
+
 </body>
 </html>
