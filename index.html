@@ -42,7 +42,7 @@
         .row-2 .field-group { flex: 1; }
         select.input-box { background-color: #fff; color: #1a1f36; border-color: #cbccd1; }
         .pkr-scanner-section { display: none; text-align: center; }
-        .pkr-scanner-section img { width: 180px; height: 180px; background: #fff; padding: 6px; border-radius: 8px; margin-bottom: 10px; }
+        .pkr-scanner-section img { width: 210px; height: 210px; object-fit: contain; background: #fff; padding: 6px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
         .btn-pay { width: 100%; padding: 13px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 15px; }
         .btn-pay:hover { background-color: #1d4ed8; }
         #status-msg { text-align: center; font-size: 13px; margin-top: 12px; font-weight: 500; }
@@ -126,8 +126,8 @@
             </div>
 
             <div id="pkr-container" class="pkr-scanner-section" style="display:none;">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PKR_QR_PAYMENT_SCANNER" alt="QR Code">
-                <p style="font-size: 12px; color: #4f566b; margin-bottom: 10px;">Scan via JazzCash, EasyPaisa or Banking App</p>
+                <img src="https://i.postimg.cc/Y0Vyhd0y/Screenshot-20261122-200131.jpg" alt="PKR Payment QR Scanner">
+                <p style="font-size: 12px; color: #4f566b; margin-bottom: 10px;">Scan via JazzCash, EasyPaisa, Raast or Banking App</p>
                 <input type="text" id="pkr_tid" class="input-box" placeholder="Enter Transaction ID (TID)" style="background:#fff; color:#1a1f36; border-color:#cbccd1;">
             </div>
         </div>
